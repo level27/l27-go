@@ -373,7 +373,7 @@ func (c *Client) SystemCookbookGetList(systemId int) []Cookbook {
 }
 
 // ---------------- ADD COOKBOOK
-func (c *Client) SystemCookbookAdd(systemID int, req interface{}) {
+func (c *Client) SystemCookbookAdd(systemID int, req *CookbookRequest) {
 
 	// var to show result of API after succesfull adding cookbook
 	var cookbook struct {
@@ -461,7 +461,7 @@ func (c *Client) SystemCookbookDelete(systemId int, cookbookId int) {
 }
 
 // ------------------ UPDATE
-func (c *Client) SystemCookbookUpdate(systemId int, cookbookId int, req interface{}) {
+func (c *Client) SystemCookbookUpdate(systemId int, cookbookId int, req *CookbookRequest) {
 
 	endpoint := fmt.Sprintf("systems/%v/cookbooks/%v", systemId, cookbookId)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
@@ -1065,6 +1065,21 @@ type CookbookParameterOption struct {
 		Name    string `json:"name"`
 		Default bool   `json:"default"`
 	} `json:"operatingsystem_versions"`
+}
+
+type CookbookRequest struct {
+	Cookbooktype       string
+	Cookbookparameters map[string]interface{}
+}
+
+func (r *CookbookRequest) MarshalJSON() ([]byte, error) {
+	data := map[string]interface{}{}
+	for k, v := range r.Cookbookparameters {
+		data[k] = v
+	}
+
+	data["cookbooktype"] = r.Cookbooktype
+	return json.Marshal(data)
 }
 
 // -------------------
