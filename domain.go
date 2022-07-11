@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/url"
-	"strconv"
-	"strings"
 )
 
 //gets extensions for domains
@@ -63,46 +61,11 @@ func (c *Client) Domains(getParams CommonGetParams) []Domain {
 // ------------------ /DOMAINS --------------------------
 
 // DELETE DOMAIN
-func (c *Client) DomainDelete(id []string, isConfirmed bool) {
+func (c *Client) DomainDelete(id int) {
+	endpoint := fmt.Sprintf("domains/%d", id)
+	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	// looping over all given args and checking for valid domainId's
-	for _, value := range id {
-
-		domainId, err := strconv.Atoi(value)
-		if err == nil {
-			if isConfirmed {
-				endpoint := fmt.Sprintf("domains/%d", domainId)
-				err := c.invokeAPI("DELETE", endpoint, nil, nil)
-				AssertApiError(err, "domainDelete")
-			} else {
-				var userResponse string
-
-				question := fmt.Sprintf("Are you sure you want to delete domain with ID: %v? Please type [y]es or [n]o: ", domainId)
-				fmt.Print(question)
-				_, err := fmt.Scan(&userResponse)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				switch strings.ToLower(userResponse) {
-				case "y", "yes":
-					endpoint := fmt.Sprintf("domains/%d", domainId)
-					err := c.invokeAPI("DELETE", endpoint, nil, nil)
-					AssertApiError(err, "domainDelete")
-				case "n", "no":
-					log.Printf("Delete canceled for domain: %v", value)
-				default:
-					log.Println("Please make sure you type (y)es or (n)o and press enter to confirm:")
-					domID := []string{value}
-					c.DomainDelete(domID, false)
-				}
-			}
-
-		} else {
-			log.Printf("Wrong or invalid domain ID: %v.\n", value)
-		}
-	}
-
+	AssertApiError(err, "domainDelete")
 }
 
 // CREATE DOMAIN [lvl domain create <parmeters>]

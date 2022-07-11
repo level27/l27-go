@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/url"
 	"os"
-	"strings"
 )
 
 //------------------------------------------------- Resolve functions -------------------------------------------------
@@ -80,35 +79,11 @@ func (c *Client) AppCreate(req AppPostRequest) App {
 }
 
 // ---- DELETE APP
-func (c *Client) AppDelete(appId int, isConfirmed bool) {
+func (c *Client) AppDelete(appId int) {
 	endpoint := fmt.Sprintf("apps/%v", appId)
+	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	if isConfirmed {
-		err := c.invokeAPI("DELETE", endpoint, nil, nil)
-		AssertApiError(err, "Apps")
-	} else {
-		var userResponse string
-		// ask user for confirmation on deleting the check
-		question := fmt.Sprintf("Are you sure you want to delete the app with ID: %v? Please type [y]es or [n]o: ", appId)
-		fmt.Print(question)
-		//reading user response
-		_, err := fmt.Scan(&userResponse)
-		if err != nil {
-			log.Fatal(err)
-		}
-		// check if user confirmed the deletion or not
-		switch strings.ToLower(userResponse) {
-		case "y", "yes":
-			err := c.invokeAPI("DELETE", endpoint, nil, nil)
-			AssertApiError(err, "Apps")
-		case "n", "no":
-			log.Printf("Delete canceled for app: %v", appId)
-		default:
-			log.Println("Please make sure you type (y)es or (n)o and press enter to confirm:")
-
-			c.AppDelete(appId, false)
-		}
-	}
+	AssertApiError(err, "AppDelete")
 }
 
 // ---- UPDATE APP
@@ -285,36 +260,11 @@ func (c *Client) AppComponentGetSingle(appId int, id int) AppComponent {
 }
 
 // ---- DELETE COMPONENT
-func (c *Client) AppComponentsDelete(appId int, componentId int, isDeleteConfirmed bool) {
+func (c *Client) AppComponentsDelete(appId int, componentId int) {
 	endpoint := fmt.Sprintf("apps/%v/components/%v", appId, componentId)
+	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	if isDeleteConfirmed {
-		err := c.invokeAPI("DELETE", endpoint, nil, nil)
-		AssertApiError(err, "appcomponent")
-	} else {
-		var userResponse string
-		// ask user for confirmation on deleting the check
-		question := fmt.Sprintf("Are you sure you want to delete the appcomponent with ID: %v? Please type [y]es or [n]o: ", componentId)
-		fmt.Print(question)
-		//reading user response
-		_, err := fmt.Scan(&userResponse)
-		if err != nil {
-			log.Fatal(err)
-		}
-		// check if user confirmed the deletion or not
-		switch strings.ToLower(userResponse) {
-		case "y", "yes":
-			err := c.invokeAPI("DELETE", endpoint, nil, nil)
-			AssertApiError(err, "appcomponent")
-		case "n", "no":
-			log.Printf("Delete canceled for appcomponent: %v", componentId)
-		default:
-			log.Println("Please make sure you type (y)es or (n)o and press enter to confirm:")
-
-			c.AppComponentsDelete(appId, componentId, false)
-		}
-	}
-
+	AssertApiError(err, "AppComponentsDelete")
 }
 
 func (c *Client) AppComponentCreate(appId int, req interface{}) AppComponent {
@@ -376,38 +326,11 @@ func (c *Client) AppComponentRestoreCreate(appId int, req AppComponentRestoreReq
 }
 
 // ---- DELETE RESTORE
-func (c *Client) AppComponentRestoresDelete(appId int, restoreId int, isDeleteConfirmed bool) {
+func (c *Client) AppComponentRestoresDelete(appId int, restoreId int) {
 	endpoint := fmt.Sprintf("apps/%v/restores/%v", appId, restoreId)
+	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	// when confirmation flag is set, delete check without confirmation question
-	if isDeleteConfirmed {
-		err := c.invokeAPI("DELETE", endpoint, nil, nil)
-		AssertApiError(err, "appRestore")
-		log.Print("Restore succesfully deleted.")
-	} else {
-		var userResponse string
-		// ask user for confirmation on deleting the check
-		question := fmt.Sprintf("Are you sure you want to delete the restore with ID: %v? Please type [y]es or [n]o: ", restoreId)
-		fmt.Print(question)
-		//reading user response
-		_, err := fmt.Scan(&userResponse)
-		if err != nil {
-			log.Fatal(err)
-		}
-		// check if user confirmed the deletion of the check or not
-		switch strings.ToLower(userResponse) {
-		case "y", "yes":
-			err := c.invokeAPI("DELETE", endpoint, nil, nil)
-			AssertApiError(err, "appRestore")
-			log.Print("Restore succesfully deleted.")
-		case "n", "no":
-			log.Printf("Delete canceled for app restore: %v", restoreId)
-		default:
-			log.Println("Please make sure you type (y)es or (n)o and press enter to confirm:")
-
-			c.AppComponentRestoresDelete(appId, restoreId, false)
-		}
-	}
+	AssertApiError(err, "appRestore")
 }
 
 // ---- DOWNLOAD RESTORE FILE

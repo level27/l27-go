@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"strings"
 
 	"github.com/Jeffail/gabs/v2"
 )
@@ -234,7 +233,7 @@ func (c *Client) SystemDeleteForce(id int) {
 	endpoint := fmt.Sprintf("systems/%v/force", id)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	AssertApiError(err, "SystemDelete")
+	AssertApiError(err, "SystemDeleteForce")
 }
 
 // #endregion
@@ -322,39 +321,11 @@ func (c *Client) SystemCheckDescribe(systemID int, CheckID int) SystemCheck {
 }
 
 // ---------------- DELETE A SPECIFIC CHECK
-func (c *Client) SystemCheckDelete(systemId int, checkId int, isDeleteConfirmed bool) {
+func (c *Client) SystemCheckDelete(systemId int, checkId int) {
+	endpoint := fmt.Sprintf("systems/%v/checks/%v", systemId, checkId)
+	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	// when confirmation flag is set, delete check without confirmation question
-	if isDeleteConfirmed {
-		endpoint := fmt.Sprintf("systems/%v/checks/%v", systemId, checkId)
-		err := c.invokeAPI("DELETE", endpoint, nil, nil)
-		AssertApiError(err, "system check")
-	} else {
-		var userResponse string
-		// ask user for confirmation on deleting the check
-		question := fmt.Sprintf("Are you sure you want to delete the systems check with ID: %v? Please type [y]es or [n]o: ", checkId)
-		fmt.Print(question)
-		//reading user response
-		_, err := fmt.Scan(&userResponse)
-		if err != nil {
-			log.Fatal(err)
-		}
-		// check if user confirmed the deletion of the check or not
-		switch strings.ToLower(userResponse) {
-		case "y", "yes":
-			endpoint := fmt.Sprintf("systems/%v/checks/%v", systemId, checkId)
-			err := c.invokeAPI("DELETE", endpoint, nil, nil)
-			AssertApiError(err, "system check")
-		case "n", "no":
-			log.Printf("Delete canceled for system check: %v", checkId)
-		default:
-			log.Println("Please make sure you type (y)es or (n)o and press enter to confirm:")
-
-			c.SystemCheckDelete(systemId, checkId, false)
-		}
-
-	}
-
+	AssertApiError(err, "system check")
 }
 
 // ---------------- UPDATE A SPECIFIC CHECK
@@ -482,39 +453,11 @@ func (c *Client) SystemCookbookDescribe(systemId int, cookbookId int) Cookbook {
 }
 
 // ---------------- DELETE
-func (c *Client) SystemCookbookDelete(systemId int, cookbookId int, isDeleteConfirmed bool) {
+func (c *Client) SystemCookbookDelete(systemId int, cookbookId int) {
+	endpoint := fmt.Sprintf("systems/%v/cookbooks/%v", systemId, cookbookId)
+	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	// when confirmation flag is set, delete check without confirmation question
-	if isDeleteConfirmed {
-		endpoint := fmt.Sprintf("systems/%v/cookbooks/%v", systemId, cookbookId)
-		err := c.invokeAPI("DELETE", endpoint, nil, nil)
-		AssertApiError(err, "system cookbook")
-	} else {
-		var userResponse string
-		// ask user for confirmation on deleting the check
-		question := fmt.Sprintf("Are you sure you want to delete the systems cookbook with ID: %v? Please type [y]es or [n]o: ", cookbookId)
-		fmt.Print(question)
-		//reading user response
-		_, err := fmt.Scan(&userResponse)
-		if err != nil {
-			log.Fatal(err)
-		}
-		// check if user confirmed the deletion of the check or not
-		switch strings.ToLower(userResponse) {
-		case "y", "yes":
-			endpoint := fmt.Sprintf("systems/%v/cookbooks/%v", systemId, cookbookId)
-			err := c.invokeAPI("DELETE", endpoint, nil, nil)
-			AssertApiError(err, "system cookbook")
-		case "n", "no":
-			log.Printf("Delete canceled for system check: %v", cookbookId)
-		default:
-			log.Println("Please make sure you type (y)es or (n)o and press enter to confirm:")
-
-			c.SystemCookbookDelete(systemId, cookbookId, false)
-		}
-
-	}
-
+	AssertApiError(err, "system cookbook")
 }
 
 // ------------------ UPDATE
