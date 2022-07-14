@@ -3,73 +3,73 @@ package l27
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/url"
 )
 
 //gets extensions for domains
-func (c *Client) Extension() []DomainProvider {
+func (c *Client) Extension() ([]DomainProvider, error) {
 	var extensions struct {
 		Data []DomainProvider `json:"providers"`
 	}
 
 	endpoint := "domains/providers"
 	err := c.invokeAPI("GET", endpoint, nil, &extensions)
-	AssertApiError(err, "extension")
 
-	return extensions.Data
+	return extensions.Data, err
 }
 
 // Gets a single domain from the API
-func (c *Client) Domain(id int) Domain {
+func (c *Client) Domain(id int) (Domain, error) {
 	var domain struct {
 		Data Domain `json:"domain"`
 	}
 
 	endpoint := fmt.Sprintf("domains/%d", id)
 	err := c.invokeAPI("GET", endpoint, nil, &domain)
-	AssertApiError(err, "domain")
 
-	return domain.Data
+	return domain.Data, err
 }
 
-func (c *Client) LookupDomain(name string) []Domain {
+func (c *Client) LookupDomain(name string) ([]Domain, error) {
 	results := []Domain{}
-	domains := c.Domains(CommonGetParams{Filter: name})
+	domains, err := c.Domains(CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, domain := range domains {
 		if domain.Fullname == name {
 			results = append(results, domain)
 		}
 	}
 
-	return results
+	return results, err
 }
 
 //Domain gets a domain from the API
-func (c *Client) Domains(getParams CommonGetParams) []Domain {
+func (c *Client) Domains(getParams CommonGetParams) ([]Domain, error) {
 	var domains struct {
 		Data []Domain `json:"domains"`
 	}
 
 	endpoint := fmt.Sprintf("domains?%s", formatCommonGetParams(getParams))
 	err := c.invokeAPI("GET", endpoint, nil, &domains)
-	AssertApiError(err, "domains")
 
-	return domains.Data
+	return domains.Data, err
 }
 
 // ------------------ /DOMAINS --------------------------
 
 // DELETE DOMAIN
-func (c *Client) DomainDelete(id int) {
+func (c *Client) DomainDelete(id int) error {
 	endpoint := fmt.Sprintf("domains/%d", id)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	AssertApiError(err, "domainDelete")
+	return err
 }
 
 // CREATE DOMAIN [lvl domain create <parmeters>]
-func (c *Client) DomainCreate(args []string, req DomainRequest) {
+func (c *Client) DomainCreate(args []string, req DomainRequest) (Domain, error) {
 	if req.Action == "" {
 		req.Action = "none"
 	}
@@ -79,41 +79,40 @@ func (c *Client) DomainCreate(args []string, req DomainRequest) {
 	}
 
 	err := c.invokeAPI("POST", "domains", req, &domain)
-	AssertApiError(err, "domainCreate")
 
-	log.Printf("Domain created! [Fullname: '%v' , ID: '%v']", domain.Data.Fullname, domain.Data.ID)
-
+	return domain.Data, err
 }
 
 // TRANSFER DOMAIN [lvl domain transfer <parameters>]
-func (c *Client) DomainTransfer(args []string, req DomainRequest) {
+func (c *Client) DomainTransfer(args []string, req DomainRequest) error {
 	if req.Action == "" {
 		req.Action = "transfer"
 	}
 
 	err := c.invokeAPI("POST", "domains", req, nil)
-	AssertApiError(err, "domainCreate")
+
+	return err
 }
 
 // INTERNAL TRANSFER
-func (c *Client) DomainInternalTransfer(id int, req DomainRequest) {
+func (c *Client) DomainInternalTransfer(id int, req DomainRequest) error {
 	endpoint := fmt.Sprintf("domains/%d/internaltransfer", id)
 	err := c.invokeAPI("POST", endpoint, req, nil)
 
-	AssertApiError(err, "internalTransfer")
-
+	return err
 }
 
 // UPDATE DOMAIN [lvl update <parameters>]
-func (c *Client) DomainUpdate(id int, data map[string]interface{}) {
+func (c *Client) DomainUpdate(id int, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("domains/%d", id)
 	err := c.invokeAPI("PATCH", endpoint, data, nil)
-	AssertApiError(err, "domain update")
+
+	return err
 }
 
 // ------------------ /DOMAIN/RECORDS ----------------------
 // GET
-func (c *Client) DomainRecords(id int, recordType string, getParams CommonGetParams) []DomainRecord {
+func (c *Client) DomainRecords(id int, recordType string, getParams CommonGetParams) ([]DomainRecord, error) {
 	var records struct {
 		Records []DomainRecord `json:"records"`
 	}
@@ -123,70 +122,64 @@ func (c *Client) DomainRecords(id int, recordType string, getParams CommonGetPar
 		endpoint += fmt.Sprintf("&type=%s", recordType)
 	}
 	err := c.invokeAPI("GET", endpoint, nil, &records)
-	AssertApiError(err, "domain record")
 
-	return records.Records
+	return records.Records, err
 }
 
-func (c *Client) DomainRecord(domainId int, recordId int) DomainRecord {
+func (c *Client) DomainRecord(domainId int, recordId int) (DomainRecord, error) {
 	var records struct {
 		Record DomainRecord `json:"record"`
 	}
 
 	endpoint := fmt.Sprintf("domains/%d/records/%d", domainId, recordId)
 	err := c.invokeAPI("GET", endpoint, nil, &records)
-	AssertApiError(err, "domain record")
 
-	return records.Record
+	return records.Record, err
 }
 
 // CREATE
-func (c *Client) DomainRecordCreate(id int, req DomainRecordRequest) DomainRecord {
+func (c *Client) DomainRecordCreate(id int, req DomainRecordRequest) (DomainRecord, error) {
 	record := DomainRecord{}
 
 	endpoint := fmt.Sprintf("domains/%d/records", id)
 	err := c.invokeAPI("POST", endpoint, &req, &record)
 
-	AssertApiError(err, "domain record")
-
-	return record
+	return record, err
 }
 
 // DELETE
-func (c *Client) DomainRecordDelete(domainId int, recordId int) {
+func (c *Client) DomainRecordDelete(domainId int, recordId int) error {
 	endpoint := fmt.Sprintf("domains/%d/records/%d", domainId, recordId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	AssertApiError(err, "domain record")
+	return err
 }
 
 // UPDATE
-func (c *Client) DomainRecordUpdate(domainId int, recordId int, req DomainRecordRequest) {
+func (c *Client) DomainRecordUpdate(domainId int, recordId int, req DomainRecordRequest) error {
 	endpoint := fmt.Sprintf("domains/%d/records/%d", domainId, recordId)
 	err := c.invokeAPI("PUT", endpoint, &req, nil)
 
-	AssertApiError(err, "domain record")
+	return err
 }
 
 // --------------------------------------------------- ACCESS --------------------------------------------------------
 //add access to a domain
 
-func (c *Client) DomainAccesAdd(domainId int, req DomainAccessRequest) {
+func (c *Client) DomainAccesAdd(domainId int, req DomainAccessRequest) error {
 	endpoint := fmt.Sprintf("domains/%v/acls", domainId)
-
 	err := c.invokeAPI("POST", endpoint, &req, nil)
 
-	AssertApiError(err, "Access")
-
+	return err
 }
 
 //remove acces from a domain
 
-func (c *Client) DomainAccesRemove(domainId int, organisationId int) {
+func (c *Client) DomainAccesRemove(domainId int, organisationId int) error {
 	endpoint := fmt.Sprintf("domains/%v/acls/%v", domainId, organisationId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	AssertApiError(err, "Access")
+	return err
 }
 
 // --------------------------------------------------- NOTIFICATIONS --------------------------------------------------------
@@ -213,35 +206,31 @@ func (c *Client) DomainAccesRemove(domainId int, organisationId int) {
 
 //--------------------------- CREATE (Turn invoicing on)
 //CREATE BILLABLEITEM
-func (c *Client) DomainBillableItemCreate(domainid int, req BillPostRequest) {
-
+func (c *Client) DomainBillableItemCreate(domainid int, req BillPostRequest) error {
 	endpoint := fmt.Sprintf("domains/%v/bill", domainid)
-
 	err := c.invokeAPI("POST", endpoint, req, nil)
-	AssertApiError(err, "billable item")
 
+	return err
 }
 
 // ---------------------------- DELETE (turn invoicing off)
 //DELETE
-func (c *Client) DomainBillableItemDelete(domainId int) {
+func (c *Client) DomainBillableItemDelete(domainId int) error {
 	endpoint := fmt.Sprintf("domains/%v/billableitem", domainId)
-
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
-	AssertApiError(err, "Billable item")
 
+	return err
 }
 
 // -------------------------------------------------------CHECK AVAILABILITY---------------------------------------------------------------------
 // Check domain availability
-func (c *Client) DomainCheck(name string, extension string) DomainCheckResult {
+func (c *Client) DomainCheck(name string, extension string) (DomainCheckResult, error) {
 	var checkResult DomainCheckResult
 
 	endpoint := fmt.Sprintf("domains/check?name=%s&extension=%s", url.QueryEscape(name), url.QueryEscape(extension))
 	err := c.invokeAPI("GET", endpoint, nil, &checkResult)
-	AssertApiError(err, "domainCheck")
 
-	return checkResult
+	return checkResult, err
 }
 
 type Domain struct {

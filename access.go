@@ -5,35 +5,33 @@ import (
 )
 
 // GET /{entityType}/{entityID}/organisations
-func (c *Client) EntityGetOrganisations(entityType string, entityID int) []OrganisationAccess {
+func (c *Client) EntityGetOrganisations(entityType string, entityID int) ([]OrganisationAccess, error) {
 	var response struct {
 		Organisations []OrganisationAccess `json:"organisations"`
 	}
 
 	endpoint := fmt.Sprintf("%s/%d/organisations", entityType, entityID)
 	err := c.invokeAPI("GET", endpoint, nil, &response)
-	AssertApiError(err, "EntityGetOrganisations")
 
-	return response.Organisations
+	return response.Organisations, err
 }
 
 // POST /{entityType}/{entityID}/acls
-func (c *Client) EntityAddAcl(entityType string, entityID int, add AclAdd) Acl {
+func (c *Client) EntityAddAcl(entityType string, entityID int, add AclAdd) (Acl, error) {
 	var response struct {
 		Acl Acl `json:"acl"`
 	}
 
 	endpoint := fmt.Sprintf("%s/%d/acls", entityType, entityID)
 	err := c.invokeAPI("POST", endpoint, add, &response)
-	AssertApiError(err, "EntityAddAcl")
-	return response.Acl
+
+	return response.Acl, err
 }
 
 // DELETE /{entityType}/{entityID}/acls/{organisationID}
-func (c *Client) EntityRemoveAcl(entityType string, entityID int, organisationID int) {
+func (c *Client) EntityRemoveAcl(entityType string, entityID int, organisationID int) error {
 	endpoint := fmt.Sprintf("%s/%d/acls/%d", entityType, entityID, organisationID)
-	err := c.invokeAPI("DELETE", endpoint, nil, nil)
-	AssertApiError(err, "EntityRemoveAcl")
+	return c.invokeAPI("DELETE", endpoint, nil, nil)
 }
 
 type AclAdd struct {

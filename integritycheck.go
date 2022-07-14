@@ -3,38 +3,35 @@ package l27
 import (
 	"fmt"
 	"io"
-	"log"
 	"os"
 )
 
 // GET /{entityType}/{entityID}/integritychecks/{checkID}
-func (c *Client) EntityIntegrityCheck(entityType string, entityID int, checkId int) IntegrityCheck {
+func (c *Client) EntityIntegrityCheck(entityType string, entityID int, checkId int) (IntegrityCheck, error) {
 	var result struct {
 		IntegrityCheck IntegrityCheck `json:"integritycheck"`
 	}
 
 	endpoint := fmt.Sprintf("%s/%d/integritychecks/%d", entityType, entityID, checkId)
 	err := c.invokeAPI("GET", endpoint, nil, &result)
-	AssertApiError(err, "EntityIntegrityCheck")
 
-	return result.IntegrityCheck
+	return result.IntegrityCheck, err
 }
 
 // GET /{entityType}/{entityID}/integritychecks
-func (c *Client) EntityIntegrityChecks(entityType string, entityID int, getParams CommonGetParams) []IntegrityCheck {
+func (c *Client) EntityIntegrityChecks(entityType string, entityID int, getParams CommonGetParams) ([]IntegrityCheck, error) {
 	var result struct {
 		IntegrityChecks []IntegrityCheck `json:"integritychecks"`
 	}
 
 	endpoint := fmt.Sprintf("%s/%d/integritychecks?%s", entityType, entityID, formatCommonGetParams(getParams))
 	err := c.invokeAPI("GET", endpoint, nil, &result)
-	AssertApiError(err, "EntityIntegrityChecks")
 
-	return result.IntegrityChecks
+	return result.IntegrityChecks, err
 }
 
 // POST /{entityType}/{entityID}/integritychecks
-func (c *Client) EntityIntegrityCreate(entityType string, entityID int, runJobs bool, forceRunJobs bool) IntegrityCheck {
+func (c *Client) EntityIntegrityCreate(entityType string, entityID int, runJobs bool, forceRunJobs bool) (IntegrityCheck, error) {
 	var result struct {
 		IntegrityCheck IntegrityCheck `json:"integritycheck"`
 	}
@@ -42,13 +39,12 @@ func (c *Client) EntityIntegrityCreate(entityType string, entityID int, runJobs 
 	endpoint := fmt.Sprintf("%s/%d/integritychecks", entityType, entityID)
 	data := &IntegrityCreateRequest{Dojobs: runJobs, Forcejobs: forceRunJobs}
 	err := c.invokeAPI("POST", endpoint, data, &result)
-	AssertApiError(err, "EntityIntegrityCreate")
 
-	return result.IntegrityCheck
+	return result.IntegrityCheck, err
 }
 
 // Download entity integrity check report to file.
-func (c *Client) EntityIntegrityCheckDownload(entityType string, entityID int, checkId int, fileName string) {
+func (c *Client) EntityIntegrityCheckDownload(entityType string, entityID int, checkId int, fileName string) error {
 	endpoint := fmt.Sprintf("%s/%d/integritychecks/%d/report", entityType, entityID, checkId)
 	res, err := c.sendRequestRaw("GET", endpoint, nil, map[string]string{"Accept": "application/pdf"})
 
@@ -64,7 +60,9 @@ func (c *Client) EntityIntegrityCheckDownload(entityType string, entityID int, c
 		}
 	}
 
-	AssertApiError(err, "EntityIntegrityCheckDownload")
+	if err != nil {
+		return err
+	}
 
 	if fileName == "" {
 		fileName = parseContentDispositionFilename(res, fmt.Sprintf("integritycheck_%d_%s_%d.pdf", checkId, entityType, entityID))
@@ -72,14 +70,15 @@ func (c *Client) EntityIntegrityCheckDownload(entityType string, entityID int, c
 
 	file, err := os.Create(fileName)
 	if err != nil {
-		log.Fatalf("Failed to create file! %s", err.Error())
+		return err
 	}
 
 	fmt.Printf("Saving report to %s\n", fileName)
 
 	defer file.Close()
 
-	io.Copy(file, res.Body)
+	_, err = io.Copy(file, res.Body)
+	return err
 }
 
 type IntegrityCreateRequest struct {

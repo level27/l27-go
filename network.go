@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func (c *Client) GetNetworks(get CommonGetParams) []Network {
+func (c *Client) GetNetworks(get CommonGetParams) ([]Network, error) {
 	var networks struct {
 		Networks []Network `json:"networks"`
 	}
@@ -14,11 +14,10 @@ func (c *Client) GetNetworks(get CommonGetParams) []Network {
 	endpoint := fmt.Sprintf("networks?%s", formatCommonGetParams(get))
 	err := c.invokeAPI("GET", endpoint, nil, &networks)
 
-	AssertApiError(err, "Networks")
-	return networks.Networks
+	return networks.Networks, err
 }
 
-func (c *Client) GetNetwork(id int) Network {
+func (c *Client) GetNetwork(id int) (Network, error) {
 	var network struct {
 		Network Network `json:"network"`
 	}
@@ -26,30 +25,32 @@ func (c *Client) GetNetwork(id int) Network {
 	endpoint := fmt.Sprintf("network/%d", id)
 	err := c.invokeAPI("GET", endpoint, nil, &network)
 
-	AssertApiError(err, "Network")
-	return network.Network
+	return network.Network, err
 }
 
-func (c *Client) LookupNetwork(name string) []Network {
+func (c *Client) LookupNetwork(name string) ([]Network, error) {
 	results := []Network{}
-	networks := c.GetNetworks(CommonGetParams{Filter: name})
+	networks, err := c.GetNetworks(CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, net := range networks {
 		if net.Name == name {
 			results = append(results, net)
 		}
 	}
 
-	return results
+	return results, nil
 }
 
-func (c *Client) NetworkLocate(networkID int) NetworkLocate {
+func (c *Client) NetworkLocate(networkID int) (NetworkLocate, error) {
 	var response NetworkLocate
 
 	endpoint := fmt.Sprintf("networks/%d/locate", networkID)
 	err := c.invokeAPI("GET", endpoint, nil, &response)
 
-	AssertApiError(err, "NetworkLocate")
-	return response
+	return response, err
 }
 
 func ipv4IntToString(ipv4 int) string {

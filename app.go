@@ -3,7 +3,6 @@ package l27
 import (
 	"fmt"
 	"io"
-	"log"
 	"net/url"
 	"os"
 )
@@ -11,107 +10,111 @@ import (
 //------------------------------------------------- Resolve functions -------------------------------------------------
 
 // GET appID based on name
-func (c *Client) AppLookup(name string) []App {
+func (c *Client) AppLookup(name string) ([]App, error) {
 	results := []App{}
-	apps := c.Apps(CommonGetParams{Filter: name})
+	apps, err := c.Apps(CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, app := range apps {
 		if app.Name == name {
 			results = append(results, app)
 		}
 	}
 
-	return results
+	return results, nil
 }
 
 // GET componentId based on name
-func (c *Client) AppComponentLookup(appId int, name string) []AppComponent {
+func (c *Client) AppComponentLookup(appId int, name string) ([]AppComponent, error) {
 	results := []AppComponent{}
-	components := c.AppComponentsGet(appId, CommonGetParams{Filter: name})
+	components, err := c.AppComponentsGet(appId, CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, component := range components {
 		if component.Name == name {
 			results = append(results, component)
 		}
 	}
 
-	return results
+	return results, nil
 }
 
 //------------------------------------------------- APP MAIN SUBCOMMANDS (GET / CREATE  / UPDATE / DELETE / DESCRIBE)-------------------------------------------------
 // #region APP MAIN SUBCOMMANDS (GET / CREATE  / UPDATE / DELETE / DESCRIBE)
 
 // Gets an app from the API
-func (c *Client) App(id int) App {
+func (c *Client) App(id int) (App, error) {
 	var app struct {
 		App App `json:"app"`
 	}
 
 	endpoint := fmt.Sprintf("apps/%d", id)
 	err := c.invokeAPI("GET", endpoint, nil, &app)
-	AssertApiError(err, "app")
 
-	return app.App
+	return app.App, err
 }
 
 // Gets a list of apps from the API
-func (c *Client) Apps(getParams CommonGetParams) []App {
+func (c *Client) Apps(getParams CommonGetParams) ([]App, error) {
 	var apps struct {
 		Apps []App `json:"apps"`
 	}
 
 	endpoint := fmt.Sprintf("apps?%s", formatCommonGetParams(getParams))
 	err := c.invokeAPI("GET", endpoint, nil, &apps)
-	AssertApiError(err, "app")
 
-	return apps.Apps
+	return apps.Apps, err
 }
 
 // ---- CREATE NEW APP
-func (c *Client) AppCreate(req AppPostRequest) App {
+func (c *Client) AppCreate(req AppPostRequest) (App, error) {
 	var app struct {
 		Data App `json:"app"`
 	}
 	endpoint := "apps"
 	err := c.invokeAPI("POST", endpoint, req, &app)
 
-	AssertApiError(err, "apps")
-
-	return app.Data
+	return app.Data, err
 }
 
 // ---- DELETE APP
-func (c *Client) AppDelete(appId int) {
+func (c *Client) AppDelete(appId int) error {
 	endpoint := fmt.Sprintf("apps/%v", appId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	AssertApiError(err, "AppDelete")
+	return err
 }
 
 // ---- UPDATE APP
-func (c *Client) AppUpdate(appId int, req AppPutRequest) {
+func (c *Client) AppUpdate(appId int, req AppPutRequest) error {
 	endpoint := fmt.Sprintf("apps/%v", appId)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
-	AssertApiError(err, "Apps")
 
-	log.Print("App succesfully updated!")
+	return err
 }
 
 // #endregion
 
 //------------------------------------------------- APP ACTIONS (ACTIVATE / DEACTIVATE)-------------------------------------------------
 // ---- ACTION (ACTIVATE OR DEACTIVATE) ON AN APP
-func (c *Client) AppAction(appId int, action string) {
+func (c *Client) AppAction(appId int, action string) error {
 	request := AppActionRequest{
 		Type: action,
 	}
 	endpoint := fmt.Sprintf("apps/%v/actions", appId)
 	err := c.invokeAPI("POST", endpoint, request, nil)
-	AssertApiError(err, "app")
+
+	return err
 }
 
 // APP SSL CERTIFICATES
 
 // GET /apps/{appID}/sslcertificates
-func (c *Client) AppSslCertificatesGetList(appID int, sslType string, status string, get CommonGetParams) []AppSslCertificate {
+func (c *Client) AppSslCertificatesGetList(appID int, sslType string, status string, get CommonGetParams) ([]AppSslCertificate, error) {
 	var response struct {
 		SslCertificates []AppSslCertificate `json:"sslCertificates"`
 	}
@@ -124,79 +127,81 @@ func (c *Client) AppSslCertificatesGetList(appID int, sslType string, status str
 		formatCommonGetParams(get))
 
 	err := c.invokeAPI("GET", endpoint, nil, &response)
-	AssertApiError(err, "AppSslCertificatesGetList")
 
-	return response.SslCertificates
+	return response.SslCertificates, err
 }
 
 // GET /apps/{appID}/sslcertificates/{sslCertificateID}
-func (c *Client) AppSslCertificatesGetSingle(appID int, sslCertificateID int) AppSslCertificate {
+func (c *Client) AppSslCertificatesGetSingle(appID int, sslCertificateID int) (AppSslCertificate, error) {
 	var response struct {
 		SslCertificate AppSslCertificate `json:"sslCertificate"`
 	}
 
 	endpoint := fmt.Sprintf("apps/%d/sslcertificates/%d", appID, sslCertificateID)
 	err := c.invokeAPI("GET", endpoint, nil, &response)
-	AssertApiError(err, "AppSslCertificatesGetSingle")
 
-	return response.SslCertificate
+	return response.SslCertificate, err
 }
 
 // POST /apps/{appID}/sslcertificates
-func (c *Client) AppSslCertificatesCreate(appID int, create AppSslCertificateCreate) AppSslCertificate {
+func (c *Client) AppSslCertificatesCreate(appID int, create AppSslCertificateCreate) (AppSslCertificate, error) {
 	var response struct {
 		SslCertificate AppSslCertificate `json:"sslCertificate"`
 	}
 
 	endpoint := fmt.Sprintf("apps/%d/sslcertificates", appID)
 	err := c.invokeAPI("POST", endpoint, create, &response)
-	AssertApiError(err, "AppSslCertificatesCreate")
 
-	return response.SslCertificate
+	return response.SslCertificate, err
 }
 
 // POST /apps/{appID}/sslcertificates (variant for sslType == "own")
-func (c *Client) AppSslCertificatesCreateOwn(appID int, create AppSslCertificateCreateOwn) AppSslCertificate {
+func (c *Client) AppSslCertificatesCreateOwn(appID int, create AppSslCertificateCreateOwn) (AppSslCertificate, error) {
 	var response struct {
 		SslCertificate AppSslCertificate `json:"sslCertificate"`
 	}
 
 	endpoint := fmt.Sprintf("apps/%d/sslcertificates", appID)
 	err := c.invokeAPI("POST", endpoint, create, &response)
-	AssertApiError(err, "AppSslCertificatesCreate")
 
-	return response.SslCertificate
+	return response.SslCertificate, err
 }
 
 // DELETE /apps/{appID}/sslcertificates/{sslCertificateID}
-func (c *Client) AppSslCertificatesDelete(appID int, sslCertificateID int) {
+func (c *Client) AppSslCertificatesDelete(appID int, sslCertificateID int) error {
 	endpoint := fmt.Sprintf("apps/%d/sslcertificates/%d", appID, sslCertificateID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
-	AssertApiError(err, "AppSslCertificatesDelete")
+
+	return err
 }
 
 // PUT /apps/{appID}/sslcertificates/{sslCertificateID}
-func (c *Client) AppSslCertificatesUpdate(appID int, sslCertificateID int, data map[string]interface{}) {
+func (c *Client) AppSslCertificatesUpdate(appID int, sslCertificateID int, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("apps/%d/sslcertificates/%d", appID, sslCertificateID)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
-	AssertApiError(err, "AppSslCertificatesUpdate")
+
+	return err
 }
 
 // Try to find an SSL certificate on an app by name.
-func (c *Client) AppSslCertificatesLookup(appID int, name string) []AppSslCertificate {
+func (c *Client) AppSslCertificatesLookup(appID int, name string) ([]AppSslCertificate, error) {
 	results := []AppSslCertificate{}
-	apps := c.AppSslCertificatesGetList(appID, "", "", CommonGetParams{Filter: name})
+	apps, err := c.AppSslCertificatesGetList(appID, "", "", CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, cert := range apps {
 		if cert.Name == name {
 			results = append(results, cert)
 		}
 	}
 
-	return results
+	return results, nil
 }
 
 // POST /apps/{appID}/sslcertificates/{sslCertificateID}/actions
-func (c *Client) AppSslCertificatesActions(appID int, sslCertificateID int, actionType string) {
+func (c *Client) AppSslCertificatesActions(appID int, sslCertificateID int, actionType string) error {
 	var request struct {
 		Type string `json:"type"`
 	}
@@ -205,136 +210,131 @@ func (c *Client) AppSslCertificatesActions(appID int, sslCertificateID int, acti
 
 	endpoint := fmt.Sprintf("apps/%d/sslcertificates/%d/actions", appID, sslCertificateID)
 	err := c.invokeAPI("POST", endpoint, request, nil)
-	AssertApiError(err, "AppSslCertificatesActions")
+
+	return err
 }
 
 // POST /apps/{appID}/sslcertificates/{sslCertificateID}/fix
-func (c *Client) AppSslCertificatesFix(appID int, sslCertificateID int) AppSslCertificate {
+func (c *Client) AppSslCertificatesFix(appID int, sslCertificateID int) (AppSslCertificate, error) {
 	var response struct {
 		SslCertificate AppSslCertificate `json:"sslCertificate"`
 	}
 
 	endpoint := fmt.Sprintf("apps/%d/sslcertificates/%d/fix", appID, sslCertificateID)
 	err := c.invokeAPI("POST", endpoint, nil, &response)
-	AssertApiError(err, "AppSslCertificatesFix")
 
-	return response.SslCertificate
+	return response.SslCertificate, err
 }
 
 // GET /apps/{appID}/sslcertificates/{sslCertificateID}/key
-func (c *Client) AppSslCertificatesKey(appID int, sslCertificateID int) AppSslcertificateKey {
+func (c *Client) AppSslCertificatesKey(appID int, sslCertificateID int) (AppSslcertificateKey, error) {
 	var response AppSslcertificateKey
 
 	endpoint := fmt.Sprintf("apps/%d/sslcertificates/%d/key", appID, sslCertificateID)
 	err := c.invokeAPI("GET", endpoint, nil, &response)
-	AssertApiError(err, "AppSslCertificatesKey")
 
-	return response
+	return response, err
 }
 
 //------------------------------------------------- APP COMPONENTS (GET / DESCRIBE / CREATE)-------------------------------------------------
 
 // ---- GET LIST OF COMPONENTS
-func (c *Client) AppComponentsGet(appid int, getParams CommonGetParams) []AppComponent {
+func (c *Client) AppComponentsGet(appid int, getParams CommonGetParams) ([]AppComponent, error) {
 	var components struct {
 		Data []AppComponent `json:"components"`
 	}
 
 	endpoint := fmt.Sprintf("apps/%v/components?%v", appid, formatCommonGetParams(getParams))
 	err := c.invokeAPI("GET", endpoint, nil, &components)
-	AssertApiError(err, "app")
 
-	return components.Data
+	return components.Data, err
 }
 
 // ---- DESCRIBE COMPONENT (GET SINGLE COMPONENT)
-func (c *Client) AppComponentGetSingle(appId int, id int) AppComponent {
+func (c *Client) AppComponentGetSingle(appId int, id int) (AppComponent, error) {
 	var component struct {
 		Data AppComponent `json:"component"`
 	}
 
 	endpoint := fmt.Sprintf("apps/%d/components/%v", appId, id)
 	err := c.invokeAPI("GET", endpoint, nil, &component)
-	AssertApiError(err, "app")
-	return component.Data
+
+	return component.Data, err
 }
 
 // ---- DELETE COMPONENT
-func (c *Client) AppComponentsDelete(appId int, componentId int) {
+func (c *Client) AppComponentsDelete(appId int, componentId int) error {
 	endpoint := fmt.Sprintf("apps/%v/components/%v", appId, componentId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	AssertApiError(err, "AppComponentsDelete")
+	return err
 }
 
-func (c *Client) AppComponentCreate(appId int, req interface{}) AppComponent {
+func (c *Client) AppComponentCreate(appId int, req interface{}) (AppComponent, error) {
 	var app struct {
 		Data AppComponent `json:"app"`
 	}
 	endpoint := fmt.Sprintf("apps/%d/components", appId)
 	err := c.invokeAPI("POST", endpoint, req, &app)
 
-	AssertApiError(err, "apps")
-
-	return app.Data
+	return app.Data, err
 }
 
-func (c *Client) AppComponentUpdate(appId int, appComponentID int, req interface{}) {
+func (c *Client) AppComponentUpdate(appId int, appComponentID int, req interface{}) error {
 	endpoint := fmt.Sprintf("apps/%d/components/%d", appId, appComponentID)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
 
-	AssertApiError(err, "apps")
+	return err
 }
 
 //------------------------------------------------- APP COMPONENTS HELPERS (CATEGORY )-------------------------------------------------
 // ---- GET LIST OFF APPCOMPONENTTYPES
-func (c *Client) AppComponenttypesGet() Appcomponenttype {
+func (c *Client) AppComponenttypesGet() (Appcomponenttype, error) {
 	var componenttypes struct {
 		Data Appcomponenttype `json:"appcomponenttypes"`
 	}
 
 	endpoint := "appcomponenttypes"
 	err := c.invokeAPI("GET", endpoint, nil, &componenttypes)
-	AssertApiError(err, "appcomponent")
-	return componenttypes.Data
+
+	return componenttypes.Data, err
 }
 
 //-------------------------------------------------  APP RESTORE (GET / DESCRIBE / CREATE / UPDATE / DELETE / DOWNLOAD) -------------------------------------------------
 
 // ---- GET LIST OF APP RESTORES
-func (c *Client) AppComponentRestoresGet(appId int) []AppComponentRestore {
+func (c *Client) AppComponentRestoresGet(appId int) ([]AppComponentRestore, error) {
 	var restores struct {
 		Data []AppComponentRestore `json:"restores"`
 	}
 
 	endpoint := fmt.Sprintf("apps/%v/restores", appId)
 	err := c.invokeAPI("GET", endpoint, nil, &restores)
-	AssertApiError(err, "appRestore")
-	return restores.Data
+
+	return restores.Data, err
 }
 
 // ---- CREATE NEW RESTORE
-func (c *Client) AppComponentRestoreCreate(appId int, req AppComponentRestoreRequest) AppComponentRestore {
+func (c *Client) AppComponentRestoreCreate(appId int, req AppComponentRestoreRequest) (AppComponentRestore, error) {
 	var restore struct {
 		Data AppComponentRestore `json:"restore"`
 	}
 	endpoint := fmt.Sprintf("apps/%v/restores", appId)
 	err := c.invokeAPI("POST", endpoint, req, &restore)
-	AssertApiError(err, "appRestores")
 
-	return restore.Data
+	return restore.Data, err
 }
 
 // ---- DELETE RESTORE
-func (c *Client) AppComponentRestoresDelete(appId int, restoreId int) {
+func (c *Client) AppComponentRestoresDelete(appId int, restoreId int) error {
 	endpoint := fmt.Sprintf("apps/%v/restores/%v", appId, restoreId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	AssertApiError(err, "appRestore")
+	return err
 }
 
 // ---- DOWNLOAD RESTORE FILE
-func (c *Client) AppComponentRestoreDownload(appId int, restoreId int, filename string) {
+func (c *Client) AppComponentRestoreDownload(appId int, restoreId int, filename string) error {
 	endpoint := fmt.Sprintf("apps/%v/restores/%v/download", appId, restoreId)
 	res, err := c.sendRequestRaw("GET", endpoint, nil, map[string]string{"Accept": "application/gzip"})
 
@@ -353,84 +353,84 @@ func (c *Client) AppComponentRestoreDownload(appId int, restoreId int, filename 
 			}
 		}
 	}
-	AssertApiError(err, "appRestore")
+
+	if err != nil {
+		return err
+	}
 
 	file, err := os.Create(filename)
 	if err != nil {
-		log.Fatalf("Failed to create file! %s", err.Error())
+		return err
 	}
 
 	fmt.Printf("Saving report to %s\n", filename)
 
 	defer file.Close()
 
-	io.Copy(file, res.Body)
+	_, err = io.Copy(file, res.Body)
+
+	return err
 }
 
 //-------------------------------------------------  APP COMPONENT BACKUP (GET) -------------------------------------------------
 // ---- GET LIST OF COMPONENT AVAILABLEBACKUPS
-func (c *Client) AppComponentbackupsGet(appId int, componentId int) []AppComponentAvailableBackup {
+func (c *Client) AppComponentbackupsGet(appId int, componentId int) ([]AppComponentAvailableBackup, error) {
 	var backups struct {
 		Data []AppComponentAvailableBackup `json:"availableBackups"`
 	}
 	endpoint := fmt.Sprintf("apps/%v/components/%v/availablebackups", appId, componentId)
 	err := c.invokeAPI("GET", endpoint, nil, &backups)
-	AssertApiError(err, "availablebackup")
 
-	return backups.Data
+	return backups.Data, err
 }
 
 //-------------------------------------------------  APP MIGRATIONS (GET / DESCRIBE / CREATE / UPDATE) -------------------------------------------------
 // ---- GET LIST OF MIGRATIONS
-func (c *Client) AppMigrationsGet(appId int) []AppMigration {
+func (c *Client) AppMigrationsGet(appId int) ([]AppMigration, error) {
 	var migrations struct {
 		Data []AppMigration `json:"migrations"`
 	}
 
 	endpoint := fmt.Sprintf("apps/%v/migrations", appId)
 	err := c.invokeAPI("GET", endpoint, nil, &migrations)
-	AssertApiError(err, "appMigration")
 
-	return migrations.Data
+	return migrations.Data, err
 }
 
 // ---- CREATE APP MIGRATION
-func (c *Client) AppMigrationsCreate(appId int, req AppMigrationRequest) {
+func (c *Client) AppMigrationsCreate(appId int, req AppMigrationRequest) (AppMigration, error) {
 	var migration struct {
 		Data AppMigration `json:"migration"`
 	}
 	endpoint := fmt.Sprintf("apps/%v/migrations", appId)
 	err := c.invokeAPI("POST", endpoint, req, &migration)
-	AssertApiError(err, "appMigration")
 
-	log.Printf("migration created! [ID: '%v']", migration.Data.ID)
+	return migration.Data, err
 }
 
 // ---- UPDATE APP MIGRATION
-func (c *Client) AppMigrationsUpdate(appId int, migrationId int, req interface{}) {
+func (c *Client) AppMigrationsUpdate(appId int, migrationId int, req interface{}) error {
 	endpoint := fmt.Sprintf("apps/%v/migrations/%v", appId, migrationId)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
-	AssertApiError(err, "appMigration")
 
-	log.Print("migration succesfully updated!")
+	return err
 }
 
 // ---- DESCRIBE APP MIGRATION
-func (c *Client) AppMigrationDescribe(appId int, migrationId int) AppMigration {
+func (c *Client) AppMigrationDescribe(appId int, migrationId int) (AppMigration, error) {
 	var migration struct {
 		Data AppMigration `json:"migration"`
 	}
 
 	endpoint := fmt.Sprintf("apps/%v/migrations/%v", appId, migrationId)
 	err := c.invokeAPI("GET", endpoint, nil, &migration)
-	AssertApiError(err, "appMigration")
 
-	return migration.Data
+	return migration.Data, err
 }
 
 //-------------------------------------------------  APP MIGRATIONS ACTIONS (CONFIRM / DENY / RESTART) -------------------------------------------------
 // ---- MIGRATIONS ACTION COMMAND
-func (c *Client) AppMigrationsAction(appId int, migrationId int, ChosenAction string) {
+func (c *Client) AppMigrationsAction(appId int, migrationId int, ChosenAction string) error {
 	var action struct {
 		Type string `json:"type"`
 	}
@@ -439,74 +439,77 @@ func (c *Client) AppMigrationsAction(appId int, migrationId int, ChosenAction st
 	endpoint := fmt.Sprintf("apps/%v/migrations/%v/actions", appId, migrationId)
 	err := c.invokeAPI("POST", endpoint, action, nil)
 
-	AssertApiError(err, "appMigrationAction")
+	return err
 }
 
 // ------------ COMPONENT URL MANAGEMENT
 
 // GET /apps/{appId}/components/{componentId}/urls
-func (c *Client) AppComponentUrlGetList(appID int, componentID int, get CommonGetParams) []AppComponentUrlShort {
+func (c *Client) AppComponentUrlGetList(appID int, componentID int, get CommonGetParams) ([]AppComponentUrlShort, error) {
 	var resp struct {
 		Urls []AppComponentUrlShort `json:"urls"`
 	}
 
 	endpoint := fmt.Sprintf("apps/%d/components/%d/urls?%s", appID, componentID, formatCommonGetParams(get))
 	err := c.invokeAPI("GET", endpoint, nil, &resp)
-	AssertApiError(err, "AppComponentUrlGetList")
 
-	return resp.Urls
+	return resp.Urls, err
 }
 
 // GET /apps/{appId}/components/{componentId}/urls/{urlId}
-func (c *Client) AppComponentUrlGetSingle(appID int, componentID int, urlID int) AppComponentUrl {
+func (c *Client) AppComponentUrlGetSingle(appID int, componentID int, urlID int) (AppComponentUrl, error) {
 	var resp struct {
 		Url AppComponentUrl `json:"url"`
 	}
 
 	endpoint := fmt.Sprintf("apps/%d/components/%d/urls/%d", appID, componentID, urlID)
 	err := c.invokeAPI("GET", endpoint, nil, &resp)
-	AssertApiError(err, "AppComponentUrlGetSingle")
 
-	return resp.Url
+	return resp.Url, err
 }
 
 // POST /apps/{appId}/components/{componentId}/urls
-func (c *Client) AppComponentUrlCreate(appID int, componentID int, create AppComponentUrlCreate) AppComponentUrl {
+func (c *Client) AppComponentUrlCreate(appID int, componentID int, create AppComponentUrlCreate) (AppComponentUrl, error) {
 	var resp struct {
 		Url AppComponentUrl `json:"url"`
 	}
 
 	endpoint := fmt.Sprintf("apps/%d/components/%d/urls", appID, componentID)
 	err := c.invokeAPI("POST", endpoint, create, &resp)
-	AssertApiError(err, "AppComponentUrlCreate")
 
-	return resp.Url
+	return resp.Url, err
 }
 
 // PUT /apps/{appId}/components/{componentId}/urls/{urlId}
-func (c *Client) AppComponentUrlUpdate(appID int, componentID int, urlID int, data interface{}) {
+func (c *Client) AppComponentUrlUpdate(appID int, componentID int, urlID int, data interface{}) error {
 	endpoint := fmt.Sprintf("apps/%d/components/%d/urls/%d", appID, componentID, urlID)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
-	AssertApiError(err, "AppComponentUrlUpdate")
+
+	return err
 }
 
 // DELETE /apps/{appId}/components/{componentId}/urls/{urlId}
-func (c *Client) AppComponentUrlDelete(appID int, componentID int, urlID int) {
+func (c *Client) AppComponentUrlDelete(appID int, componentID int, urlID int) error {
 	endpoint := fmt.Sprintf("apps/%d/components/%d/urls/%d", appID, componentID, urlID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
-	AssertApiError(err, "AppComponentUrlDelete")
+
+	return err
 }
 
-func (c *Client) AppComponentUrlLookup(appID int, componentID int, name string) []AppComponentUrlShort {
+func (c *Client) AppComponentUrlLookup(appID int, componentID int, name string) ([]AppComponentUrlShort, error) {
 	results := []AppComponentUrlShort{}
-	urls := c.AppComponentUrlGetList(appID, componentID, CommonGetParams{Filter: name})
+	urls, err := c.AppComponentUrlGetList(appID, componentID, CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, url := range urls {
 		if url.Content == name {
 			results = append(results, url)
 		}
 	}
 
-	return results
+	return results, nil
 }
 
 // main structure of an app

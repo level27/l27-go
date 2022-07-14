@@ -5,60 +5,59 @@ import (
 )
 
 // GET /volume/{volumeID}
-func (c *Client) VolumeGetSingle(volumeID int) Volume {
+func (c *Client) VolumeGetSingle(volumeID int) (Volume, error) {
 	var response struct {
 		Volume Volume `json:"volume"`
 	}
 
 	endpoint := fmt.Sprintf("volumes/%d", volumeID)
 	err := c.invokeAPI("GET", endpoint, nil, &response)
-	AssertApiError(err, "VolumeGetSingle")
 
-	return response.Volume
+	return response.Volume, err
 }
 
 // GET /volume
-func (c *Client) VolumeGetList(get CommonGetParams) []Volume {
+func (c *Client) VolumeGetList(get CommonGetParams) ([]Volume, error) {
 	var response struct {
 		Volumes []Volume `json:"volumes"`
 	}
 
 	endpoint := "volumes"
 	err := c.invokeAPI("GET", endpoint, nil, &response)
-	AssertApiError(err, "VolumeGetList")
 
-	return response.Volumes
+	return response.Volumes, err
 }
 
 // POST /volume
-func (c *Client) VolumeCreate(create VolumeCreate) Volume {
+func (c *Client) VolumeCreate(create VolumeCreate) (Volume, error) {
 	var response struct {
 		Volume Volume `json:"volume"`
 	}
 
 	endpoint := "volumes"
 	err := c.invokeAPI("POST", endpoint, create, &response)
-	AssertApiError(err, "VolumeCreate")
 
-	return response.Volume
+	return response.Volume, err
 }
 
 // DELETE /volume/{volumeID}
-func (c *Client) VolumeDelete(volumeID int) {
+func (c *Client) VolumeDelete(volumeID int) error {
 	endpoint := fmt.Sprintf("volumes/%d", volumeID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
-	AssertApiError(err, "VolumeCreate")
+
+	return err
 }
 
 // PUT /volume/{volumeID}
-func (c *Client) VolumeUpdate(volumeID int, data map[string]interface{}) {
+func (c *Client) VolumeUpdate(volumeID int, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("volumes/%d", volumeID)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
-	AssertApiError(err, "VolumeUpdate")
+
+	return err
 }
 
 // POST /volume/{volumeID}/actions (link)
-func (c *Client) VolumeLink(volumeID int, systemID int, deviceName string) Volume {
+func (c *Client) VolumeLink(volumeID int, systemID int, deviceName string) (Volume, error) {
 	var response struct {
 		Volume Volume `json:"volume"`
 	}
@@ -75,13 +74,12 @@ func (c *Client) VolumeLink(volumeID int, systemID int, deviceName string) Volum
 
 	endpoint := fmt.Sprintf("volumes/%d/actions", volumeID)
 	err := c.invokeAPI("POST", endpoint, request, &response)
-	AssertApiError(err, "VolumeLink")
 
-	return response.Volume
+	return response.Volume, err
 }
 
 // POST /volume/{volumeID}/actions (unlink)
-func (c *Client) VolumeUnlink(volumeID int, systemID int) Volume {
+func (c *Client) VolumeUnlink(volumeID int, systemID int) (Volume, error) {
 	var response struct {
 		Volume Volume `json:"volume"`
 	}
@@ -96,34 +94,36 @@ func (c *Client) VolumeUnlink(volumeID int, systemID int) Volume {
 
 	endpoint := fmt.Sprintf("volumes/%d/actions", volumeID)
 	err := c.invokeAPI("POST", endpoint, request, &response)
-	AssertApiError(err, "VolumeUnlink")
 
-	return response.Volume
+	return response.Volume, err
 }
 
 // GET /volumegroups/{volumegroupID}/volumes
-func (c *Client) VolumegroupVolumeGetList(volumegroupID int, get CommonGetParams) []Volume {
+func (c *Client) VolumegroupVolumeGetList(volumegroupID int, get CommonGetParams) ([]Volume, error) {
 	var response struct {
 		Volumes []Volume `json:"volumes"`
 	}
 
 	endpoint := fmt.Sprintf("volumegroups/%d/volumes?%s", volumegroupID, formatCommonGetParams(get))
 	err := c.invokeAPI("GET", endpoint, nil, &response)
-	AssertApiError(err, "VolumegroupVolumeGetList")
 
-	return response.Volumes
+	return response.Volumes, err
 }
 
-func (c *Client) LookupVolumegroupVolumes(volumeGroupID int, name string) []Volume {
+func (c *Client) LookupVolumegroupVolumes(volumeGroupID int, name string) ([]Volume, error) {
 	results := []Volume{}
-	volumes := c.VolumegroupVolumeGetList(volumeGroupID, CommonGetParams{Filter: name})
+	volumes, err := c.VolumegroupVolumeGetList(volumeGroupID, CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, volume := range volumes {
 		if volume.Name == name {
 			results = append(results, volume)
 		}
 	}
 
-	return results
+	return results, nil
 }
 
 type Volume struct {

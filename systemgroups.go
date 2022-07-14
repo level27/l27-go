@@ -7,71 +7,71 @@ import (
 //------------------------------------------------- SYSTEMSGROUPS (GET / CREATE  / UPDATE / DELETE)-------------------------------------------------
 
 // ---------------- GET SINGLE (describe)
-func (c *Client) SystemgroupsgetSingle(systemgroupId int) Systemgroup {
-	// var to store API response
+func (c *Client) SystemgroupsgetSingle(systemgroupId int) (Systemgroup, error) {
 	var systemgroup struct {
 		Data Systemgroup `json:"systemgroup"`
 	}
 
 	endpoint := fmt.Sprintf("systemgroups/%v", systemgroupId)
 	err := c.invokeAPI("GET", endpoint, nil, &systemgroup)
-	AssertApiError(err, "systemgroups")
 
-	return systemgroup.Data
-
+	return systemgroup.Data, err
 }
 
 // ---------------- GET
-func (c *Client) SystemgroupsGet(optParameters CommonGetParams) []Systemgroup {
-	// var to store API response
+func (c *Client) SystemgroupsGet(optParameters CommonGetParams) ([]Systemgroup, error) {
 	var systemgroups struct {
 		Data []Systemgroup `json:"systemgroups"`
 	}
+
 	endpoint := fmt.Sprintf("systemgroups?%v", formatCommonGetParams(optParameters))
 	err := c.invokeAPI("GET", endpoint, nil, &systemgroups)
-	AssertApiError(err, "systemgroups")
 
-	return systemgroups.Data
+	return systemgroups.Data, err
 }
 
 // ---------------- CREATE
-func (c *Client) SystemgroupsCreate(req SystemgroupRequest) Systemgroup {
-	// var to store API response
+func (c *Client) SystemgroupsCreate(req SystemgroupRequest) (Systemgroup, error) {
 	var systemgroup struct {
 		Data Systemgroup `json:"systemgroup"`
 	}
 
 	endpoint := "systemgroups"
 	err := c.invokeAPI("POST", endpoint, req, &systemgroup)
-	AssertApiError(err, "systemgroup")
 
-	return systemgroup.Data
+	return systemgroup.Data, err
 }
 
 // ---------------- UPDATE
-func (c *Client) SystemgroupsUpdate(systemgroupId int, req SystemgroupRequest) {
+func (c *Client) SystemgroupsUpdate(systemgroupId int, req SystemgroupRequest) error {
 	endpoint := fmt.Sprintf("systemgroups/%v", systemgroupId)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
-	AssertApiError(err, "systemgroup")
+
+	return err
 }
 
 // ---------------- DELETE
-func (c *Client) SystemgroupDelete(systemgroupId int) {
+func (c *Client) SystemgroupDelete(systemgroupId int) error {
 	endpoint := fmt.Sprintf("systemgroups/%v", systemgroupId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
-	AssertApiError(err, "systemgroup")
+
+	return err
 }
 
-func (c *Client) SystemgroupLookup(name string) []Systemgroup {
+func (c *Client) SystemgroupLookup(name string) ([]Systemgroup, error) {
 	results := []Systemgroup{}
-	groups := c.SystemgroupsGet(CommonGetParams{Filter: name})
+	groups, err := c.SystemgroupsGet(CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, group := range groups {
 		if group.Name == name {
 			results = append(results, group)
 		}
 	}
 
-	return results
+	return results, nil
 }
 
 // ----------------------------------- SYSTEMGROUPS ----------------------------------

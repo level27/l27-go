@@ -5,20 +5,20 @@ import (
 )
 
 // POST /{entityType}/{systemID}/bill
-func (c *Client) EntityBillableItemCreate(entityType string, entityID int, req BillPostRequest) {
+func (c *Client) EntityBillableItemCreate(entityType string, entityID int, req BillPostRequest) error {
 
 	endpoint := fmt.Sprintf("%s/%v/bill", entityType, entityID)
 
 	err := c.invokeAPI("POST", endpoint, req, nil)
-	AssertApiError(err, "EntityBillableItemCreate")
+	return err
 }
 
 // DELETE /{entityType}/{systemID}/billableitem
-func (c *Client) EntityBillableItemDelete(entityType string, entityID int) {
+func (c *Client) EntityBillableItemDelete(entityType string, entityID int) error {
 	endpoint := fmt.Sprintf("%s/%v/billableitem", entityType, entityID)
 
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
-	AssertApiError(err, "EntityBillableItemDelete")
+	return err
 }
 
 type BillableItem struct {

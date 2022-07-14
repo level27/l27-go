@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"log"
-	"os"
 
 	"github.com/Jeffail/gabs/v2"
 )
@@ -15,67 +13,62 @@ import (
 // #region SYSTEM TOPLEVEL (GET / CREATE)
 //------------------ GET
 // returning a list of all current systems [lvl system get]
-func (c *Client) SystemGetList(getParams CommonGetParams) []System {
-
-	//creating an array of systems.
+func (c *Client) SystemGetList(getParams CommonGetParams) ([]System, error) {
 	var systems struct {
 		Data []System `json:"systems"`
 	}
 
-	//creating endpoint
 	endpoint := fmt.Sprintf("systems?%s", formatCommonGetParams(getParams))
 	err := c.invokeAPI("GET", endpoint, nil, &systems)
-	AssertApiError(err, "Systems")
-	//returning result as system type
-	return systems.Data
 
+	return systems.Data, err
 }
 
 // CREATE SYSTEM [lvl system create <parmeters>]
-func (c *Client) SystemCreate(req SystemPost) {
-
+func (c *Client) SystemCreate(req SystemPost) (System, error) {
 	var System struct {
 		Data System `json:"system"`
 	}
 
 	err := c.invokeAPI("POST", "systems", req, &System)
-	AssertApiError(err, "SystemCreate")
 
-	log.Printf("System created! [Fullname: '%v' , ID: '%v']", System.Data.Name, System.Data.Id)
-
+	return System.Data, err
 }
 
 // #endregion
 
 // --------------------------- @PJ please fill in comments about code ------------------------------------
 // #region  @PJ please fill in comments about code
-func (c *Client) LookupSystem(name string) []System {
+func (c *Client) LookupSystem(name string) ([]System, error) {
 	results := []System{}
-	systems := c.SystemGetList(CommonGetParams{Filter: name})
+	systems, err := c.SystemGetList(CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, system := range systems {
 		if system.Name == name {
 			results = append(results, system)
 		}
 	}
 
-	return results
+	return results, err
 }
 
 // Returning a single system by its ID
 // this is not for a describe.
-func (c *Client) SystemGetSingle(id int) System {
+func (c *Client) SystemGetSingle(id int) (System, error) {
 	var system struct {
 		Data System `json:"system"`
 	}
+
 	endpoint := fmt.Sprintf("systems/%v", id)
 	err := c.invokeAPI("GET", endpoint, nil, &system)
 
-	AssertApiError(err, "System")
-	return system.Data
-
+	return system.Data, err
 }
 
-func (c *Client) SystemGetSshKeys(id int, get CommonGetParams) []SystemSshkey {
+func (c *Client) SystemGetSshKeys(id int, get CommonGetParams) ([]SystemSshkey, error) {
 	var keys struct {
 		SshKeys []SystemSshkey `json:"sshkeys"`
 	}
@@ -83,11 +76,10 @@ func (c *Client) SystemGetSshKeys(id int, get CommonGetParams) []SystemSshkey {
 	endpoint := fmt.Sprintf("systems/%d/sshkeys?%s", id, formatCommonGetParams(get))
 	err := c.invokeAPI("GET", endpoint, nil, &keys)
 
-	AssertApiError(err, "System SSH Keys")
-	return keys.SshKeys
+	return keys.SshKeys, err
 }
 
-func (c *Client) SystemGetNonAddedSshKeys(systemID int, organisationID int, userID int, get CommonGetParams) []SshKey {
+func (c *Client) SystemGetNonAddedSshKeys(systemID int, organisationID int, userID int, get CommonGetParams) ([]SshKey, error) {
 	var keys struct {
 		SshKeys []SshKey `json:"sshKeys"`
 	}
@@ -95,11 +87,10 @@ func (c *Client) SystemGetNonAddedSshKeys(systemID int, organisationID int, user
 	endpoint := fmt.Sprintf("systems/%d/organisations/%d/users/%d/nonadded-sshkeys?%s", systemID, organisationID, userID, formatCommonGetParams(get))
 	err := c.invokeAPI("GET", endpoint, nil, &keys)
 
-	AssertApiError(err, "system nonadded SSH Keys")
-	return keys.SshKeys
+	return keys.SshKeys, err
 }
 
-func (c *Client) SystemAddSshKey(id int, keyID int) SshKey {
+func (c *Client) SystemAddSshKey(id int, keyID int) (SshKey, error) {
 	var key struct {
 		Sshkey SshKey `json:"sshKey"`
 	}
@@ -113,42 +104,47 @@ func (c *Client) SystemAddSshKey(id int, keyID int) SshKey {
 	endpoint := fmt.Sprintf("systems/%d/sshkeys", id)
 	err := c.invokeAPI("POST", endpoint, &data, &key)
 
-	AssertApiError(err, "Add SSH key")
-	log.Printf("SSH key added succesfully!")
-	return key.Sshkey
+	return key.Sshkey, err
 }
 
-func (c *Client) SystemRemoveSshKey(id int, keyID int) {
-
+func (c *Client) SystemRemoveSshKey(id int, keyID int) error {
 	endpoint := fmt.Sprintf("systems/%d/sshkeys/%d", id, keyID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	AssertApiError(err, "Add SSH key")
+	return err
 }
 
-func (c *Client) LookupSystemSshkey(systemID int, name string) *SystemSshkey {
-	keys := c.SystemGetSshKeys(systemID, CommonGetParams{Filter: name})
+func (c *Client) LookupSystemSshkey(systemID int, name string) (*SystemSshkey, error) {
+	keys, err := c.SystemGetSshKeys(systemID, CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, key := range keys {
 		if key.Description == name {
-			return &key
+			return &key, nil
 		}
 	}
 
-	return nil
+	return nil, nil
 }
 
-func (c *Client) LookupSystemNonAddedSshkey(systemID int, organisationID int, userID int, name string) *SshKey {
-	keys := c.SystemGetNonAddedSshKeys(systemID, organisationID, userID, CommonGetParams{Filter: name})
+func (c *Client) LookupSystemNonAddedSshkey(systemID int, organisationID int, userID int, name string) (*SshKey, error) {
+	keys, err := c.SystemGetNonAddedSshKeys(systemID, organisationID, userID, CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, key := range keys {
 		if key.Description == name {
-			return &key
+			return &key, nil
 		}
 	}
 
-	return nil
+	return nil, nil
 }
 
-func (c *Client) SystemGetHasNetworks(id int) []SystemHasNetwork {
+func (c *Client) SystemGetHasNetworks(id int) ([]SystemHasNetwork, error) {
 	var keys struct {
 		SystemHasNetworks []SystemHasNetwork `json:"systemHasNetworks"`
 	}
@@ -156,11 +152,10 @@ func (c *Client) SystemGetHasNetworks(id int) []SystemHasNetwork {
 	endpoint := fmt.Sprintf("systems/%d/networks", id)
 	err := c.invokeAPI("GET", endpoint, nil, &keys)
 
-	AssertApiError(err, "System has networks")
-	return keys.SystemHasNetworks
+	return keys.SystemHasNetworks, err
 }
 
-func (c *Client) SystemGetVolumes(id int, get CommonGetParams) []SystemVolume {
+func (c *Client) SystemGetVolumes(id int, get CommonGetParams) ([]SystemVolume, error) {
 	var keys struct {
 		Volumes []SystemVolume `json:"volumes"`
 	}
@@ -168,22 +163,25 @@ func (c *Client) SystemGetVolumes(id int, get CommonGetParams) []SystemVolume {
 	endpoint := fmt.Sprintf("systems/%d/volumes?%s", id, formatCommonGetParams(get))
 	err := c.invokeAPI("GET", endpoint, nil, &keys)
 
-	AssertApiError(err, "Volumes")
-	return keys.Volumes
+	return keys.Volumes, err
 }
 
-func (c *Client) LookupSystemVolumes(systemID int, volumeName string) *SystemVolume {
-	volumes := c.SystemGetVolumes(systemID, CommonGetParams{Filter: volumeName})
+func (c *Client) LookupSystemVolumes(systemID int, volumeName string) (*SystemVolume, error) {
+	volumes, err := c.SystemGetVolumes(systemID, CommonGetParams{Filter: volumeName})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, volume := range volumes {
 		if volume.Name == volumeName {
-			return &volume
+			return &volume, nil
 		}
 	}
 
-	return nil
+	return nil, nil
 }
 
-func (c *Client) SecurityUpdateDates() []string {
+func (c *Client) SecurityUpdateDates() ([]string, error) {
 	var updates struct {
 		SecurityUpdateDates []string `json:"securityUpdateDates"`
 	}
@@ -191,20 +189,19 @@ func (c *Client) SecurityUpdateDates() []string {
 	endpoint := "systems/securityupdatedates"
 	err := c.invokeAPI("GET", endpoint, nil, &updates)
 
-	AssertApiError(err, "Security updates")
-	return updates.SecurityUpdateDates
+	return updates.SecurityUpdateDates, err
 }
 
-func (c *Client) SystemUpdate(id int, data map[string]interface{}) {
+func (c *Client) SystemUpdate(id int, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("systems/%d", id)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
-	AssertApiError(err, "SystemUpdate")
-	log.Print("System succesfully updated!")
+
+	return err
 }
 
 // --------------------------- SYSTEM ACTION ---------------------------
 
-func (c *Client) SystemAction(id int, action string) System {
+func (c *Client) SystemAction(id int, action string) (System, error) {
 	var request struct {
 		Type string `json:"type"`
 	}
@@ -216,24 +213,23 @@ func (c *Client) SystemAction(id int, action string) System {
 	request.Type = action
 	endpoint := fmt.Sprintf("systems/%d/actions", id)
 	err := c.invokeAPI("POST", endpoint, request, &response)
-	AssertApiError(err, "SystemAction")
 
-	return response.System
+	return response.System, err
 }
 
 // ---------------- Delete
-func (c *Client) SystemDelete(id int) {
+func (c *Client) SystemDelete(id int) error {
 	endpoint := fmt.Sprintf("systems/%v", id)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	AssertApiError(err, "SystemDelete")
+	return err
 }
 
-func (c *Client) SystemDeleteForce(id int) {
+func (c *Client) SystemDeleteForce(id int) error {
 	endpoint := fmt.Sprintf("systems/%v/force", id)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	AssertApiError(err, "SystemDeleteForce")
+	return err
 }
 
 // #endregion
@@ -241,32 +237,27 @@ func (c *Client) SystemDeleteForce(id int) {
 // --------------------------- SYSTEM/CHECKS TOPLEVEL (GET / POST ) ------------------------------------
 // #region SYSTEM/CHECKS TOPLEVEL (GET / ADD)
 // ------------- GET CHECKS
-func (c *Client) SystemCheckGetList(systemId int, getParams CommonGetParams) []SystemCheckGet {
-
-	//creating an array of systems.
+func (c *Client) SystemCheckGetList(systemId int, getParams CommonGetParams) ([]SystemCheckGet, error) {
 	var systemChecks struct {
 		Data []SystemCheckGet `json:"checks"`
 	}
 
-	//creating endpoint
 	endpoint := fmt.Sprintf("systems/%v/checks?%s", systemId, formatCommonGetParams(getParams))
 	err := c.invokeAPI("GET", endpoint, nil, &systemChecks)
-	AssertApiError(err, "Systems")
-	//returning result as system check type
-	return systemChecks.Data
 
+	return systemChecks.Data, err
 }
 
 // ------------- ADD A CHECK
-func (c *Client) SystemCheckAdd(systemId int, req interface{}) {
+func (c *Client) SystemCheckAdd(systemId int, req interface{}) (SystemCheck, error) {
 	var SystemCheck struct {
 		Data SystemCheck `json:"check"`
 	}
+
 	endpoint := fmt.Sprintf("systems/%v/checks", systemId)
 	err := c.invokeAPI("POST", endpoint, req, &SystemCheck)
 
-	AssertApiError(err, "System checks")
-	log.Printf("System check added! [Checktype: '%v' , ID: '%v']", SystemCheck.Data.CheckType, SystemCheck.Data.Id)
+	return SystemCheck.Data, err
 }
 
 // #endregion
@@ -275,13 +266,15 @@ func (c *Client) SystemCheckAdd(systemId int, req interface{}) {
 // #region SYSTEM/CHECKS PARAMETERS (GET)
 
 // ---------------- GET CHECK PARAMETERS (for specific checktype)
-func (c *Client) SystemCheckTypeGet(checktype string) SystemCheckType {
+func (c *Client) SystemCheckTypeGet(checktype string) (SystemCheckType, error) {
 	var checktypes struct {
 		Data SystemCheckTypeName `json:"checktypes"`
 	}
 	endpoint := "checktypes"
 	err := c.invokeAPI("GET", endpoint, nil, &checktypes)
-	AssertApiError(err, "checktypes")
+	if err != nil {
+		return SystemCheckType{}, err
+	}
 
 	// check if the given type by user is one of the possible types we got back from the API
 	var isTypeValid = false
@@ -296,11 +289,11 @@ func (c *Client) SystemCheckTypeGet(checktype string) SystemCheckType {
 	if !isTypeValid {
 		message := fmt.Sprintf("given type: '%v' is no valid checktype.", checktype)
 		err := errors.New(message)
-		log.Fatal(err)
+		return SystemCheckType{}, err
 	}
 
 	// return the chosen valid type and its specific data
-	return checktypes.Data[checktype]
+	return checktypes.Data[checktype], nil
 }
 
 // #endregion
@@ -309,32 +302,31 @@ func (c *Client) SystemCheckTypeGet(checktype string) SystemCheckType {
 
 // #region SYSTEM/CHECKS SPECIFIC (DESCRIBE / DELETE / UPDATE)
 // ---------------- DESCRIBE A SPECIFIC CHECK
-func (c *Client) SystemCheckDescribe(systemID int, CheckID int) SystemCheck {
+func (c *Client) SystemCheckDescribe(systemID int, CheckID int) (SystemCheck, error) {
 	var check struct {
 		Data SystemCheck `json:"check"`
 	}
+
 	endpoint := fmt.Sprintf("systems/%v/checks/%v", systemID, CheckID)
 	err := c.invokeAPI("GET", endpoint, nil, &check)
-	AssertApiError(err, "system check")
 
-	return check.Data
+	return check.Data, err
 }
 
 // ---------------- DELETE A SPECIFIC CHECK
-func (c *Client) SystemCheckDelete(systemId int, checkId int) {
+func (c *Client) SystemCheckDelete(systemId int, checkId int) error {
 	endpoint := fmt.Sprintf("systems/%v/checks/%v", systemId, checkId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	AssertApiError(err, "system check")
+	return err
 }
 
 // ---------------- UPDATE A SPECIFIC CHECK
-func (c *Client) SystemCheckUpdate(systemId int, checkId int, req interface{}) {
-
+func (c *Client) SystemCheckUpdate(systemId int, checkId int, req interface{}) error {
 	endpoint := fmt.Sprintf("systems/%v/checks/%v", systemId, checkId)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
 
-	AssertApiError(err, "System checks")
+	return err
 }
 
 // #endregion
@@ -342,7 +334,7 @@ func (c *Client) SystemCheckUpdate(systemId int, checkId int, req interface{}) {
 // --------------------------- SYSTEM/COOKBOOKS TOPLEVEL (GET / POST) ------------------------------------
 
 // --------------------------- APPLY COOKBOOKCHANGES ON A SYSTEM
-func (c *Client) SystemCookbookChangesApply(systemId int) {
+func (c *Client) SystemCookbookChangesApply(systemId int) error {
 	// create json format for post request
 	// this function is specifically for updating cookbook status on a system
 	requestData := gabs.New()
@@ -350,15 +342,14 @@ func (c *Client) SystemCookbookChangesApply(systemId int) {
 
 	endpoint := fmt.Sprintf("systems/%v/actions", systemId)
 	err := c.invokeAPI("POST", endpoint, requestData, nil)
-	AssertApiError(err, "systems/cookbook")
 
+	return err
 }
 
 // #region SYSTEM/COOKBOOKS TOPLEVEL (GET / ADD)
 
 // ---------------- GET COOKBOOK
-func (c *Client) SystemCookbookGetList(systemId int) []Cookbook {
-	// creating array of cookbooks to return
+func (c *Client) SystemCookbookGetList(systemId int) ([]Cookbook, error) {
 	var systemCookbooks struct {
 		Data []Cookbook `json:"cookbooks"`
 	}
@@ -366,26 +357,19 @@ func (c *Client) SystemCookbookGetList(systemId int) []Cookbook {
 	endpoint := fmt.Sprintf("systems/%v/cookbooks", systemId)
 	err := c.invokeAPI("GET", endpoint, nil, &systemCookbooks)
 
-	AssertApiError(err, "cookbooks")
-
-	return systemCookbooks.Data
-
+	return systemCookbooks.Data, err
 }
 
 // ---------------- ADD COOKBOOK
-func (c *Client) SystemCookbookAdd(systemID int, req *CookbookRequest) {
-
-	// var to show result of API after succesfull adding cookbook
+func (c *Client) SystemCookbookAdd(systemID int, req *CookbookRequest) (Cookbook, error) {
 	var cookbook struct {
 		Data Cookbook `json:"cookbook"`
 	}
 
 	endpoint := fmt.Sprintf("systems/%v/cookbooks", systemID)
 	err := c.invokeAPI("POST", endpoint, req, &cookbook)
-	AssertApiError(err, "cookbooktype")
 
-	log.Printf("Cookbook: '%v' succesfully added!", cookbook.Data.CookbookType)
-
+	return cookbook.Data, err
 }
 
 // #endregion
@@ -393,20 +377,21 @@ func (c *Client) SystemCookbookAdd(systemID int, req *CookbookRequest) {
 // --------------------------- SYSTEM/COOKBOOKS PARAMETERS (GET) ------------------------------------
 // #region SYSTEM/COOKBOOKS PARAMETERS (GET)
 // ---------------- GET COOKBOOKTYPES parameters
-func (c *Client) SystemCookbookTypeGet(cookbooktype string) (CookbookType, *gabs.Container) {
+func (c *Client) SystemCookbookTypeGet(cookbooktype string) (CookbookType, *gabs.Container, error) {
 	var cookbookTypes struct {
 		Data CookbookTypeName `json:"cookbooktypes"`
 	}
 	endpoint := "cookbooktypes"
 	err := c.invokeAPI("GET", endpoint, nil, &cookbookTypes)
-	AssertApiError(err, "cookbooktypes")
+	if err != nil {
+		return CookbookType{}, nil, err
+	}
 
 	// check if the given type by user is one of the possible types we got back from the API
 	var isTypeValid = false
 	for validType := range cookbookTypes.Data {
 		if cookbooktype == validType {
 			isTypeValid = true
-
 		}
 	}
 
@@ -414,24 +399,21 @@ func (c *Client) SystemCookbookTypeGet(cookbooktype string) (CookbookType, *gabs
 	if !isTypeValid {
 		message := fmt.Sprintf("given type: '%v' is no valid cookbooktype.", cookbooktype)
 		err := errors.New(message)
-		log.Fatal(err)
+		return CookbookType{}, nil, err
 	}
 
 	// from the valid type we make a JSON string with selectable parameters.
 	// we do this because we dont know beforehand if there will be any and how they will be named
 	result, err := json.Marshal(cookbookTypes.Data[cookbooktype].CookbookType.ParameterOptions)
 	if err != nil {
-		log.Fatal(err.Error())
+		return CookbookType{}, nil, err
 	}
+
 	// parse the slice of bytes into json, this way we can dynamicaly use unknown incomming data
 	jsonParsed, err := gabs.ParseJSON([]byte(result))
 
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
 	// return the chosen valid type and its specific data
-	return cookbookTypes.Data[cookbooktype], jsonParsed
+	return cookbookTypes.Data[cookbooktype], jsonParsed, err
 }
 
 // #endregion
@@ -440,96 +422,31 @@ func (c *Client) SystemCookbookTypeGet(cookbooktype string) (CookbookType, *gabs
 // #region SYSTEM/COOKBOOKS SPECIFIC (DESCRIBE / DELETE / UPDATE)
 
 // ---------------- DESCRIBE
-func (c *Client) SystemCookbookDescribe(systemId int, cookbookId int) Cookbook {
+func (c *Client) SystemCookbookDescribe(systemId int, cookbookId int) (Cookbook, error) {
 	var cookbook struct {
 		Data Cookbook `json:"cookbook"`
 	}
 
 	endpoint := fmt.Sprintf("systems/%v/cookbooks/%v", systemId, cookbookId)
 	err := c.invokeAPI("GET", endpoint, nil, &cookbook)
-	AssertApiError(err, "system check")
 
-	return cookbook.Data
+	return cookbook.Data, err
 }
 
 // ---------------- DELETE
-func (c *Client) SystemCookbookDelete(systemId int, cookbookId int) {
+func (c *Client) SystemCookbookDelete(systemId int, cookbookId int) error {
 	endpoint := fmt.Sprintf("systems/%v/cookbooks/%v", systemId, cookbookId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	AssertApiError(err, "system cookbook")
+	return err
 }
 
 // ------------------ UPDATE
-func (c *Client) SystemCookbookUpdate(systemId int, cookbookId int, req *CookbookRequest) {
-
+func (c *Client) SystemCookbookUpdate(systemId int, cookbookId int, req *CookbookRequest) error {
 	endpoint := fmt.Sprintf("systems/%v/cookbooks/%v", systemId, cookbookId)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
-	AssertApiError(err, "system/cookbook")
 
-}
-
-// #endregion
-
-// --------------------------- SYSTEM/INTEGRITYCHECKS TOPLEVEL (GET / CREATE / DOWNLOAD) ------------------------------------
-// #region SYSTEM/INTEGRITYCHECKS TOPLEVEL (GET / CREATE / DOWNLOAD)
-
-// ------------------ GET
-func (c *Client) SystemIntegritychecksGet(systemID int) []IntegrityCheck {
-
-	var integrity struct {
-		Data []IntegrityCheck `json:"integritychecks"`
-	}
-
-	endpoint := fmt.Sprintf("systems/%v/integritychecks", systemID)
-	err := c.invokeAPI("GET", endpoint, nil, &integrity)
-	AssertApiError(err, "system/integritycheck")
-
-	return integrity.Data
-}
-
-// ------------------ CREATE
-func (c *Client) SystemIntegritychecksCreate(systemID int, req IntegrityCreateRequest) {
-
-	endpoint := fmt.Sprintf("systems/%v/integritychecks", systemID)
-	err := c.invokeAPI("POST", endpoint, req, nil)
-	AssertApiError(err, "system/integritycheck")
-
-	// show succes message after completing call
-	log.Printf("Integritycheck succesfully created!")
-
-}
-
-// ------------------ DOWNLOAD
-func (c *Client) SystemIntegritychecksDownload(systemID int, integritycheckID int, filename string) {
-
-	endpoint := fmt.Sprintf("systems/%v/integritychecks/%v/report", systemID, integritycheckID)
-	res, err := c.sendRequestRaw("GET", endpoint, nil, map[string]string{"Accept": "application/pdf"})
-
-	if err == nil {
-		defer res.Body.Close()
-
-		if isErrorCode(res.StatusCode) {
-			var body []byte
-			body, err = io.ReadAll(res.Body)
-			if err == nil {
-				err = formatRequestError(res.StatusCode, body)
-			}
-		}
-	}
-
-	AssertApiError(err, "systemIntegrityCheckDownload")
-
-	file, err := os.Create(filename)
-	if err != nil {
-		log.Fatalf("Failed to create file! %s", err.Error())
-	}
-
-	fmt.Printf("Saving report to %s\n", filename)
-
-	defer file.Close()
-
-	io.Copy(file, res.Body)
+	return err
 }
 
 // #endregion
@@ -537,78 +454,75 @@ func (c *Client) SystemIntegritychecksDownload(systemID int, integritycheckID in
 // --------------------------- SYSTEM/GROUPS (GET / ADD / DESCRIBE / DELETE) ------------------------------------
 
 // ---------------- GET GROUPS
-func (c *Client) SystemSystemgroupsGet(systemId int) []Systemgroup {
+func (c *Client) SystemSystemgroupsGet(systemId int) ([]Systemgroup, error) {
 	var groups struct {
 		Data []Systemgroup `json:"systemgroups"`
 	}
 
 	endpoint := fmt.Sprintf("systems/%v/groups", systemId)
 	err := c.invokeAPI("GET", endpoint, nil, &groups)
-	AssertApiError(err, "systemgroups")
 
-	return groups.Data
+	return groups.Data, err
 }
 
 // ---------------- LINK SYSTEM TO A SYSTEMGROUP
-func (c *Client) SystemSystemgroupsAdd(systemID int, req interface{}) {
-
+func (c *Client) SystemSystemgroupsAdd(systemID int, req interface{}) error {
 	endpoint := fmt.Sprintf("systems/%v/groups", systemID)
 	err := c.invokeAPI("POST", endpoint, req, nil)
-	AssertApiError(err, "systemgroup")
 
-	log.Printf("System succesfully linked to systemgroup!")
+	return err
 }
 
 // ---------------- UNLINK A SYSTEM FROM SYSTEMGROUP
-func (c *Client) SystemSystemgroupsRemove(systemId int, systemgroupId int) {
+func (c *Client) SystemSystemgroupsRemove(systemId int, systemgroupId int) error {
 	endpoint := fmt.Sprintf("systems/%v/groups/%v", systemId, systemgroupId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
-	AssertApiError(err, "systemgroup")
 
-	log.Printf("System succesfully removed from systemgroup!")
-
+	return err
 }
 
 // ------------------ GET PROVIDERS
 
-func (c *Client) GetSystemProviderConfigurations() []SystemProviderConfiguration {
+func (c *Client) GetSystemProviderConfigurations() ([]SystemProviderConfiguration, error) {
 	var response struct {
 		ProviderConfigurations []SystemProviderConfiguration `json:"providerConfigurations"`
 	}
 
 	err := c.invokeAPI("GET", "systems/provider/configurations", nil, &response)
-	AssertApiError(err, "GetSystemProviderConfigurations")
 
-	return response.ProviderConfigurations
+	return response.ProviderConfigurations, err
 }
 
 // NETWORKS
 
-func (c *Client) LookupSystemHasNetworks(systemID int, name string) []SystemHasNetwork {
+func (c *Client) LookupSystemHasNetworks(systemID int, name string) ([]SystemHasNetwork, error) {
 	results := []SystemHasNetwork{}
-	networks := c.SystemGetHasNetworks(systemID)
+	networks, err := c.SystemGetHasNetworks(systemID)
+	if err != nil {
+		return nil, err
+	}
+
 	for _, network := range networks {
 		if network.Network.Name == name {
 			results = append(results, network)
 		}
 	}
 
-	return results
+	return results, nil
 }
 
-func (c *Client) GetSystemHasNetwork(systemID int, systemHasNetworkID int) SystemHasNetwork {
+func (c *Client) GetSystemHasNetwork(systemID int, systemHasNetworkID int) (SystemHasNetwork, error) {
 	var response struct {
 		SystemHasNetwork SystemHasNetwork `json:"systemHasNetwork"`
 	}
 
 	endpoint := fmt.Sprintf("systems/%d/networks/%d", systemID, systemHasNetworkID)
 	err := c.invokeAPI("GET", endpoint, nil, &response)
-	AssertApiError(err, "GetSystemHasNetwork")
 
-	return response.SystemHasNetwork
+	return response.SystemHasNetwork, err
 }
 
-func (c *Client) SystemAddHasNetwork(systemID int, networkID int) SystemHasNetwork {
+func (c *Client) SystemAddHasNetwork(systemID int, networkID int) (SystemHasNetwork, error) {
 	var response struct {
 		SystemHasNetwork SystemHasNetwork `json:"systemHasNetwork"`
 	}
@@ -621,22 +535,18 @@ func (c *Client) SystemAddHasNetwork(systemID int, networkID int) SystemHasNetwo
 
 	endpoint := fmt.Sprintf("systems/%d/networks", systemID)
 	err := c.invokeAPI("POST", endpoint, &request, &response)
-	AssertApiError(err, "SystemAddHasNetwork")
 
-	log.Printf("Network succesfully added to system!")
-
-	return response.SystemHasNetwork
+	return response.SystemHasNetwork, err
 }
 
-func (c *Client) SystemRemoveHasNetwork(systemID int, hasNetworkID int) {
+func (c *Client) SystemRemoveHasNetwork(systemID int, hasNetworkID int) error {
 	endpoint := fmt.Sprintf("systems/%d/networks/%d", systemID, hasNetworkID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
-	AssertApiError(err, "SystemRemoveHasNetwork")
 
-	log.Printf("Network succesfully removed from network!")
+	return err
 }
 
-func (c *Client) SystemGetHasNetworkIp(systemID int, hasNetworkID int, systemHasNetworkIpID int) SystemHasNetworkIp {
+func (c *Client) SystemGetHasNetworkIp(systemID int, hasNetworkID int, systemHasNetworkIpID int) (SystemHasNetworkIp, error) {
 	var response struct {
 		SystemHasNetworkIp SystemHasNetworkIp `json:"systemHasNetworkIp"`
 	}
@@ -644,11 +554,10 @@ func (c *Client) SystemGetHasNetworkIp(systemID int, hasNetworkID int, systemHas
 	endpoint := fmt.Sprintf("systems/%d/networks/%d/ips/%d", systemID, hasNetworkID, systemHasNetworkIpID)
 	err := c.invokeAPI("GET", endpoint, nil, &response)
 
-	AssertApiError(err, "SystemGetHasNetworkIp")
-	return response.SystemHasNetworkIp
+	return response.SystemHasNetworkIp, err
 }
 
-func (c *Client) SystemGetHasNetworkIps(systemID int, hasNetworkID int) []SystemHasNetworkIp {
+func (c *Client) SystemGetHasNetworkIps(systemID int, hasNetworkID int) ([]SystemHasNetworkIp, error) {
 	var response struct {
 		SystemHasNetworkIps []SystemHasNetworkIp `json:"systemHasNetworkIps"`
 	}
@@ -656,11 +565,10 @@ func (c *Client) SystemGetHasNetworkIps(systemID int, hasNetworkID int) []System
 	endpoint := fmt.Sprintf("systems/%d/networks/%d/ips", systemID, hasNetworkID)
 	err := c.invokeAPI("GET", endpoint, nil, &response)
 
-	AssertApiError(err, "SystemGetHasNetworkIps")
-	return response.SystemHasNetworkIps
+	return response.SystemHasNetworkIps, err
 }
 
-func (c *Client) SystemAddHasNetworkIps(systemID int, hasNetworkID int, add SystemHasNetworkIpAdd) SystemHasNetworkIp {
+func (c *Client) SystemAddHasNetworkIps(systemID int, hasNetworkID int, add SystemHasNetworkIpAdd) (SystemHasNetworkIp, error) {
 	var response struct {
 		HasNetwork SystemHasNetworkIp `json:"systemHasNetworkIp"`
 	}
@@ -668,34 +576,37 @@ func (c *Client) SystemAddHasNetworkIps(systemID int, hasNetworkID int, add Syst
 	endpoint := fmt.Sprintf("systems/%d/networks/%d/ips", systemID, hasNetworkID)
 	err := c.invokeAPI("POST", endpoint, add, &response)
 
-	AssertApiError(err, "SystemAddHasNetworkIps")
-
-	return response.HasNetwork
+	return response.HasNetwork, err
 }
 
-func (c *Client) SystemRemoveHasNetworkIps(systemID int, hasNetworkID int, ipID int) {
+func (c *Client) SystemRemoveHasNetworkIps(systemID int, hasNetworkID int, ipID int) error {
 	endpoint := fmt.Sprintf("systems/%d/networks/%d/ips/%d", systemID, hasNetworkID, ipID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
-	AssertApiError(err, "SystemRemoveHasNetworkIps")
+	return err
 }
 
-func (c *Client) LookupSystemHasNetworkIp(systemID int, hasNetworkID int, address string) []SystemHasNetworkIp {
+func (c *Client) LookupSystemHasNetworkIp(systemID int, hasNetworkID int, address string) ([]SystemHasNetworkIp, error) {
 	results := []SystemHasNetworkIp{}
-	ips := c.SystemGetHasNetworkIps(systemID, hasNetworkID)
+	ips, err := c.SystemGetHasNetworkIps(systemID, hasNetworkID)
+	if err != nil {
+		return nil, err
+	}
+
 	for _, ip := range ips {
 		if ipsEqual(ipv4StringIntToString(ip.Ipv4), address) || ipsEqual(ip.Ipv6, address) || ipsEqual(ipv4StringIntToString(ip.PublicIpv4), address) || ipsEqual(ip.PublicIpv6, address) {
 			results = append(results, ip)
 		}
 	}
 
-	return results
+	return results, nil
 }
 
-func (c *Client) SystemHasNetworkIpUpdate(systemID int, hasNetworkID int, hasNetworkIpID int, data map[string]interface{}) {
+func (c *Client) SystemHasNetworkIpUpdate(systemID int, hasNetworkID int, hasNetworkIpID int, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("systems/%d/networks/%d/ips/%d", systemID, hasNetworkID, hasNetworkIpID)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
-	AssertApiError(err, "SystemHasNetworkIpUpdate")
+
+	return err
 }
 
 // structure of system type returned by API.

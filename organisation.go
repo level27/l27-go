@@ -5,41 +5,43 @@ import (
 )
 
 // Get a single organisation from the API.
-func (c *Client) Organisation(organisationId int) Organisation {
+func (c *Client) Organisation(organisationId int) (Organisation, error) {
 	var orgs struct {
 		Organisation Organisation `json:"organisation"`
 	}
 
 	endpoint := fmt.Sprintf("organisations/%d", organisationId)
 	err := c.invokeAPI("GET", endpoint, nil, &orgs)
-	AssertApiError(err, "organisation")
 
-	return orgs.Organisation
+	return orgs.Organisation, err
 }
 
 //Organisation gets a organisation from the API
-func (c *Client) Organisations(getParams CommonGetParams) []Organisation {
+func (c *Client) Organisations(getParams CommonGetParams) ([]Organisation, error) {
 	var orgs struct {
 		Organisation []Organisation `json:"organisations"`
 	}
 
 	endpoint := fmt.Sprintf("organisations?%s", formatCommonGetParams(getParams))
 	err := c.invokeAPI("GET", endpoint, nil, &orgs)
-	AssertApiError(err, "organisation")
 
-	return orgs.Organisation
+	return orgs.Organisation, err
 }
 
-func (c *Client) LookupOrganisation(name string) []Organisation {
+func (c *Client) LookupOrganisation(name string) ([]Organisation, error) {
 	results := []Organisation{}
-	orgs := c.Organisations(CommonGetParams{Filter: name})
+	orgs, err := c.Organisations(CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, org := range orgs {
 		if org.Name == name {
 			results = append(results, org)
 		}
 	}
 
-	return results
+	return results, nil
 }
 
 type Organisation struct {

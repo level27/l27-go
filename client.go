@@ -123,8 +123,7 @@ func (c *Client) sendRequestRaw(method string, endpoint string, data interface{}
 
 	req, err := http.NewRequest(method, fullUrl, reqData)
 	if err != nil {
-		log.Fatalf("error creating HTTP request: %v", err)
-		return nil, err
+		return nil, fmt.Errorf("error creating HTTP request: %v", err)
 	}
 
 	for k, v := range headers {
@@ -232,14 +231,6 @@ func (c *Client) invokeAPI(method string, endpoint string, data interface{}, res
 	}
 
 	return err
-}
-
-// Assert that an API call completed successfully, aborting the program if it did not
-func AssertApiError(e error, directory string) {
-	if e != nil {
-
-		log.Fatalf("client.go: API error in %s - %s\n", directory, e.Error())
-	}
 }
 
 // Helper function to make query parameters from common get parameters.

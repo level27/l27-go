@@ -5,34 +5,35 @@ import (
 )
 
 // GET /mailgroups
-func (c *Client) MailgroupsGetList(get CommonGetParams) []Mailgroup {
+func (c *Client) MailgroupsGetList(get CommonGetParams) ([]Mailgroup, error) {
 	var response struct {
 		Mailgroups []Mailgroup `json:"mailgroups"`
 	}
 
 	endpoint := fmt.Sprintf("mailgroups?%s", formatCommonGetParams(get))
 	err := c.invokeAPI("GET", endpoint, nil, &response)
-	AssertApiError(err, "MailgroupsGetList")
 
-	return response.Mailgroups
+	return response.Mailgroups, err
 }
 
 // GET /mailgroups/{mailgroupID}
-func (c *Client) MailgroupsGetSingle(mailgroupID int) Mailgroup {
+func (c *Client) MailgroupsGetSingle(mailgroupID int) (Mailgroup, error) {
 	var response struct {
 		Mailgroup Mailgroup `json:"mailgroup"`
 	}
 
 	endpoint := fmt.Sprintf("mailgroups/%d", mailgroupID)
 	err := c.invokeAPI("GET", endpoint, nil, &response)
-	AssertApiError(err, "MailgroupsGetSingle")
 
-	return response.Mailgroup
+	return response.Mailgroup, err
 }
 
-func (c *Client) MailgroupsLookup(name string) []Mailgroup {
+func (c *Client) MailgroupsLookup(name string) ([]Mailgroup, error) {
 	results := []Mailgroup{}
-	mailgroups := c.MailgroupsGetList(CommonGetParams{Filter: name})
+	mailgroups, err := c.MailgroupsGetList(CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
 
 	for _, val := range mailgroups {
 		if val.Name == name {
@@ -50,38 +51,39 @@ func (c *Client) MailgroupsLookup(name string) []Mailgroup {
 		}
 	}
 
-	return results
+	return results, nil
 }
 
 // POST /mailgroups
-func (c *Client) MailgroupsCreate(create MailgroupCreate) Mailgroup {
+func (c *Client) MailgroupsCreate(create MailgroupCreate) (Mailgroup, error) {
 	var response struct {
 		Mailgroup Mailgroup `json:"mailgroup"`
 	}
 
 	endpoint := "mailgroups"
 	err := c.invokeAPI("POST", endpoint, create, &response)
-	AssertApiError(err, "MailgroupsCreate")
 
-	return response.Mailgroup
+	return response.Mailgroup, err
 }
 
 // DELETE /mailgroups/{mailgroupID}
-func (c *Client) MailgroupsDelete(mailgroupID int) {
+func (c *Client) MailgroupsDelete(mailgroupID int) error {
 	endpoint := fmt.Sprintf("mailgroups/%d", mailgroupID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
-	AssertApiError(err, "MailgroupsDelete")
+
+	return err
 }
 
 // PUT /mailgroups/{mailgroupID}
-func (c *Client) MailgroupsUpdate(mailgroupID int, data map[string]interface{}) {
+func (c *Client) MailgroupsUpdate(mailgroupID int, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("mailgroups/%d", mailgroupID)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
-	AssertApiError(err, "MailgroupsUpdate")
+
+	return err
 }
 
 // POST /mailgroups/{mailgroupID}/actions
-func (c *Client) MailgroupsAction(mailgroupID int, action string) Mailgroup {
+func (c *Client) MailgroupsAction(mailgroupID int, action string) (Mailgroup, error) {
 	var response struct {
 		Mailgroup Mailgroup `json:"mailgroup"`
 	}
@@ -93,238 +95,248 @@ func (c *Client) MailgroupsAction(mailgroupID int, action string) Mailgroup {
 
 	endpoint := fmt.Sprintf("mailgroups/%d/actions", mailgroupID)
 	err := c.invokeAPI("POST", endpoint, request, &response)
-	AssertApiError(err, "MailgroupsAction")
 
-	return response.Mailgroup
+	return response.Mailgroup, err
 }
 
 // POST /mailgroups/{mailgroupID}/domains
-func (c *Client) MailgroupsDomainsLink(mailgroupID int, data MailgroupDomainAdd) Mailgroup {
+func (c *Client) MailgroupsDomainsLink(mailgroupID int, data MailgroupDomainAdd) (Mailgroup, error) {
 	var response struct {
 		Mailgroup Mailgroup `json:"mailgroup"`
 	}
 
 	endpoint := fmt.Sprintf("mailgroups/%d/domains", mailgroupID)
 	err := c.invokeAPI("POST", endpoint, data, &response)
-	AssertApiError(err, "MailgroupsDomainsAdd")
 
-	return response.Mailgroup
+	return response.Mailgroup, err
 }
 
 // DELETE /mailgroups/{mailgroupID}/domains/{domainId}
-func (c *Client) MailgroupsDomainsUnlink(mailgroupID int, domainId int) {
+func (c *Client) MailgroupsDomainsUnlink(mailgroupID int, domainId int) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/domains/%d", mailgroupID, domainId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
-	AssertApiError(err, "MailgroupsDomainsRemove")
+
+	return err
 }
 
 // PATCH /mailgroups/{mailgroupID}/domains/{domainId}/setprimary
-func (c *Client) MailgroupsDomainsSetPrimary(mailgroupID int, domainId int) {
+func (c *Client) MailgroupsDomainsSetPrimary(mailgroupID int, domainId int) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/domains/%d/setprimary", mailgroupID, domainId)
 	err := c.invokeAPI("PATCH", endpoint, nil, nil)
-	AssertApiError(err, "MailgroupsDomainsSetPrimary")
+
+	return err
 }
 
 // PATCH /mailgroups/{mailgroupID}/domains/{domainID}
-func (c *Client) MailgroupsDomainsPatch(mailgroupID int, domainID int, data map[string]interface{}) {
+func (c *Client) MailgroupsDomainsPatch(mailgroupID int, domainID int, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/domains/%d", mailgroupID, domainID)
 	err := c.invokeAPI("PATCH", endpoint, data, nil)
-	AssertApiError(err, "MailgroupsDomainsPatch")
+
+	return err
 }
 
 // GET /mailgroups/{mailgroupId}/mailboxes
-func (c *Client) MailgroupsMailboxesGetList(mailgroupID int, get CommonGetParams) []MailboxShort {
+func (c *Client) MailgroupsMailboxesGetList(mailgroupID int, get CommonGetParams) ([]MailboxShort, error) {
 	var response struct {
 		Mailboxes []MailboxShort `json:"mailboxes"`
 	}
 
 	endpoint := fmt.Sprintf("mailgroups/%d/mailboxes", mailgroupID)
 	err := c.invokeAPI("GET", endpoint, nil, &response)
-	AssertApiError(err, "MailgroupsMailboxesGetList")
 
-	return response.Mailboxes
+	return response.Mailboxes, err
 }
 
 // POST /mailgroups/{mailgroupId}/mailboxes
-func (c *Client) MailgroupsMailboxesCreate(mailgroupID int, data MailboxCreate) Mailbox {
+func (c *Client) MailgroupsMailboxesCreate(mailgroupID int, data MailboxCreate) (Mailbox, error) {
 	var response struct {
 		Mailbox Mailbox `json:"mailbox"`
 	}
 
 	endpoint := fmt.Sprintf("mailgroups/%d/mailboxes", mailgroupID)
 	err := c.invokeAPI("POST", endpoint, data, &response)
-	AssertApiError(err, "MailgroupsMailboxesCreate")
 
-	return response.Mailbox
+	return response.Mailbox, err
 }
 
 // GET /mailgroups/{mailgroupId}/mailboxes/{mailboxId}
-func (c *Client) MailgroupsMailboxesGetSingle(mailgroupID int, mailboxID int) Mailbox {
+func (c *Client) MailgroupsMailboxesGetSingle(mailgroupID int, mailboxID int) (Mailbox, error) {
 	var response struct {
 		Mailbox Mailbox `json:"mailbox"`
 	}
 
 	endpoint := fmt.Sprintf("mailgroups/%d/mailboxes/%d", mailgroupID, mailboxID)
 	err := c.invokeAPI("GET", endpoint, nil, &response)
-	AssertApiError(err, "MailgroupsMailboxesGetSingle")
 
-	return response.Mailbox
+	return response.Mailbox, err
 }
 
 // DELETE /mailgroups/{mailgroupId}/mailboxes/{mailboxId}
-func (c *Client) MailgroupsMailboxesDelete(mailgroupID int, mailboxID int) {
+func (c *Client) MailgroupsMailboxesDelete(mailgroupID int, mailboxID int) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/mailboxes/%d", mailgroupID, mailboxID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
-	AssertApiError(err, "MailgroupsMailboxesDelete")
+
+	return err
 }
 
 // PUT /mailgroups/{mailgroupId}/mailboxes
-func (c *Client) MailgroupsMailboxesUpdate(mailgroupID int, mailboxID int, data map[string]interface{}) {
+func (c *Client) MailgroupsMailboxesUpdate(mailgroupID int, mailboxID int, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/mailboxes/%d", mailgroupID, mailboxID)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
-	AssertApiError(err, "MailgroupsMailboxesUpdate")
+
+	return err
 }
 
-func (c *Client) MailgroupsMailboxesLookup(mailgroupID int, name string) []MailboxShort {
+func (c *Client) MailgroupsMailboxesLookup(mailgroupID int, name string) ([]MailboxShort, error) {
 	results := make([]MailboxShort, 0)
-	mailgroups := c.MailgroupsMailboxesGetList(mailgroupID, CommonGetParams{Filter: name})
+	mailgroups, err := c.MailgroupsMailboxesGetList(mailgroupID, CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, val := range mailgroups {
 		if val.Name == name || val.Username == name {
 			results = append(results, val)
 		}
 	}
 
-	return results
+	return results, nil
 }
 
 // GET /mailgroups/{mailgroupId}/mailboxes/{mailboxId}/addresses
-func (c *Client) MailgroupsMailboxesAddressesGetList(mailgroupID int, mailboxID int, get CommonGetParams) []MailboxAddress {
+func (c *Client) MailgroupsMailboxesAddressesGetList(mailgroupID int, mailboxID int, get CommonGetParams) ([]MailboxAddress, error) {
 	var response struct {
 		MailboxAddresses []MailboxAddress `json:"mailboxAddresses"`
 	}
 
 	endpoint := fmt.Sprintf("mailgroups/%d/mailboxes/%d/addresses", mailgroupID, mailboxID)
 	err := c.invokeAPI("GET", endpoint, nil, &response)
-	AssertApiError(err, "MailgroupsMailboxesAddressesGetList")
 
-	return response.MailboxAddresses
+	return response.MailboxAddresses, err
 }
 
 // POST /mailgroups/{mailgroupId}/mailboxes/{mailboxId}/addresses
-func (c *Client) MailgroupsMailboxesAddressesCreate(mailgroupID int, mailboxID int, data MailboxAddressCreate) MailboxAddress {
+func (c *Client) MailgroupsMailboxesAddressesCreate(mailgroupID int, mailboxID int, data MailboxAddressCreate) (MailboxAddress, error) {
 	var response struct {
 		MailboxAddress MailboxAddress `json:"mailboxAdress"`
 	}
 
 	endpoint := fmt.Sprintf("mailgroups/%d/mailboxes/%d/addresses", mailgroupID, mailboxID)
 	err := c.invokeAPI("POST", endpoint, data, &response)
-	AssertApiError(err, "MailgroupsMailboxesAddressesCreate")
 
-	return response.MailboxAddress
+	return response.MailboxAddress, err
 }
 
 // GET /mailgroups/{mailgroupId}/mailboxes/{mailboxId}/addresses/{addressId}
-func (c *Client) MailgroupsMailboxesAddressesGetSingle(mailgroupID int, mailboxID int, addressID int) MailboxAddress {
+func (c *Client) MailgroupsMailboxesAddressesGetSingle(mailgroupID int, mailboxID int, addressID int) (MailboxAddress, error) {
 	var response struct {
 		MailboxAddress MailboxAddress `json:"mailboxAddress"`
 	}
 
 	endpoint := fmt.Sprintf("mailgroups/%d/mailboxes/%d/addresses/%d", mailgroupID, mailboxID, addressID)
 	err := c.invokeAPI("GET", endpoint, nil, &response)
-	AssertApiError(err, "MailgroupsMailboxesAddressesGetSingle")
 
-	return response.MailboxAddress
+	return response.MailboxAddress, err
 }
 
 // DELETE /mailgroups/{mailgroupId}/mailboxes/{mailboxId}/addresses/{addressId}
-func (c *Client) MailgroupsMailboxesAddressesDelete(mailgroupID int, mailboxID int, addressID int) {
+func (c *Client) MailgroupsMailboxesAddressesDelete(mailgroupID int, mailboxID int, addressID int) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/mailboxes/%d/addresses/%d", mailgroupID, mailboxID, addressID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
-	AssertApiError(err, "MailgroupsMailboxesAddressesDelete")
+
+	return err
 }
 
 // PUT /mailgroups/{mailgroupId}/mailboxes/addresses/{addressId}
-func (c *Client) MailgroupsMailboxesAddressesUpdate(mailgroupID int, mailboxID int, addressID int, data map[string]interface{}) {
+func (c *Client) MailgroupsMailboxesAddressesUpdate(mailgroupID int, mailboxID int, addressID int, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/mailboxes/%d/addresses/%d", mailgroupID, mailboxID, addressID)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
-	AssertApiError(err, "MailgroupsMailboxesAddressesUpdate")
+
+	return err
 }
 
-func (c *Client) MailgroupsMailboxesAddressesLookup(mailgroupID int, mailboxID int, address string) []MailboxAddress {
+func (c *Client) MailgroupsMailboxesAddressesLookup(mailgroupID int, mailboxID int, address string) ([]MailboxAddress, error) {
 	results := []MailboxAddress{}
-	addresses := c.MailgroupsMailboxesAddressesGetList(mailgroupID, mailboxID, CommonGetParams{Filter: address})
+	addresses, err := c.MailgroupsMailboxesAddressesGetList(mailgroupID, mailboxID, CommonGetParams{Filter: address})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, val := range addresses {
 		if val.Address == address {
 			results = append(results, val)
 		}
 	}
 
-	return results
+	return results, nil
 }
 
 // GET /mailgroups/{mailgroupId}/mailforwarders
-func (c *Client) MailgroupsMailforwardersGetList(mailgroupID int, get CommonGetParams) []Mailforwarder {
+func (c *Client) MailgroupsMailforwardersGetList(mailgroupID int, get CommonGetParams) ([]Mailforwarder, error) {
 	var response struct {
 		Mailforwarders []Mailforwarder `json:"mailforwarders"`
 	}
 
 	endpoint := fmt.Sprintf("mailgroups/%d/mailforwarders", mailgroupID)
 	err := c.invokeAPI("GET", endpoint, nil, &response)
-	AssertApiError(err, "MailgroupsMailforwardersGetList")
 
-	return response.Mailforwarders
+	return response.Mailforwarders, err
 }
 
 // POST /mailgroups/{mailgroupId}/mailforwarders
-func (c *Client) MailgroupsMailforwardersCreate(mailgroupID int, data MailforwarderCreate) Mailforwarder {
+func (c *Client) MailgroupsMailforwardersCreate(mailgroupID int, data MailforwarderCreate) (Mailforwarder, error) {
 	var response struct {
 		Mailforwarder Mailforwarder `json:"mailforwarder"`
 	}
 
 	endpoint := fmt.Sprintf("mailgroups/%d/mailforwarders", mailgroupID)
 	err := c.invokeAPI("POST", endpoint, data, &response)
-	AssertApiError(err, "MailgroupsMailforwardersCreate")
 
-	return response.Mailforwarder
+	return response.Mailforwarder, err
 }
 
 // GET /mailgroups/{mailgroupId}/mailforwarders/{mailforwarderId}
-func (c *Client) MailgroupsMailforwardersGetSingle(mailgroupID int, mailforwarderID int) Mailforwarder {
+func (c *Client) MailgroupsMailforwardersGetSingle(mailgroupID int, mailforwarderID int) (Mailforwarder, error) {
 	var response struct {
 		Mailforwarder Mailforwarder `json:"mailforwarder"`
 	}
 
 	endpoint := fmt.Sprintf("mailgroups/%d/mailforwarders/%d", mailgroupID, mailforwarderID)
 	err := c.invokeAPI("GET", endpoint, nil, &response)
-	AssertApiError(err, "MailgroupsMailforwardersGetSingle")
 
-	return response.Mailforwarder
+	return response.Mailforwarder, err
 }
 
 // DELETE /mailgroups/{mailgroupId}/mailforwarders/{mailforwarderId}
-func (c *Client) MailgroupsMailforwardersDelete(mailgroupID int, mailforwarderID int) {
+func (c *Client) MailgroupsMailforwardersDelete(mailgroupID int, mailforwarderID int) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/mailforwarders/%d", mailgroupID, mailforwarderID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
-	AssertApiError(err, "MailgroupsMailforwardersDelete")
+
+	return err
 }
 
 // PUT /mailgroups/{mailgroupId}/mailforwarders
-func (c *Client) MailgroupsMailforwardersUpdate(mailgroupID int, mailforwarderID int, data map[string]interface{}) {
+func (c *Client) MailgroupsMailforwardersUpdate(mailgroupID int, mailforwarderID int, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/mailforwarders/%d", mailgroupID, mailforwarderID)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
-	AssertApiError(err, "MailgroupsMailforwardersUpdate")
+
+	return err
 }
 
-func (c *Client) MailgroupsMailforwardersLookup(mailgroupID int, name string) []Mailforwarder {
+func (c *Client) MailgroupsMailforwardersLookup(mailgroupID int, name string) ([]Mailforwarder, error) {
 	results := []Mailforwarder{}
-	mailgroups := c.MailgroupsMailforwardersGetList(mailgroupID, CommonGetParams{Filter: name})
+	mailgroups, err := c.MailgroupsMailforwardersGetList(mailgroupID, CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
+
 	for _, val := range mailgroups {
 		if val.Address == name {
 			results = append(results, val)
 		}
 	}
 
-	return results
+	return results, nil
 }
 
 type Mailgroup struct {
