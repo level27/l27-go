@@ -44,6 +44,34 @@ func (c *Client) LookupOrganisation(name string) ([]Organisation, error) {
 	return results, nil
 }
 
+// POST /organisations
+func (c *Client) OrganisationCreate(req OrganisationCreate) (Organisation, error) {
+	var resp struct {
+		Organisation Organisation `json:"organisation"`
+	}
+
+	endpoint := "organisations"
+	err := c.invokeAPI("POST", endpoint, req, &resp)
+
+	return resp.Organisation, err
+}
+
+// PATCH /organisations/{organisationID}
+func (c *Client) OrganisationUpdate(organisationID int, req map[string]interface{}) error {
+	endpoint := fmt.Sprintf("organisations/%d", organisationID)
+	err := c.invokeAPI("PATCH", endpoint, req, nil)
+
+	return err
+}
+
+// DELETE /organisations/{organisationID}
+func (c *Client) OrganisationDelete(organisationID int) error {
+	endpoint := fmt.Sprintf("organisations/%d", organisationID)
+	err := c.invokeAPI("DELETE", endpoint, nil, nil)
+
+	return err
+}
+
 type Organisation struct {
 	OrganisationRef
 	TaxNumber   string `json:"taxNumber"`
@@ -59,7 +87,9 @@ type Organisation struct {
 	// ResellerOrganisation
 	Users []OrganisationUser `json:"users"`
 	// RemarksToprintInvoice
-	UpdateEntitiesOnly bool `json:"updateEntitiesOnly"`
+	UpdateEntitiesOnly   bool   `json:"updateEntitiesOnly"`
+	ParentOrganisation   string `json:"parentOrganisation"`
+	ResellerOrganisation *int   `json:"resellerOrganisation"`
 }
 
 type OrganisationRef struct {
@@ -81,4 +111,17 @@ type OrganisationUser struct {
 	FirstName string   `json:"firstName"`
 	LastName  string   `json:"lastName"`
 	Roles     []string `json:"roles"`
+}
+
+type OrganisationCreate struct {
+	Name                 string  `json:"name"`
+	TaxNumber            string  `json:"taxNumber"`
+	ResellerOrganisation *int    `json:"resellerOrganisation"`
+	ParentOrganisation   *string `json:"parentOrganisation"`
+	ExternalID           *int    `json:"externalId"`
+	Street               string  `json:"street"`
+	HouseNumber          int     `json:"houseNumber"`
+	Zip                  int     `json:"zip"`
+	City                 string  `json:"city"`
+	Country              string  `json:"country"`
 }
