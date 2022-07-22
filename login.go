@@ -8,6 +8,16 @@ func (c *Client) Login(username string, password string) (Login, error) {
 	return login, err
 }
 
+// POST /login
+// Fetches login information for the current API key.
+func (c *Client) LoginInfo() (Login, error) {
+	var login Login
+
+	err := c.invokeAPI("POST", "login", nil, &login)
+
+	return login, err
+}
+
 type Login struct {
 	Success bool `json:"success"`
 	User    struct {
