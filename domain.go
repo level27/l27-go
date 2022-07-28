@@ -69,7 +69,7 @@ func (c *Client) DomainDelete(id int) error {
 }
 
 // CREATE DOMAIN [lvl domain create <parmeters>]
-func (c *Client) DomainCreate(args []string, req DomainRequest) (Domain, error) {
+func (c *Client) DomainCreate(req DomainRequest) (Domain, error) {
 	if req.Action == "" {
 		req.Action = "none"
 	}
@@ -84,7 +84,7 @@ func (c *Client) DomainCreate(args []string, req DomainRequest) (Domain, error) 
 }
 
 // TRANSFER DOMAIN [lvl domain transfer <parameters>]
-func (c *Client) DomainTransfer(args []string, req DomainRequest) error {
+func (c *Client) DomainTransfer(req DomainRequest) error {
 	if req.Action == "" {
 		req.Action = "transfer"
 	}
@@ -106,6 +106,14 @@ func (c *Client) DomainInternalTransfer(id int, req DomainRequest) error {
 func (c *Client) DomainUpdate(id int, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("domains/%d", id)
 	err := c.invokeAPI("PATCH", endpoint, data, nil)
+
+	return err
+}
+
+// PUT /domains/{domainID}
+func (c *Client) DomainUpdatePut(id int, data DomainRequest) error {
+	endpoint := fmt.Sprintf("domains/%d", id)
+	err := c.invokeAPI("PUT", endpoint, data, nil)
 
 	return err
 }
@@ -233,6 +241,48 @@ func (c *Client) DomainCheck(name string, extension string) (DomainCheckResult, 
 	return checkResult, err
 }
 
+// ----------- DOMAIN CONTACTS -----------
+
+// POST /domaincontacts
+func (c *Client) DomainContactCreate(request DomainContactRequest) (DomainContact, error) {
+	var response struct {
+		Data DomainContact `json:"domaincontact"`
+	}
+
+	endpoint := "domaincontacts"
+	err := c.invokeAPI("POST", endpoint, request, &response)
+
+	return response.Data, err
+}
+
+// GET /domaincontacts/{domainContactID}
+func (c *Client) DomainContactGetSingle(id int) (DomainContact, error) {
+	var response struct {
+		Data DomainContact `json:"domaincontact"`
+	}
+
+	endpoint := fmt.Sprintf("domaincontacts/%d", id)
+	err := c.invokeAPI("GET", endpoint, nil, &response)
+
+	return response.Data, err
+}
+
+// PUT /domaincontacts/{domainContactID}
+func (c *Client) DomainContactUpdate(id int, request DomainContactRequest) error {
+	endpoint := fmt.Sprintf("domaincontacts/%d", id)
+	err := c.invokeAPI("PUT", endpoint, request, nil)
+
+	return err
+}
+
+// DELETE /domaincontacts/{domainContactID}
+func (c *Client) DomainContactDelete(id int) error {
+	endpoint := fmt.Sprintf("domaincontacts/%d", id)
+	err := c.invokeAPI("DELETE", endpoint, nil, nil)
+
+	return err
+}
+
 type Domain struct {
 	ID                    int    `json:"id"`
 	Name                  string `json:"name"`
@@ -247,20 +297,20 @@ type Domain struct {
 		Name string `json:"name"`
 		API  string `json:"api"`
 	} `json:"provider"`
-	DNSIsHandled    bool   `json:"dnsIsHandled"`
-	DtRegister      string `json:"dtRegister"`
-	Nameserver1     string `json:"nameserver1"`
-	Nameserver2     string `json:"nameserver2"`
-	Nameserver3     string `json:"nameserver3"`
-	Nameserver4     string `json:"nameserver4"`
-	NameserverIP1   string `json:"nameserverIp1"`
-	NameserverIP2   string `json:"nameserverIp2"`
-	NameserverIP3   string `json:"nameserverIp3"`
-	NameserverIP4   string `json:"nameserverIp4"`
-	NameserverIpv61 string `json:"nameserverIpv61"`
-	NameserverIpv62 string `json:"nameserverIpv62"`
-	NameserverIpv63 string `json:"nameserverIpv63"`
-	NameserverIpv64 string `json:"nameserverIpv64"`
+	DNSIsHandled    bool    `json:"dnsIsHandled"`
+	DtRegister      string  `json:"dtRegister"`
+	Nameserver1     *string `json:"nameserver1"`
+	Nameserver2     *string `json:"nameserver2"`
+	Nameserver3     *string `json:"nameserver3"`
+	Nameserver4     *string `json:"nameserver4"`
+	NameserverIP1   *string `json:"nameserverIp1"`
+	NameserverIP2   *string `json:"nameserverIp2"`
+	NameserverIP3   *string `json:"nameserverIp3"`
+	NameserverIP4   *string `json:"nameserverIp4"`
+	NameserverIpv61 *string `json:"nameserverIpv61"`
+	NameserverIpv62 *string `json:"nameserverIpv62"`
+	NameserverIpv63 *string `json:"nameserverIpv63"`
+	NameserverIpv64 *string `json:"nameserverIpv64"`
 	Organisation    struct {
 		ID       int    `json:"id"`
 		Name     string `json:"name"`
@@ -277,37 +327,9 @@ type Domain struct {
 		LicenseeChangePossible              bool   `json:"licenseeChangePossible"`
 		DnssecSupported                     bool   `json:"dnssecSupported"`
 	} `json:"domaintype"`
-	DomaincontactLicensee struct {
-		ID               int    `json:"id,omitempty"`
-		FirstName        string `json:"firstName"`
-		LastName         string `json:"lastName"`
-		Fullname         string `json:"fullname"`
-		OrganisationName string `json:"organisationName"`
-		Street           string `json:"street"`
-		HouseNumber      string `json:"houseNumber"`
-		Zip              string `json:"zip"`
-		City             string `json:"city"`
-		State            string `json:"state"`
-		Phone            string `json:"phone"`
-		Fax              string `json:"fax"`
-		Email            string `json:"email"`
-		TaxNumber        string `json:"taxNumber"`
-		Status           int    `json:"status"`
-		PassportNumber   string `json:"passportNumber"`
-		SocialNumber     string `json:"socialNumber"`
-		BirthStreet      string `json:"birthStreet"`
-		BirthZip         string `json:"birthZip"`
-		BirthCity        string `json:"birthCity"`
-		BirthDate        string `json:"birthDate"`
-		Gender           string `json:"gender"`
-		Type             string `json:"type"`
-		Country          struct {
-			ID   string `json:"id"`
-			Name string `json:"name"`
-		} `json:"country"`
-	} `json:"domaincontactLicensee"`
-	DomaincontactOnsite interface{} `json:"domaincontactOnsite"`
-	Mailgroup           struct {
+	DomaincontactLicensee DomainContactRef  `json:"domaincontactLicensee"`
+	DomaincontactOnsite   *DomainContactRef `json:"domaincontactOnsite"`
+	Mailgroup             struct {
 		ID   int    `json:"id"`
 		Name string `json:"name"`
 	} `json:"mailgroup"`
@@ -326,8 +348,34 @@ type Domain struct {
 	Jobs       []Job `json:"jobs"`
 }
 
-func (d Domain) String() string {
-	return "domain"
+type DomainContactRef struct {
+	ID               int    `json:"id,omitempty"`
+	FirstName        string `json:"firstName"`
+	LastName         string `json:"lastName"`
+	Fullname         string `json:"fullname"`
+	OrganisationName string `json:"organisationName"`
+	Street           string `json:"street"`
+	HouseNumber      string `json:"houseNumber"`
+	Zip              string `json:"zip"`
+	City             string `json:"city"`
+	State            string `json:"state"`
+	Phone            string `json:"phone"`
+	Fax              string `json:"fax"`
+	Email            string `json:"email"`
+	TaxNumber        string `json:"taxNumber"`
+	Status           int    `json:"status"`
+	PassportNumber   string `json:"passportNumber"`
+	SocialNumber     string `json:"socialNumber"`
+	BirthStreet      string `json:"birthStreet"`
+	BirthZip         string `json:"birthZip"`
+	BirthCity        string `json:"birthCity"`
+	BirthDate        string `json:"birthDate"`
+	Gender           string `json:"gender"`
+	Type             string `json:"type"`
+	Country          struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"country"`
 }
 
 // DomainProvider represents a single DomainProvider
@@ -352,17 +400,17 @@ type DomainExtension struct {
 type DomainRequest struct {
 	Name                      string  `json:"name"`
 	NameServer1               *string `json:"nameserver1"`
-	NameServer2               string  `json:"nameserver2"`
-	NameServer3               string  `json:"nameserver3"`
-	NameServer4               string  `json:"nameserver4"`
-	NameServer1Ip             string  `json:"nameserverIp1"`
-	NameServer2Ip             string  `json:"nameserverIp2"`
-	NameServer3Ip             string  `json:"nameserverIp3"`
-	NameServer4Ip             string  `json:"nameserverIp4"`
-	NameServer1Ipv6           string  `json:"nameserverIpv61"`
-	NameServer2Ipv6           string  `json:"nameserverIpv62"`
-	NameServer3Ipv6           string  `json:"nameserverIpv63"`
-	NameServer4Ipv6           string  `json:"nameserverIpv64"`
+	NameServer2               *string `json:"nameserver2"`
+	NameServer3               *string `json:"nameserver3"`
+	NameServer4               *string `json:"nameserver4"`
+	NameServer1Ip             *string `json:"nameserverIp1"`
+	NameServer2Ip             *string `json:"nameserverIp2"`
+	NameServer3Ip             *string `json:"nameserverIp3"`
+	NameServer4Ip             *string `json:"nameserverIp4"`
+	NameServer1Ipv6           *string `json:"nameserverIpv61"`
+	NameServer2Ipv6           *string `json:"nameserverIpv62"`
+	NameServer3Ipv6           *string `json:"nameserverIpv63"`
+	NameServer4Ipv6           *string `json:"nameserverIpv64"`
 	TTL                       int     `json:"ttl"`
 	Action                    string  `json:"action"`
 	EppCode                   string  `json:"eppCode"`
@@ -378,8 +426,8 @@ type DomainRequest struct {
 	// DtExternalCreated         string `json:"dtExternalCreated"`
 	// DtExternalExpires         string `json:"dtExternalExpires"`
 	// ConvertDomainRecords      string `json:"convertDomainrecords"`
-	AutoTeams    string `json:"autoTeams"`
-	ExternalInfo string `json:"externalInfo"`
+	AutoTeams    string  `json:"autoTeams"`
+	ExternalInfo *string `json:"externalInfo,omitempty"`
 }
 
 // request for updating a single domain
@@ -444,69 +492,62 @@ type DomainRecordRequest struct {
 
 // DomainContact is an object to define domain contacts at Level27
 type DomainContact struct {
-	Domaincontact struct {
-		ID               int    `json:"id"`
-		FirstName        string `json:"firstName"`
-		LastName         string `json:"lastName"`
-		OrganisationName string `json:"organisationName"`
-		Street           string `json:"street"`
-		HouseNumber      string `json:"houseNumber"`
-		Zip              string `json:"zip"`
-		City             string `json:"city"`
-		State            string `json:"state"`
-		Phone            string `json:"phone"`
-		Fax              string `json:"fax"`
-		Email            string `json:"email"`
-		TaxNumber        string `json:"taxNumber"`
-		PassportNumber   string `json:"passportNumber"`
-		SocialNumber     string `json:"socialNumber"`
-		BirthStreet      string `json:"birthStreet"`
-		BirthZip         string `json:"birthZip"`
-		BirthCity        string `json:"birthCity"`
-		BirthDate        string `json:"birthDate"`
-		Gender           string `json:"gender"`
-		Type             string `json:"type"`
-		Country          struct {
-			ID   string `json:"id"`
-			Name string `json:"name"`
-		} `json:"country"`
-		Organisation struct {
-			ID   int    `json:"id"`
-			Name string `json:"name"`
-		} `json:"organisation"`
-		Fullname string `json:"fullname"`
-	} `json:"domaincontact"`
+	ID               int     `json:"id"`
+	FirstName        string  `json:"firstName"`
+	LastName         string  `json:"lastName"`
+	OrganisationName string  `json:"organisationName"`
+	Street           string  `json:"street"`
+	HouseNumber      string  `json:"houseNumber"`
+	Zip              string  `json:"zip"`
+	City             string  `json:"city"`
+	State            *string `json:"state"`
+	Phone            string  `json:"phone"`
+	Fax              *string `json:"fax"`
+	Email            string  `json:"email"`
+	TaxNumber        string  `json:"taxNumber"`
+	PassportNumber   *string `json:"passportNumber"`
+	SocialNumber     *string `json:"socialNumber"`
+	BirthStreet      *string `json:"birthStreet"`
+	BirthZip         *string `json:"birthZip"`
+	BirthCity        *string `json:"birthCity"`
+	BirthDate        *string `json:"birthDate"`
+	Gender           *string `json:"gender"`
+	Type             string  `json:"type"`
+	Country          struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"country"`
+	Organisation struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	} `json:"organisation"`
+	Fullname string `json:"fullname"`
 }
 
 // DomainContactRequest is an object to define the request to create or modify a domain contact at Level27
 type DomainContactRequest struct {
-	Type             string `json:"type"`
-	FirstName        string `json:"firstName"`
-	LastName         string `json:"lastName"`
-	OrganisationName string `json:"organisationName"`
-	Street           string `json:"street"`
-	HouseNumber      string `json:"houseNumber,omitempty"`
-	Zip              string `json:"zip"`
-	City             string `json:"city"`
-	State            string `json:"state,omitempty"`
-	Phone            string `json:"phone"`
-	Fax              string `json:"fax,omitempty"`
-	Email            string `json:"email"`
-	TaxNumber        string `json:"taxNumber"`
-	PassportNumber   string `json:"passportNumber,omitempty"`
-	SocialNumber     string `json:"socialNumber,omitempty"`
-	BirthStreet      string `json:"birthStreet,omitempty"`
-	BirthZip         string `json:"birthZip,omitempty"`
-	BirthCity        string `json:"birthCity,omitempty"`
-	BirthDate        string `json:"birthDate,omitempty"`
-	Gender           string `json:"gender,omitempty"`
-	Country          string `json:"country"`
-	Organisation     string `json:"organisation"`
-}
-
-func (d DomainContactRequest) String() string {
-	s, _ := json.Marshal(d)
-	return string(s)
+	Type             string  `json:"type"`
+	FirstName        string  `json:"firstName"`
+	LastName         string  `json:"lastName"`
+	OrganisationName string  `json:"organisationName"`
+	Street           string  `json:"street"`
+	HouseNumber      string  `json:"houseNumber"`
+	Zip              string  `json:"zip"`
+	City             string  `json:"city"`
+	State            *string `json:"state,omitempty"`
+	Phone            string  `json:"phone"`
+	Fax              *string `json:"fax,omitempty"`
+	Email            string  `json:"email"`
+	TaxNumber        string  `json:"taxNumber"`
+	PassportNumber   *string `json:"passportNumber,omitempty"`
+	SocialNumber     *string `json:"socialNumber,omitempty"`
+	BirthStreet      *string `json:"birthStreet,omitempty"`
+	BirthZip         *string `json:"birthZip,omitempty"`
+	BirthCity        *string `json:"birthCity,omitempty"`
+	BirthDate        *string `json:"birthDate,omitempty"`
+	Gender           *string `json:"gender,omitempty"`
+	Country          string  `json:"country"`
+	Organisation     string  `json:"organisation"`
 }
 
 // ------------------------------------------ ACCESS ---------------------------------------------
