@@ -482,6 +482,16 @@ func (c *Client) SystemSystemgroupsRemove(systemId int, systemgroupId int) error
 }
 
 // ------------------ GET PROVIDERS
+func (c *Client) GetSystemProviders() ([]SystemProvider, error) {
+	var response struct {
+		Providers []SystemProvider `json:"providers"`
+	}
+
+	endpoint := "systems/providers"
+	err := c.invokeAPI("GET", endpoint, nil, &response)
+
+	return response.Providers, err
+}
 
 func (c *Client) GetSystemProviderConfigurations() ([]SystemProviderConfiguration, error) {
 	var response struct {
@@ -1039,4 +1049,31 @@ type SystemPut struct {
 
 type SystemHasNetworkIpPut struct {
 	Hostname string `json:"hostname"`
+}
+
+type SystemProvider struct {
+	ID                 int                   `json:"id"`
+	Name               string                `json:"name"`
+	API                string                `json:"api"`
+	AdvancedNetworking bool                  `json:"advancedNetworking"`
+	Icon               string                `json:"icon"`
+	Images             []SystemProviderImage `json:"images"`
+}
+
+type SystemProviderImage struct {
+	ID         int         `json:"id"`
+	Name       string      `json:"name"`
+	ExternalID string      `json:"externalId"`
+	TemplateID interface{} `json:"templateId"`
+	Region     struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+	} `json:"region"`
+	OperatingSystemID      int    `json:"operatingSystemId"`
+	OperatingSystem        string `json:"operatingSystem"`
+	OperatingSystemVersion struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+		Type string `json:"type"`
+	} `json:"operatingSystemVersion"`
 }
