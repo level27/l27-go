@@ -272,7 +272,7 @@ func (c *Client) AppComponentsDelete(appId int, componentId int) error {
 
 func (c *Client) AppComponentCreate(appId int, req interface{}) (AppComponent, error) {
 	var app struct {
-		Data AppComponent `json:"app"`
+		Data AppComponent `json:"component"`
 	}
 	endpoint := fmt.Sprintf("apps/%d/components", appId)
 	err := c.invokeAPI("POST", endpoint, req, &app)
