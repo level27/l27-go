@@ -931,26 +931,20 @@ type SystemCheckGet struct {
 // ----------------------------------- COOKBOOKS ----------------------------------
 // --- COOKBOOK
 type Cookbook struct {
-	Id                             int                          `json:"id"`
-	CookbookType                   string                       `json:"cookbooktype"`
-	CookbookParameters             CookbookParameterName        `json:"cookbookparameters"`
-	CookbookParametersDescriptions CookbookParameterDescription `json:"cookbookparameterDescriptions"`
-	PreviousCookbookParameters     interface{}                  `json:"previousCookbookparameters"`
-	Status                         string                       `json:"status"`
-	StatusCategory                 string                       `json:"statusCategory"`
-	System                         SystemRef                    `json:"system"`
+	Id                             int                                 `json:"id"`
+	CookbookType                   string                              `json:"cookbooktype"`
+	CookbookParameters             BuggyMap[string, CookbookParameter] `json:"cookbookparameters"`
+	CookbookParametersDescriptions BuggyMap[string, string]            `json:"cookbookparameterDescriptions"`
+	PreviousCookbookParameters     interface{}                         `json:"previousCookbookparameters"`
+	Status                         string                              `json:"status"`
+	StatusCategory                 string                              `json:"statusCategory"`
+	System                         SystemRef                           `json:"system"`
 }
-
-// we dont know this value beforehand (the key of cookbookparameter)
-type CookbookParameterName map[string]CookbookParameter
 
 type CookbookParameter struct {
 	Value   interface{} `json:"value"`
 	Default bool        `json:"default"`
 }
-
-// we dont know this value beforehand (key of cookbookParameterDescription)
-type CookbookParameterDescription map[string]interface{}
 
 // --- COOKBOOKTYPE
 
