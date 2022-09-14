@@ -90,9 +90,9 @@ func (c *Client) SystemGetNonAddedSshKeys(systemID int, organisationID int, user
 	return keys.SshKeys, err
 }
 
-func (c *Client) SystemAddSshKey(id int, keyID int) (SshKey, error) {
+func (c *Client) SystemAddSshKey(id int, keyID int) (SystemSshkey, error) {
 	var key struct {
-		Sshkey SshKey `json:"sshKey"`
+		Sshkey SystemSshkey `json:"sshKey"`
 	}
 
 	var data struct {
@@ -142,6 +142,18 @@ func (c *Client) LookupSystemNonAddedSshkey(systemID int, organisationID int, us
 	}
 
 	return nil, nil
+}
+
+// GET /systems/{systemId}/sshkeys/{sshkeyId}
+func (c *Client) SystemSshKeysGetSingle(systemID int, sshKeyID int) (SystemSshkey, error) {
+	var resp struct {
+		Data SystemSshkey `json:"sshkey"`
+	}
+
+	endpoint := fmt.Sprintf("systems/%d/sshkeys/%d", systemID, sshKeyID)
+	err := c.invokeAPI("GET", endpoint, nil, &resp)
+
+	return resp.Data, err
 }
 
 func (c *Client) SystemGetHasNetworks(id int) ([]SystemHasNetwork, error) {
