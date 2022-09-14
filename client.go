@@ -44,7 +44,7 @@ func (c *Client) TraceRequests(tracer RequestTracer) {
 	c.requestTracer = tracer
 }
 
-type errorResponse struct {
+type ErrorResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Errors  struct {
@@ -71,7 +71,7 @@ type errorResponse struct {
 	} `json:"errors"`
 }
 
-func (er errorResponse) Error() string {
+func (er ErrorResponse) Error() string {
 	var sb strings.Builder
 	sb.WriteString(er.Message)
 
@@ -205,7 +205,7 @@ func formatRequestError(statusCode int, body []byte) error {
 		}
 	}
 
-	var errRes errorResponse
+	var errRes ErrorResponse
 	if err = json.Unmarshal(body, &errRes); err == nil {
 		return errRes
 	}
