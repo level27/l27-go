@@ -461,6 +461,23 @@ func (c *Client) SystemCookbookUpdate(systemId int, cookbookId int, req *Cookboo
 	return err
 }
 
+// Look up a cookbook of a specified type up on a system.
+// Returns nil if the system does not have a cookbook of the given type.
+func (c *Client) SystemCookbookLookup(systemID int, cookbookType string) (*Cookbook, error) {
+	cookbooks, err := c.SystemCookbookGetList(systemID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, cookbook := range cookbooks {
+		if cookbook.CookbookType == cookbookType {
+			return &cookbook, nil
+		}
+	}
+
+	return nil, nil
+}
+
 // #endregion
 
 // --------------------------- SYSTEM/GROUPS (GET / ADD / DESCRIBE / DELETE) ------------------------------------
