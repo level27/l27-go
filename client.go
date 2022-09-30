@@ -17,10 +17,11 @@ import (
 
 // Client defines the API Client structure
 type Client struct {
-	BaseURL       string
-	apiKey        string
-	HTTPClient    *http.Client
-	requestTracer RequestTracer
+	BaseURL               string
+	apiKey                string
+	HTTPClient            *http.Client
+	requestTracer         RequestTracer
+	DefaultRequestHeaders map[string]string
 }
 
 type RequestTracer interface {
@@ -37,6 +38,7 @@ func NewAPIClient(uri string, apiKey string) *Client {
 		HTTPClient: &http.Client{
 			Timeout: time.Minute,
 		},
+		DefaultRequestHeaders: make(map[string]string),
 	}
 }
 
@@ -126,10 +128,14 @@ func (c *Client) sendRequestRaw(method string, endpoint string, data interface{}
 		return nil, fmt.Errorf("error creating HTTP request: %v", err)
 	}
 
+	for k, v := range c.DefaultRequestHeaders {
+		req.Header.Set(k, v)
+	}
+
 	for k, v := range headers {
 		req.Header.Set(k, v)
 	}
-	req.Header.Set("User-Agent", "level27_lvl/1.0")
+
 	req.Header.Set("Authorization", c.apiKey)
 
 	res, err := c.HTTPClient.Do(req)
