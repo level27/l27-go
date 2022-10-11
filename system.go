@@ -361,12 +361,23 @@ func (c *Client) SystemCookbookChangesApply(systemId int) error {
 // #region SYSTEM/COOKBOOKS TOPLEVEL (GET / ADD)
 
 // ---------------- GET COOKBOOK
-func (c *Client) SystemCookbookGetList(systemId int) ([]Cookbook, error) {
+func (c *Client) SystemCookbookGetList(systemId int, get CommonGetParams) ([]Cookbook, error) {
 	var systemCookbooks struct {
 		Data []Cookbook `json:"cookbooks"`
 	}
 
-	endpoint := fmt.Sprintf("systems/%v/cookbooks", systemId)
+	endpoint := fmt.Sprintf("systems/%v/cookbooks?%s", systemId, formatCommonGetParams(get))
+	err := c.invokeAPI("GET", endpoint, nil, &systemCookbooks)
+
+	return systemCookbooks.Data, err
+}
+
+func (c *Client) SystemSettingsGetList(systemId int, get CommonGetParams) ([]Cookbook, error) {
+	var systemCookbooks struct {
+		Data []Cookbook `json:"cookbooks"`
+	}
+
+	endpoint := fmt.Sprintf("systems/%v/settings?%s", systemId, formatCommonGetParams(get))
 	err := c.invokeAPI("GET", endpoint, nil, &systemCookbooks)
 
 	return systemCookbooks.Data, err
@@ -464,7 +475,22 @@ func (c *Client) SystemCookbookUpdate(systemId int, cookbookId int, req *Cookboo
 // Look up a cookbook of a specified type up on a system.
 // Returns nil if the system does not have a cookbook of the given type.
 func (c *Client) SystemCookbookLookup(systemID int, cookbookType string) (*Cookbook, error) {
-	cookbooks, err := c.SystemCookbookGetList(systemID)
+	cookbooks, err := c.SystemCookbookGetList(systemID, CommonGetParams{Filter: cookbookType})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, cookbook := range cookbooks {
+		if cookbook.CookbookType == cookbookType {
+			return &cookbook, nil
+		}
+	}
+
+	return nil, nil
+}
+
+func (c *Client) SystemSettingsLookup(systemID int, cookbookType string) (*Cookbook, error) {
+	cookbooks, err := c.SystemSettingsGetList(systemID, CommonGetParams{Filter: cookbookType})
 	if err != nil {
 		return nil, err
 	}
