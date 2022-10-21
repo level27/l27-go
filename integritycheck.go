@@ -7,12 +7,12 @@ import (
 )
 
 // GET /{entityType}/{entityID}/integritychecks/{checkID}
-func (c *Client) EntityIntegrityCheck(entityType string, entityID IntID, checkId IntID) (IntegrityCheck, error) {
+func (c *Client) EntityIntegrityCheck(entityType string, entityID IntID, checkID IntID) (IntegrityCheck, error) {
 	var result struct {
 		IntegrityCheck IntegrityCheck `json:"integritycheck"`
 	}
 
-	endpoint := fmt.Sprintf("%s/%d/integritychecks/%d", entityType, entityID, checkId)
+	endpoint := fmt.Sprintf("%s/%d/integritychecks/%d", entityType, entityID, checkID)
 	err := c.invokeAPI("GET", endpoint, nil, &result)
 
 	return result.IntegrityCheck, err
@@ -44,8 +44,8 @@ func (c *Client) EntityIntegrityCreate(entityType string, entityID IntID, runJob
 }
 
 // Download entity integrity check report to file.
-func (c *Client) EntityIntegrityCheckDownload(entityType string, entityID IntID, checkId IntID, fileName string) error {
-	endpoint := fmt.Sprintf("%s/%d/integritychecks/%d/report", entityType, entityID, checkId)
+func (c *Client) EntityIntegrityCheckDownload(entityType string, entityID IntID, checkID IntID, fileName string) error {
+	endpoint := fmt.Sprintf("%s/%d/integritychecks/%d/report", entityType, entityID, checkID)
 	res, err := c.sendRequestRaw("GET", endpoint, nil, map[string]string{"Accept": "application/pdf"})
 
 	if err == nil {
@@ -65,7 +65,7 @@ func (c *Client) EntityIntegrityCheckDownload(entityType string, entityID IntID,
 	}
 
 	if fileName == "" {
-		fileName = parseContentDispositionFilename(res, fmt.Sprintf("integritycheck_%d_%s_%d.pdf", checkId, entityType, entityID))
+		fileName = parseContentDispositionFilename(res, fmt.Sprintf("integritycheck_%d_%s_%d.pdf", checkID, entityType, entityID))
 	}
 
 	file, err := os.Create(fileName)
@@ -87,7 +87,7 @@ type IntegrityCreateRequest struct {
 }
 
 type IntegrityCheck struct {
-	Id          IntID  `json:"id"`
+	ID          IntID  `json:"id"`
 	DtRequested string `json:"dtRequested"`
 	Status      string `json:"status"`
 }

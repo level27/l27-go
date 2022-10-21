@@ -7,12 +7,12 @@ import (
 //------------------------------------------------- SYSTEMSGROUPS (GET / CREATE  / UPDATE / DELETE)-------------------------------------------------
 
 // ---------------- GET SINGLE (describe)
-func (c *Client) SystemgroupsgetSingle(systemgroupId IntID) (Systemgroup, error) {
+func (c *Client) SystemgroupsgetSingle(systemgroupID IntID) (Systemgroup, error) {
 	var systemgroup struct {
 		Data Systemgroup `json:"systemgroup"`
 	}
 
-	endpoint := fmt.Sprintf("systemgroups/%v", systemgroupId)
+	endpoint := fmt.Sprintf("systemgroups/%v", systemgroupID)
 	err := c.invokeAPI("GET", endpoint, nil, &systemgroup)
 
 	return systemgroup.Data, err
@@ -43,16 +43,16 @@ func (c *Client) SystemgroupsCreate(req SystemgroupRequest) (Systemgroup, error)
 }
 
 // ---------------- UPDATE
-func (c *Client) SystemgroupsUpdate(systemgroupId IntID, req SystemgroupRequest) error {
-	endpoint := fmt.Sprintf("systemgroups/%v", systemgroupId)
+func (c *Client) SystemgroupsUpdate(systemgroupID IntID, req SystemgroupRequest) error {
+	endpoint := fmt.Sprintf("systemgroups/%v", systemgroupID)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
 
 	return err
 }
 
 // ---------------- DELETE
-func (c *Client) SystemgroupDelete(systemgroupId IntID) error {
-	endpoint := fmt.Sprintf("systemgroups/%v", systemgroupId)
+func (c *Client) SystemgroupDelete(systemgroupID IntID) error {
+	endpoint := fmt.Sprintf("systemgroups/%v", systemgroupID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err

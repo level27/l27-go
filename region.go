@@ -39,7 +39,7 @@ func (c *Client) LookupZoneAndRegion(zoneName string) (*Zone, *Region, error) {
 	}
 
 	// If parsing fails, this is a 0 and won't match anything.
-	intId, _ := ParseID(zoneName)
+	intID, _ := ParseID(zoneName)
 	for _, region := range regions {
 		zones, err := c.GetZones(region.ID)
 		if err != nil {
@@ -47,7 +47,7 @@ func (c *Client) LookupZoneAndRegion(zoneName string) (*Zone, *Region, error) {
 		}
 
 		for _, zone := range zones {
-			if zone.Name == zoneName || zone.ID == intId {
+			if zone.Name == zoneName || zone.ID == intID {
 				return &zone, &region, nil
 			}
 		}

@@ -4,18 +4,18 @@ import (
 	"fmt"
 )
 
-func (c *Client) JobHistoryRootGet(rootJobId IntID) (Job, error) {
+func (c *Client) JobHistoryRootGet(rootJobID IntID) (Job, error) {
 	var job Job
-	endpoint := fmt.Sprintf("jobs/history/root/%v", rootJobId)
+	endpoint := fmt.Sprintf("jobs/history/root/%v", rootJobID)
 	err := c.invokeAPI("GET", endpoint, nil, &job)
 
 	return job, err
 }
 
-func (c *Client) EntityJobHistoryGet(entityType string, domainId IntID) ([]Job, error) {
+func (c *Client) EntityJobHistoryGet(entityType string, domainID IntID) ([]Job, error) {
 	var historyResult []Job
 
-	endpoint := fmt.Sprintf("jobs/history/%s/%v", entityType, domainId)
+	endpoint := fmt.Sprintf("jobs/history/%s/%v", entityType, domainID)
 	err := c.invokeAPI("GET", endpoint, nil, &historyResult)
 
 	return historyResult, err

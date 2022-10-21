@@ -5,12 +5,12 @@ import (
 )
 
 // Get a single organisation from the API.
-func (c *Client) Organisation(organisationId IntID) (Organisation, error) {
+func (c *Client) Organisation(organisationID IntID) (Organisation, error) {
 	var orgs struct {
 		Organisation Organisation `json:"organisation"`
 	}
 
-	endpoint := fmt.Sprintf("organisations/%d", organisationId)
+	endpoint := fmt.Sprintf("organisations/%d", organisationID)
 	err := c.invokeAPI("GET", endpoint, nil, &orgs)
 
 	return orgs.Organisation, err

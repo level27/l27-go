@@ -134,12 +134,12 @@ func (c *Client) DomainRecords(id IntID, recordType string, getParams CommonGetP
 	return records.Records, err
 }
 
-func (c *Client) DomainRecord(domainId IntID, recordId IntID) (DomainRecord, error) {
+func (c *Client) DomainRecord(domainID IntID, recordID IntID) (DomainRecord, error) {
 	var records struct {
 		Record DomainRecord `json:"record"`
 	}
 
-	endpoint := fmt.Sprintf("domains/%d/records/%d", domainId, recordId)
+	endpoint := fmt.Sprintf("domains/%d/records/%d", domainID, recordID)
 	err := c.invokeAPI("GET", endpoint, nil, &records)
 
 	return records.Record, err
@@ -156,16 +156,16 @@ func (c *Client) DomainRecordCreate(id IntID, req DomainRecordRequest) (DomainRe
 }
 
 // DELETE
-func (c *Client) DomainRecordDelete(domainId IntID, recordId IntID) error {
-	endpoint := fmt.Sprintf("domains/%d/records/%d", domainId, recordId)
+func (c *Client) DomainRecordDelete(domainID IntID, recordID IntID) error {
+	endpoint := fmt.Sprintf("domains/%d/records/%d", domainID, recordID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err
 }
 
 // UPDATE
-func (c *Client) DomainRecordUpdate(domainId IntID, recordId IntID, req DomainRecordRequest) error {
-	endpoint := fmt.Sprintf("domains/%d/records/%d", domainId, recordId)
+func (c *Client) DomainRecordUpdate(domainID IntID, recordID IntID, req DomainRecordRequest) error {
+	endpoint := fmt.Sprintf("domains/%d/records/%d", domainID, recordID)
 	err := c.invokeAPI("PUT", endpoint, &req, nil)
 
 	return err
@@ -174,8 +174,8 @@ func (c *Client) DomainRecordUpdate(domainId IntID, recordId IntID, req DomainRe
 // --------------------------------------------------- ACCESS --------------------------------------------------------
 //add access to a domain
 
-func (c *Client) DomainAccesAdd(domainId IntID, req DomainAccessRequest) error {
-	endpoint := fmt.Sprintf("domains/%v/acls", domainId)
+func (c *Client) DomainAccesAdd(domainID IntID, req DomainAccessRequest) error {
+	endpoint := fmt.Sprintf("domains/%v/acls", domainID)
 	err := c.invokeAPI("POST", endpoint, &req, nil)
 
 	return err
@@ -183,8 +183,8 @@ func (c *Client) DomainAccesAdd(domainId IntID, req DomainAccessRequest) error {
 
 //remove acces from a domain
 
-func (c *Client) DomainAccesRemove(domainId IntID, organisationId IntID) error {
-	endpoint := fmt.Sprintf("domains/%v/acls/%v", domainId, organisationId)
+func (c *Client) DomainAccesRemove(domainID IntID, organisationID IntID) error {
+	endpoint := fmt.Sprintf("domains/%v/acls/%v", domainID, organisationID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err
@@ -192,19 +192,19 @@ func (c *Client) DomainAccesRemove(domainId IntID, organisationId IntID) error {
 
 // --------------------------------------------------- NOTIFICATIONS --------------------------------------------------------
 // GET LIST OF ALL NOTIFICATIONS FOR DOMAIN
-// func (c *Client) DomainNotificationGet(domainId IntID) []Notification {
+// func (c *Client) DomainNotificationGet(domainID IntID) []Notification {
 // 	var notifications struct {
 // 		Notifications []Notification `json:"notifications"`
 // 	}
-// 	endpoint := fmt.Sprintf("domains/%v/notifications", domainId)
+// 	endpoint := fmt.Sprintf("domains/%v/notifications", domainID)
 // 	err := c.invokeAPI("GET", endpoint, nil, &notifications)
 // 	AssertApiError(err, "notifications")
 // 	return notifications.Notifications
 // }
 
 // // CREATE A NOTIFICATION
-// func (c *Client) DomainNotificationAdd(domainId IntID, req DomainNotificationPostRequest) {
-// 	endpoint := fmt.Sprintf("domains/%v/notifications", domainId)
+// func (c *Client) DomainNotificationAdd(domainID IntID, req DomainNotificationPostRequest) {
+// 	endpoint := fmt.Sprintf("domains/%v/notifications", domainID)
 // 	err := c.invokeAPI("POST", endpoint, req, nil)
 
 // 	AssertApiError(err, "notifications")
@@ -223,8 +223,8 @@ func (c *Client) DomainBillableItemCreate(domainid IntID, req BillPostRequest) e
 
 // ---------------------------- DELETE (turn invoicing off)
 //DELETE
-func (c *Client) DomainBillableItemDelete(domainId IntID) error {
-	endpoint := fmt.Sprintf("domains/%v/billableitem", domainId)
+func (c *Client) DomainBillableItemDelete(domainID IntID) error {
+	endpoint := fmt.Sprintf("domains/%v/billableitem", domainID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err
@@ -342,7 +342,7 @@ type Domain struct {
 		ID             IntID  `json:"id"`
 		Name           string `json:"name"`
 		AdminOnly      bool   `json:"adminOnly"`
-		OrganisationId IntID  `json:"organisationId"`
+		OrganisationID IntID  `json:"organisationId"`
 	} `json:"teams"`
 	CountTeams int32 `json:"countTeams"`
 	Jobs       []Job `json:"jobs"`
@@ -571,16 +571,16 @@ type DomainCheckResult struct {
 	Success                             bool   `json:"success"`
 	Status                              string `json:"status"`
 	Action                              string `json:"action"`
-	DomaintypeId                        IntID  `json:"domaintypeId"`
+	DomaintypeID                        IntID  `json:"domaintypeId"`
 	DomainNameWithExtension             string `json:"domainNameWithExtension"`
 	RequestIncomingTransferCodePossible bool   `json:"requestIncomingTransferCodePossible"`
 	TransferAutoLicensee                bool   `json:"transferAutoLicensee"`
 	TransferEppCodeRequired             bool   `json:"transferEppCodeRequired"`
 	Products                            []struct {
-		Id          string `json:"id"`
+		ID          string `json:"id"`
 		Description string `json:"description"`
 		Prices      []struct {
-			Id       IntID     `json:"id"`
+			ID       IntID     `json:"id"`
 			Period   int32     `json:"period"`
 			Currency string    `json:"currency"`
 			Price    string    `json:"price"`

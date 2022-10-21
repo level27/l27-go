@@ -111,17 +111,17 @@ func (c *Client) MailgroupsDomainsLink(mailgroupID IntID, data MailgroupDomainAd
 	return response.Mailgroup, err
 }
 
-// DELETE /mailgroups/{mailgroupID}/domains/{domainId}
-func (c *Client) MailgroupsDomainsUnlink(mailgroupID IntID, domainId IntID) error {
-	endpoint := fmt.Sprintf("mailgroups/%d/domains/%d", mailgroupID, domainId)
+// DELETE /mailgroups/{mailgroupID}/domains/{domainID}
+func (c *Client) MailgroupsDomainsUnlink(mailgroupID IntID, domainID IntID) error {
+	endpoint := fmt.Sprintf("mailgroups/%d/domains/%d", mailgroupID, domainID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err
 }
 
-// PATCH /mailgroups/{mailgroupID}/domains/{domainId}/setprimary
-func (c *Client) MailgroupsDomainsSetPrimary(mailgroupID IntID, domainId IntID) error {
-	endpoint := fmt.Sprintf("mailgroups/%d/domains/%d/setprimary", mailgroupID, domainId)
+// PATCH /mailgroups/{mailgroupID}/domains/{domainID}/setprimary
+func (c *Client) MailgroupsDomainsSetPrimary(mailgroupID IntID, domainID IntID) error {
+	endpoint := fmt.Sprintf("mailgroups/%d/domains/%d/setprimary", mailgroupID, domainID)
 	err := c.invokeAPI("PATCH", endpoint, nil, nil)
 
 	return err
