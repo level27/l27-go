@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"mime"
 	"net/http"
+	"strconv"
 )
 
 func parseContentDispositionFilename(resp *http.Response, fallback string) string {
@@ -21,12 +22,32 @@ func parseContentDispositionFilename(resp *http.Response, fallback string) strin
 	return fallback
 }
 
+// Type of all integers returned by the API.
+type IntID = int32
+
+// Type of unix time stamps returned by the API.
+type IntTime = int64
+
+// In some cases, the API exposes internal int values for statuses instead of string names.
+type IntStatus = int32
+
+// Parse an ID number for the API.
+// Returns 0, err if the string is not a valid ID.
+func ParseID(id string) (IntID, error) {
+	val, err := strconv.ParseInt(id, 10, 32)
+	if err != nil {
+		return 0, fmt.Errorf("invalid ID")
+	}
+
+	return IntID(val), nil
+}
+
 // Common parameters related to filtering and such that are common to all get-like operations.
 type CommonGetParams struct {
 	OrderBy   string
 	OrderType string
-	Limit     int
-	Offset    int
+	Limit     int32
+	Offset    int32
 	Filter    string
 }
 

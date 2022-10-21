@@ -5,7 +5,7 @@ import (
 )
 
 // Get a single organisation from the API.
-func (c *Client) Organisation(organisationId int) (Organisation, error) {
+func (c *Client) Organisation(organisationId IntID) (Organisation, error) {
 	var orgs struct {
 		Organisation Organisation `json:"organisation"`
 	}
@@ -57,7 +57,7 @@ func (c *Client) OrganisationCreate(req OrganisationCreate) (Organisation, error
 }
 
 // PATCH /organisations/{organisationID}
-func (c *Client) OrganisationUpdate(organisationID int, req map[string]interface{}) error {
+func (c *Client) OrganisationUpdate(organisationID IntID, req map[string]interface{}) error {
 	endpoint := fmt.Sprintf("organisations/%d", organisationID)
 	err := c.invokeAPI("PATCH", endpoint, req, nil)
 
@@ -65,7 +65,7 @@ func (c *Client) OrganisationUpdate(organisationID int, req map[string]interface
 }
 
 // DELETE /organisations/{organisationID}
-func (c *Client) OrganisationDelete(organisationID int) error {
+func (c *Client) OrganisationDelete(organisationID IntID) error {
 	endpoint := fmt.Sprintf("organisations/%d", organisationID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -89,11 +89,11 @@ type Organisation struct {
 	// RemarksToprintInvoice
 	UpdateEntitiesOnly   bool   `json:"updateEntitiesOnly"`
 	ParentOrganisation   string `json:"parentOrganisation"`
-	ResellerOrganisation *int   `json:"resellerOrganisation"`
+	ResellerOrganisation *IntID `json:"resellerOrganisation"`
 }
 
 type OrganisationRef struct {
-	ID   int    `json:"id"`
+	ID   IntID  `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -105,7 +105,7 @@ type OrganisationAccess struct {
 }
 
 type OrganisationUser struct {
-	ID        int      `json:"id"`
+	ID        IntID    `json:"id"`
 	Username  string   `json:"name"`
 	Email     string   `json:"email"`
 	FirstName string   `json:"firstName"`
@@ -116,12 +116,12 @@ type OrganisationUser struct {
 type OrganisationCreate struct {
 	Name                 string  `json:"name"`
 	TaxNumber            string  `json:"taxNumber"`
-	ResellerOrganisation *int    `json:"resellerOrganisation"`
+	ResellerOrganisation *IntID  `json:"resellerOrganisation"`
 	ParentOrganisation   *string `json:"parentOrganisation"`
-	ExternalID           *int    `json:"externalId"`
+	ExternalID           *int64  `json:"externalId"`
 	Street               string  `json:"street"`
-	HouseNumber          int     `json:"houseNumber"`
-	Zip                  int     `json:"zip"`
+	HouseNumber          int32   `json:"houseNumber"`
+	Zip                  int32   `json:"zip"`
 	City                 string  `json:"city"`
 	Country              string  `json:"country"`
 }

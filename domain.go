@@ -19,7 +19,7 @@ func (c *Client) Extension() ([]DomainProvider, error) {
 }
 
 // Gets a single domain from the API
-func (c *Client) Domain(id int) (Domain, error) {
+func (c *Client) Domain(id IntID) (Domain, error) {
 	var domain struct {
 		Data Domain `json:"domain"`
 	}
@@ -61,7 +61,7 @@ func (c *Client) Domains(getParams CommonGetParams) ([]Domain, error) {
 // ------------------ /DOMAINS --------------------------
 
 // DELETE DOMAIN
-func (c *Client) DomainDelete(id int) error {
+func (c *Client) DomainDelete(id IntID) error {
 	endpoint := fmt.Sprintf("domains/%d", id)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -95,7 +95,7 @@ func (c *Client) DomainTransfer(req DomainRequest) error {
 }
 
 // INTERNAL TRANSFER
-func (c *Client) DomainInternalTransfer(id int, req DomainRequest) error {
+func (c *Client) DomainInternalTransfer(id IntID, req DomainRequest) error {
 	endpoint := fmt.Sprintf("domains/%d/internaltransfer", id)
 	err := c.invokeAPI("POST", endpoint, req, nil)
 
@@ -103,7 +103,7 @@ func (c *Client) DomainInternalTransfer(id int, req DomainRequest) error {
 }
 
 // UPDATE DOMAIN [lvl update <parameters>]
-func (c *Client) DomainUpdate(id int, data map[string]interface{}) error {
+func (c *Client) DomainUpdate(id IntID, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("domains/%d", id)
 	err := c.invokeAPI("PATCH", endpoint, data, nil)
 
@@ -111,7 +111,7 @@ func (c *Client) DomainUpdate(id int, data map[string]interface{}) error {
 }
 
 // PUT /domains/{domainID}
-func (c *Client) DomainUpdatePut(id int, data DomainRequest) error {
+func (c *Client) DomainUpdatePut(id IntID, data DomainRequest) error {
 	endpoint := fmt.Sprintf("domains/%d", id)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
 
@@ -120,7 +120,7 @@ func (c *Client) DomainUpdatePut(id int, data DomainRequest) error {
 
 // ------------------ /DOMAIN/RECORDS ----------------------
 // GET
-func (c *Client) DomainRecords(id int, recordType string, getParams CommonGetParams) ([]DomainRecord, error) {
+func (c *Client) DomainRecords(id IntID, recordType string, getParams CommonGetParams) ([]DomainRecord, error) {
 	var records struct {
 		Records []DomainRecord `json:"records"`
 	}
@@ -134,7 +134,7 @@ func (c *Client) DomainRecords(id int, recordType string, getParams CommonGetPar
 	return records.Records, err
 }
 
-func (c *Client) DomainRecord(domainId int, recordId int) (DomainRecord, error) {
+func (c *Client) DomainRecord(domainId IntID, recordId IntID) (DomainRecord, error) {
 	var records struct {
 		Record DomainRecord `json:"record"`
 	}
@@ -146,7 +146,7 @@ func (c *Client) DomainRecord(domainId int, recordId int) (DomainRecord, error) 
 }
 
 // CREATE
-func (c *Client) DomainRecordCreate(id int, req DomainRecordRequest) (DomainRecord, error) {
+func (c *Client) DomainRecordCreate(id IntID, req DomainRecordRequest) (DomainRecord, error) {
 	record := DomainRecord{}
 
 	endpoint := fmt.Sprintf("domains/%d/records", id)
@@ -156,7 +156,7 @@ func (c *Client) DomainRecordCreate(id int, req DomainRecordRequest) (DomainReco
 }
 
 // DELETE
-func (c *Client) DomainRecordDelete(domainId int, recordId int) error {
+func (c *Client) DomainRecordDelete(domainId IntID, recordId IntID) error {
 	endpoint := fmt.Sprintf("domains/%d/records/%d", domainId, recordId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -164,7 +164,7 @@ func (c *Client) DomainRecordDelete(domainId int, recordId int) error {
 }
 
 // UPDATE
-func (c *Client) DomainRecordUpdate(domainId int, recordId int, req DomainRecordRequest) error {
+func (c *Client) DomainRecordUpdate(domainId IntID, recordId IntID, req DomainRecordRequest) error {
 	endpoint := fmt.Sprintf("domains/%d/records/%d", domainId, recordId)
 	err := c.invokeAPI("PUT", endpoint, &req, nil)
 
@@ -174,7 +174,7 @@ func (c *Client) DomainRecordUpdate(domainId int, recordId int, req DomainRecord
 // --------------------------------------------------- ACCESS --------------------------------------------------------
 //add access to a domain
 
-func (c *Client) DomainAccesAdd(domainId int, req DomainAccessRequest) error {
+func (c *Client) DomainAccesAdd(domainId IntID, req DomainAccessRequest) error {
 	endpoint := fmt.Sprintf("domains/%v/acls", domainId)
 	err := c.invokeAPI("POST", endpoint, &req, nil)
 
@@ -183,7 +183,7 @@ func (c *Client) DomainAccesAdd(domainId int, req DomainAccessRequest) error {
 
 //remove acces from a domain
 
-func (c *Client) DomainAccesRemove(domainId int, organisationId int) error {
+func (c *Client) DomainAccesRemove(domainId IntID, organisationId IntID) error {
 	endpoint := fmt.Sprintf("domains/%v/acls/%v", domainId, organisationId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -192,7 +192,7 @@ func (c *Client) DomainAccesRemove(domainId int, organisationId int) error {
 
 // --------------------------------------------------- NOTIFICATIONS --------------------------------------------------------
 // GET LIST OF ALL NOTIFICATIONS FOR DOMAIN
-// func (c *Client) DomainNotificationGet(domainId int) []Notification {
+// func (c *Client) DomainNotificationGet(domainId IntID) []Notification {
 // 	var notifications struct {
 // 		Notifications []Notification `json:"notifications"`
 // 	}
@@ -203,7 +203,7 @@ func (c *Client) DomainAccesRemove(domainId int, organisationId int) error {
 // }
 
 // // CREATE A NOTIFICATION
-// func (c *Client) DomainNotificationAdd(domainId int, req DomainNotificationPostRequest) {
+// func (c *Client) DomainNotificationAdd(domainId IntID, req DomainNotificationPostRequest) {
 // 	endpoint := fmt.Sprintf("domains/%v/notifications", domainId)
 // 	err := c.invokeAPI("POST", endpoint, req, nil)
 
@@ -214,7 +214,7 @@ func (c *Client) DomainAccesRemove(domainId int, organisationId int) error {
 
 //--------------------------- CREATE (Turn invoicing on)
 //CREATE BILLABLEITEM
-func (c *Client) DomainBillableItemCreate(domainid int, req BillPostRequest) error {
+func (c *Client) DomainBillableItemCreate(domainid IntID, req BillPostRequest) error {
 	endpoint := fmt.Sprintf("domains/%v/bill", domainid)
 	err := c.invokeAPI("POST", endpoint, req, nil)
 
@@ -223,7 +223,7 @@ func (c *Client) DomainBillableItemCreate(domainid int, req BillPostRequest) err
 
 // ---------------------------- DELETE (turn invoicing off)
 //DELETE
-func (c *Client) DomainBillableItemDelete(domainId int) error {
+func (c *Client) DomainBillableItemDelete(domainId IntID) error {
 	endpoint := fmt.Sprintf("domains/%v/billableitem", domainId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -256,7 +256,7 @@ func (c *Client) DomainContactCreate(request DomainContactRequest) (DomainContac
 }
 
 // GET /domaincontacts/{domainContactID}
-func (c *Client) DomainContactGetSingle(id int) (DomainContact, error) {
+func (c *Client) DomainContactGetSingle(id IntID) (DomainContact, error) {
 	var response struct {
 		Data DomainContact `json:"domaincontact"`
 	}
@@ -268,7 +268,7 @@ func (c *Client) DomainContactGetSingle(id int) (DomainContact, error) {
 }
 
 // PUT /domaincontacts/{domainContactID}
-func (c *Client) DomainContactUpdate(id int, request DomainContactRequest) error {
+func (c *Client) DomainContactUpdate(id IntID, request DomainContactRequest) error {
 	endpoint := fmt.Sprintf("domaincontacts/%d", id)
 	err := c.invokeAPI("PUT", endpoint, request, nil)
 
@@ -276,7 +276,7 @@ func (c *Client) DomainContactUpdate(id int, request DomainContactRequest) error
 }
 
 // DELETE /domaincontacts/{domainContactID}
-func (c *Client) DomainContactDelete(id int) error {
+func (c *Client) DomainContactDelete(id IntID) error {
 	endpoint := fmt.Sprintf("domaincontacts/%d", id)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -284,16 +284,16 @@ func (c *Client) DomainContactDelete(id int) error {
 }
 
 type Domain struct {
-	ID                    int    `json:"id"`
+	ID                    IntID  `json:"id"`
 	Name                  string `json:"name"`
 	Fullname              string `json:"fullname"`
-	TTL                   int    `json:"ttl"`
+	TTL                   int32  `json:"ttl"`
 	EppCode               string `json:"eppCode"`
 	Status                string `json:"status"`
 	DnssecStatus          string `json:"dnssecStatus"`
 	RegistrationIsHandled bool   `json:"registrationIsHandled"`
 	Provider              struct {
-		ID   int    `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 		API  string `json:"api"`
 	} `json:"provider"`
@@ -312,15 +312,15 @@ type Domain struct {
 	NameserverIpv63 *string `json:"nameserverIpv63"`
 	NameserverIpv64 *string `json:"nameserverIpv64"`
 	Organisation    struct {
-		ID       int    `json:"id"`
+		ID       IntID  `json:"id"`
 		Name     string `json:"name"`
 		Reseller string `json:"reseller"`
 	} `json:"organisation"`
 	Domaintype struct {
-		ID                                  int    `json:"id"`
+		ID                                  IntID  `json:"id"`
 		Name                                string `json:"name"`
 		Extension                           string `json:"extension"`
-		RenewPeriod                         int    `json:"renewPeriod"`
+		RenewPeriod                         int32  `json:"renewPeriod"`
 		TransferAutoLicensee                bool   `json:"transferAutoLicensee"`
 		RequestIncomingTransferCodePossible bool   `json:"requestIncomingTransferCodePossible"`
 		RequestOutgoingTransferCodePossible bool   `json:"requestOutgoingTransferCodePossible"`
@@ -330,48 +330,48 @@ type Domain struct {
 	DomaincontactLicensee DomainContactRef  `json:"domaincontactLicensee"`
 	DomaincontactOnsite   *DomainContactRef `json:"domaincontactOnsite"`
 	Mailgroup             struct {
-		ID   int    `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"mailgroup"`
 	ExtraFields   interface{} `json:"extraFields"`
 	HandleMailDNS bool        `json:"handleMailDns"`
-	DtExpires     int         `json:"dtExpires"`
+	DtExpires     IntTime     `json:"dtExpires"`
 	BillingStatus string      `json:"billingStatus"`
 	ExternalInfo  string      `json:"externalInfo"`
 	Teams         []struct {
-		ID             int    `json:"id"`
+		ID             IntID  `json:"id"`
 		Name           string `json:"name"`
 		AdminOnly      bool   `json:"adminOnly"`
-		OrganisationId int    `json:"organisationId"`
+		OrganisationId IntID  `json:"organisationId"`
 	} `json:"teams"`
-	CountTeams int   `json:"countTeams"`
+	CountTeams int32 `json:"countTeams"`
 	Jobs       []Job `json:"jobs"`
 }
 
 type DomainContactRef struct {
-	ID               int    `json:"id,omitempty"`
-	FirstName        string `json:"firstName"`
-	LastName         string `json:"lastName"`
-	Fullname         string `json:"fullname"`
-	OrganisationName string `json:"organisationName"`
-	Street           string `json:"street"`
-	HouseNumber      string `json:"houseNumber"`
-	Zip              string `json:"zip"`
-	City             string `json:"city"`
-	State            string `json:"state"`
-	Phone            string `json:"phone"`
-	Fax              string `json:"fax"`
-	Email            string `json:"email"`
-	TaxNumber        string `json:"taxNumber"`
-	Status           int    `json:"status"`
-	PassportNumber   string `json:"passportNumber"`
-	SocialNumber     string `json:"socialNumber"`
-	BirthStreet      string `json:"birthStreet"`
-	BirthZip         string `json:"birthZip"`
-	BirthCity        string `json:"birthCity"`
-	BirthDate        string `json:"birthDate"`
-	Gender           string `json:"gender"`
-	Type             string `json:"type"`
+	ID               IntID     `json:"id,omitempty"`
+	FirstName        string    `json:"firstName"`
+	LastName         string    `json:"lastName"`
+	Fullname         string    `json:"fullname"`
+	OrganisationName string    `json:"organisationName"`
+	Street           string    `json:"street"`
+	HouseNumber      string    `json:"houseNumber"`
+	Zip              string    `json:"zip"`
+	City             string    `json:"city"`
+	State            string    `json:"state"`
+	Phone            string    `json:"phone"`
+	Fax              string    `json:"fax"`
+	Email            string    `json:"email"`
+	TaxNumber        string    `json:"taxNumber"`
+	Status           IntStatus `json:"status"`
+	PassportNumber   string    `json:"passportNumber"`
+	SocialNumber     string    `json:"socialNumber"`
+	BirthStreet      string    `json:"birthStreet"`
+	BirthZip         string    `json:"birthZip"`
+	BirthCity        string    `json:"birthCity"`
+	BirthDate        string    `json:"birthDate"`
+	Gender           string    `json:"gender"`
+	Type             string    `json:"type"`
 	Country          struct {
 		ID   string `json:"id"`
 		Name string `json:"name"`
@@ -380,19 +380,19 @@ type DomainContactRef struct {
 
 // DomainProvider represents a single DomainProvider
 type DomainProvider struct {
-	ID              int    `json:"id"`
+	ID              IntID  `json:"id"`
 	Name            string `json:"name"`
 	API             string `json:"api"`
 	DNSSecSupported bool   `json:"dnsSecSupported"`
 	Domaintypes     []struct {
-		ID        int    `json:"id"`
+		ID        IntID  `json:"id"`
 		Extension string `json:"extension"`
 	} `json:"domaintypes"`
 }
 
 // DomainExtension represents a single DomainExtension
 type DomainExtension struct {
-	ID        int
+	ID        IntID
 	Extension string
 }
 
@@ -411,18 +411,18 @@ type DomainRequest struct {
 	NameServer2Ipv6           *string `json:"nameserverIpv62"`
 	NameServer3Ipv6           *string `json:"nameserverIpv63"`
 	NameServer4Ipv6           *string `json:"nameserverIpv64"`
-	TTL                       int     `json:"ttl"`
+	TTL                       int32   `json:"ttl"`
 	Action                    string  `json:"action"`
 	EppCode                   string  `json:"eppCode"`
 	Handledns                 bool    `json:"handleDns"`
 	ExtraFields               string  `json:"extraFields"`
-	Domaintype                int     `json:"domaintype"`
-	Domaincontactlicensee     int     `json:"domaincontactLicensee"`
-	DomainContactOnSite       *int    `json:"domaincontactOnsite"`
-	Organisation              int     `json:"organisation"`
+	Domaintype                IntID   `json:"domaintype"`
+	Domaincontactlicensee     IntID   `json:"domaincontactLicensee"`
+	DomainContactOnSite       *IntID  `json:"domaincontactOnsite"`
+	Organisation              IntID   `json:"organisation"`
 	AutoRecordTemplate        string  `json:"autorecordTemplate"`
 	AutoRecordTemplateReplace bool    `json:"autorecordTemplateReplace"`
-	//DomainProvider            *int    `json:"domainProvider"`
+	//DomainProvider            *IntID    `json:"domainProvider"`
 	// DtExternalCreated         string `json:"dtExternalCreated"`
 	// DtExternalExpires         string `json:"dtExternalExpires"`
 	// ConvertDomainRecords      string `json:"convertDomainrecords"`
@@ -445,15 +445,15 @@ type DomainUpdateRequest struct {
 	NameServer2Ipv6           string  `json:"nameserverIpv62"`
 	NameServer3Ipv6           string  `json:"nameserverIpv63"`
 	NameServer4Ipv6           string  `json:"nameserverIpv64"`
-	TTL                       int     `json:"ttl"`
+	TTL                       int32   `json:"ttl"`
 	Action                    string  `json:"action"`
 	EppCode                   string  `json:"eppCode"`
 	Handledns                 bool    `json:"handleDns"`
 	ExtraFields               string  `json:"extraFields"`
-	Domaintype                int     `json:"domaintype"`
-	Domaincontactlicensee     int     `json:"domaincontactLicensee"`
-	DomainContactOnSite       *int    `json:"domaincontactOnsite"`
-	Organisation              int     `json:"organisation"`
+	Domaintype                IntID   `json:"domaintype"`
+	Domaincontactlicensee     IntID   `json:"domaincontactLicensee"`
+	DomainContactOnSite       *IntID  `json:"domaincontactOnsite"`
+	Organisation              IntID   `json:"organisation"`
 	AutoRecordTemplate        string  `json:"autorecordTemplate"`
 	AutoRecordTemplateReplace bool    `json:"autorecordTemplateReplace"`
 	AutoTeams                 string  `json:"autoTeams"`
@@ -469,17 +469,17 @@ func (d DomainRequest) String() string {
 
 // DomainRecord represents a single Domainrecord
 type DomainRecord struct {
-	ID                 int    `json:"id"`
+	ID                 IntID  `json:"id"`
 	Name               string `json:"name"`
 	Content            string `json:"content"`
-	Priority           int    `json:"priority"`
+	Priority           int32  `json:"priority"`
 	Type               string `json:"type"`
 	SystemHasNetworkIP struct {
-		ID int `json:"id"`
+		ID IntID `json:"id"`
 	} `json:"systemHasNetworkIp"`
-	// URL            int `json:"url"`
-	// SslCertificate int `json:"sslCertificate"`
-	// Mailgroup      int `json:"mailgroup"`
+	// URL            IntID `json:"url"`
+	// SslCertificate IntID `json:"sslCertificate"`
+	// Mailgroup      IntID `json:"mailgroup"`
 }
 
 // DomainRecordRequest represents a API reqest to Level27
@@ -487,12 +487,12 @@ type DomainRecordRequest struct {
 	Name     string `json:"name"`
 	Type     string `json:"type"`
 	Content  string `json:"content"`
-	Priority int    `json:"priority"`
+	Priority int32  `json:"priority"`
 }
 
 // DomainContact is an object to define domain contacts at Level27
 type DomainContact struct {
-	ID               int     `json:"id"`
+	ID               IntID   `json:"id"`
 	FirstName        string  `json:"firstName"`
 	LastName         string  `json:"lastName"`
 	OrganisationName string  `json:"organisationName"`
@@ -518,7 +518,7 @@ type DomainContact struct {
 		Name string `json:"name"`
 	} `json:"country"`
 	Organisation struct {
-		ID   int    `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"organisation"`
 	Fullname string `json:"fullname"`
@@ -554,7 +554,7 @@ type DomainContactRequest struct {
 
 // type to add acces to a domain
 type DomainAccessRequest struct {
-	Organisation int `json:"organisation"`
+	Organisation IntID `json:"organisation"`
 }
 
 // ------------------------------------------ NOTIFICATIONS ---------------------------------------------
@@ -571,7 +571,7 @@ type DomainCheckResult struct {
 	Success                             bool   `json:"success"`
 	Status                              string `json:"status"`
 	Action                              string `json:"action"`
-	DomaintypeId                        int    `json:"domaintypeId"`
+	DomaintypeId                        IntID  `json:"domaintypeId"`
 	DomainNameWithExtension             string `json:"domainNameWithExtension"`
 	RequestIncomingTransferCodePossible bool   `json:"requestIncomingTransferCodePossible"`
 	TransferAutoLicensee                bool   `json:"transferAutoLicensee"`
@@ -580,167 +580,13 @@ type DomainCheckResult struct {
 		Id          string `json:"id"`
 		Description string `json:"description"`
 		Prices      []struct {
-			Id       int    `json:"id"`
-			Period   int    `json:"period"`
-			Currency string `json:"currency"`
-			Price    string `json:"price"`
-			Timing   string `json:"timing"`
-			Default  bool   `json:"default"`
-			Status   int    `json:"sttaus"`
+			Id       IntID     `json:"id"`
+			Period   int32     `json:"period"`
+			Currency string    `json:"currency"`
+			Price    string    `json:"price"`
+			Timing   string    `json:"timing"`
+			Default  bool      `json:"default"`
+			Status   IntStatus `json:"sttaus"`
 		} `json:"prices"`
 	} `json:"products"`
-}
-
-// ------------------------------------------ JOB HISTORY ---------------------------------------------
-type DomainJobHistory struct {
-	Id      int           `json:"id"`
-	Status  int           `json:"status"`
-	Conc    int           `json:"conc"`
-	Hoe     int           `json:"hoe"`
-	Message string        `json:"msg"`
-	Dt      string        `json:"dt"`
-	Logs    []interface{} `json:"logs"`
-}
-
-type DomainJobHistoryRoot struct {
-	DomainJobHistory
-}
-
-// INTEGRITY CHECKS
-type DomainIntegrityCheck struct {
-	IntegrityCheck
-	Object   string `json:"object"`
-	ObjectID int    `json:"objectId"`
-	Results  struct {
-		Domain struct {
-			ID   int `json:"id"`
-			Data struct {
-				FullName          string      `json:"fullName"`
-				Status            string      `json:"status"`
-				StatusColor       string      `json:"statusColor"`
-				Provider          string      `json:"provider"`
-				HandleDNS         bool        `json:"handleDns"`
-				Nameserver1       interface{} `json:"nameserver1"`
-				Nameserver2       interface{} `json:"nameserver2"`
-				Nameserver3       interface{} `json:"nameserver3"`
-				Nameserver4       interface{} `json:"nameserver4"`
-				NameserverIP1     interface{} `json:"nameserverIp1"`
-				NameserverIP2     interface{} `json:"nameserverIp2"`
-				NameserverIP3     interface{} `json:"nameserverIp3"`
-				NameserverIP4     interface{} `json:"nameserverIp4"`
-				NameserverIpv61   interface{} `json:"nameserverIpv61"`
-				NameserverIpv62   interface{} `json:"nameserverIpv62"`
-				NameserverIpv63   interface{} `json:"nameserverIpv63"`
-				NameserverIpv64   interface{} `json:"nameserverIpv64"`
-				IsRegistered      string      `json:"isRegistered"`
-				IsRegisteredColor string      `json:"isRegisteredColor"`
-				DcLicensee        struct {
-					FullName string `json:"fullName"`
-					Address  string `json:"address"`
-					Country  string `json:"country"`
-					Phone    string `json:"phone"`
-					Email    string `json:"email"`
-				} `json:"dcLicensee"`
-				DcOnsite          interface{} `json:"dcOnsite"`
-				DnssecStatus      string      `json:"dnssecStatus"`
-				DnssecStatusColor string      `json:"dnssecStatusColor"`
-				Retry             int         `json:"retry"`
-				Refresh           int         `json:"refresh"`
-				Expire            int         `json:"expire"`
-				Minimum           int         `json:"minimum"`
-				TTL               int         `json:"ttl"`
-				Mailgroup         string      `json:"mailgroup"`
-			} `json:"data"`
-			Results struct {
-				Name              string `json:"name"`
-				FullName          string `json:"fullName"`
-				Subdomain         string `json:"subdomain"`
-				NameseversGeneral string `json:"namesevers_general"`
-				Nameserver1       string `json:"nameserver1"`
-				Nameserver2       string `json:"nameserver2"`
-				Nameserver3       string `json:"nameserver3"`
-				Nameserver4       string `json:"nameserver4"`
-				NameserverIP1     string `json:"nameserverIp1"`
-				NameserverIP2     string `json:"nameserverIp2"`
-				NameserverIP3     string `json:"nameserverIp3"`
-				NameserverIP4     string `json:"nameserverIp4"`
-				NameserverIpv61   string `json:"nameserverIpv61"`
-				NameserverIpv62   string `json:"nameserverIpv62"`
-				NameserverIpv63   string `json:"nameserverIpv63"`
-				NameserverIpv64   string `json:"nameserverIpv64"`
-				Action            string `json:"action"`
-				EppCode           string `json:"eppCode"`
-				ExtraFields       string `json:"extraFields"`
-				Domaintype        string `json:"domaintype"`
-				Status            string `json:"status"`
-				DnssecStatus      string `json:"dnssecStatus"`
-				Retry             string `json:"retry"`
-				Refresh           string `json:"refresh"`
-				Expire            string `json:"expire"`
-				Minimum           string `json:"minimum"`
-				TTL               string `json:"ttl"`
-				Organisation      string `json:"organisation"`
-				Provider          string `json:"provider"`
-				NsDig             string `json:"nsDig"`
-			} `json:"results"`
-			Records struct {
-				Message string `json:"message"`
-				Dig     []struct {
-					ID   int `json:"id"`
-					Data struct {
-						Type       string      `json:"type"`
-						Name       interface{} `json:"name"`
-						Content    string      `json:"content"`
-						Priority   interface{} `json:"priority"`
-						DigContent string      `json:"digContent"`
-					} `json:"data"`
-					Results struct {
-						Status    string `json:"status"`
-						IsExpired string `json:"isExpired"`
-					} `json:"results"`
-					SslCertificate interface{} `json:"sslCertificate"`
-				} `json:"dig"`
-			} `json:"records"`
-		} `json:"domain"`
-		Organisations struct {
-			Manual []string `json:"manual"`
-			Owner  string   `json:"owner"`
-		} `json:"organisations"`
-		Teams []struct {
-			ID             int         `json:"id"`
-			Name           string      `json:"name"`
-			AdminOnly      interface{} `json:"adminOnly"`
-			OrganisationID int         `json:"organisationId"`
-		} `json:"teams"`
-		FinanceData struct {
-			Billing         string `json:"billing"`
-			BillingStatus   string `json:"billingStatus"`
-			AutoRenew       string `json:"autoRenew"`
-			AutoRenewStatus string `json:"autoRenewStatus"`
-			DtExpires       string `json:"dtExpires"`
-			BillingItems    []struct {
-				ID          int     `json:"id"`
-				Description string  `json:"description"`
-				Type        string  `json:"type"`
-				Period      string  `json:"period"`
-				DtExpires   string  `json:"dtExpires"`
-				Price       float32 `json:"price"`
-			} `json:"billingItems"`
-			TotalPrice float32 `json:"totalPrice"`
-		} `json:"financeData"`
-		Jobs []struct {
-			ID           int         `json:"id"`
-			Action       string      `json:"action"`
-			Status       int         `json:"status"`
-			Message      string      `json:"message"`
-			DtEnd        interface{} `json:"dtEnd"`
-			DtStamp      string      `json:"dtStamp"`
-			ExceptionMsq interface{} `json:"exceptionMsq"`
-		} `json:"jobs"`
-		IsHealthy    bool   `json:"isHealthy"`
-		ExtraMessage string `json:"extraMessage"`
-	} `json:"results"`
-	Dojobs               bool          `json:"dojobs"`
-	Forcejobs            bool          `json:"forcejobs"`
-	LocalIntegritychecks []interface{} `json:"localIntegritychecks"`
 }

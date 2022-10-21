@@ -2,7 +2,6 @@ package l27
 
 import (
 	"fmt"
-	"strconv"
 )
 
 func (c *Client) GetRegions() ([]Region, error) {
@@ -39,7 +38,8 @@ func (c *Client) LookupZoneAndRegion(zoneName string) (*Zone, *Region, error) {
 		return nil, nil, err
 	}
 
-	intId, _ := strconv.Atoi(zoneName)
+	// If parsing fails, this is a 0 and won't match anything.
+	intId, _ := ParseID(zoneName)
 	for _, region := range regions {
 		zones, err := c.GetZones(region.ID)
 		if err != nil {
@@ -56,7 +56,7 @@ func (c *Client) LookupZoneAndRegion(zoneName string) (*Zone, *Region, error) {
 	return nil, nil, nil
 }
 
-func (c *Client) GetZones(region int) ([]Zone, error) {
+func (c *Client) GetZones(region IntID) ([]Zone, error) {
 	var response struct {
 		Zones []Zone `json:"zones"`
 	}
@@ -67,7 +67,7 @@ func (c *Client) GetZones(region int) ([]Zone, error) {
 	return response.Zones, err
 }
 
-func (c *Client) GetRegionImages(region int) ([]Image, error) {
+func (c *Client) GetRegionImages(region IntID) ([]Image, error) {
 	var response struct {
 		Images []Image `json:"systemimages"`
 	}
@@ -79,34 +79,34 @@ func (c *Client) GetRegionImages(region int) ([]Image, error) {
 }
 
 type Region struct {
-	ID      int    `json:"id"`
+	ID      IntID  `json:"id"`
 	Name    string `json:"name"`
 	Country struct {
 		ID   string `json:"id"`
 		Name string `json:"name"`
 	} `json:"country"`
 	Systemprovider struct {
-		ID   int    `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 		API  string `json:"api"`
 	} `json:"systemprovider"`
 }
 
 type Zone struct {
-	ID        int    `json:"id"`
+	ID        IntID  `json:"id"`
 	Name      string `json:"name"`
 	ShortName string `json:"shortName"`
 }
 
 type Image struct {
-	ID                     int    `json:"id"`
+	ID                     IntID  `json:"id"`
 	Name                   string `json:"name"`
 	OperatingsystemVersion struct {
-		ID              int    `json:"id"`
+		ID              IntID  `json:"id"`
 		Version         string `json:"version"`
 		Type            string `json:"type"`
 		Operatingsystem struct {
-			ID   int    `json:"id"`
+			ID   IntID  `json:"id"`
 			Name string `json:"name"`
 			Type string `json:"type"`
 		} `json:"operatingsystem"`

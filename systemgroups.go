@@ -7,7 +7,7 @@ import (
 //------------------------------------------------- SYSTEMSGROUPS (GET / CREATE  / UPDATE / DELETE)-------------------------------------------------
 
 // ---------------- GET SINGLE (describe)
-func (c *Client) SystemgroupsgetSingle(systemgroupId int) (Systemgroup, error) {
+func (c *Client) SystemgroupsgetSingle(systemgroupId IntID) (Systemgroup, error) {
 	var systemgroup struct {
 		Data Systemgroup `json:"systemgroup"`
 	}
@@ -43,7 +43,7 @@ func (c *Client) SystemgroupsCreate(req SystemgroupRequest) (Systemgroup, error)
 }
 
 // ---------------- UPDATE
-func (c *Client) SystemgroupsUpdate(systemgroupId int, req SystemgroupRequest) error {
+func (c *Client) SystemgroupsUpdate(systemgroupId IntID, req SystemgroupRequest) error {
 	endpoint := fmt.Sprintf("systemgroups/%v", systemgroupId)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
 
@@ -51,7 +51,7 @@ func (c *Client) SystemgroupsUpdate(systemgroupId int, req SystemgroupRequest) e
 }
 
 // ---------------- DELETE
-func (c *Client) SystemgroupDelete(systemgroupId int) error {
+func (c *Client) SystemgroupDelete(systemgroupId IntID) error {
 	endpoint := fmt.Sprintf("systemgroups/%v", systemgroupId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -77,22 +77,19 @@ func (c *Client) SystemgroupLookup(name string) ([]Systemgroup, error) {
 // ----------------------------------- SYSTEMGROUPS ----------------------------------
 // structure of a system group returned by API
 type Systemgroup struct {
-	ID      int    `json:"id"`
+	ID      IntID  `json:"id"`
 	Name    string `json:"name"`
 	Status  string `json:"status"`
 	Shared  bool   `json:"shared"`
 	Systems []struct {
-		ID   int    `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"sg-systems"`
-	Organisation struct {
-		ID   int    `json:"id"`
-		Name string `json:"name"`
-	} `json:"organisation"`
+	Organisation OrganisationRef `json:"organisation"`
 }
 
 // request type for creating systemgroup.
 type SystemgroupRequest struct {
 	Name         string `json:"name"`
-	Organisation int    `json:"organisation"`
+	Organisation IntID  `json:"organisation"`
 }

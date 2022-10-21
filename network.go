@@ -17,7 +17,7 @@ func (c *Client) GetNetworks(get CommonGetParams) ([]Network, error) {
 	return networks.Networks, err
 }
 
-func (c *Client) GetNetwork(id int) (Network, error) {
+func (c *Client) GetNetwork(id IntID) (Network, error) {
 	var network struct {
 		Network Network `json:"network"`
 	}
@@ -44,7 +44,7 @@ func (c *Client) LookupNetwork(name string) ([]Network, error) {
 	return results, nil
 }
 
-func (c *Client) NetworkLocate(networkID int) (NetworkLocate, error) {
+func (c *Client) NetworkLocate(networkID IntID) (NetworkLocate, error) {
 	var response NetworkLocate
 
 	endpoint := fmt.Sprintf("networks/%d/locate", networkID)
@@ -53,7 +53,7 @@ func (c *Client) NetworkLocate(networkID int) (NetworkLocate, error) {
 	return response, err
 }
 
-func ipv4IntToString(ipv4 int) string {
+func ipv4IntToString(ipv4 uint32) string {
 	a := (ipv4 >> 24) & 0xFF
 	b := (ipv4 >> 16) & 0xFF
 	c := (ipv4 >> 8) & 0xFF
@@ -63,12 +63,12 @@ func ipv4IntToString(ipv4 int) string {
 }
 
 func ipv4StringIntToString(ipv4 string) string {
-	i, err := strconv.Atoi(ipv4)
+	i, err := strconv.ParseUint(ipv4, 10, 32)
 	if err != nil {
 		return ""
 	}
 
-	return ipv4IntToString(i)
+	return ipv4IntToString(uint32(i))
 }
 
 func ipsEqual(a string, b string) bool {
@@ -85,10 +85,10 @@ type Network struct {
 	Status          string          `json:"status"`
 	Vlan            interface{}     `json:"vlan"`
 	Ipv4            string          `json:"ipv4"`
-	Netmaskv4       int             `json:"netmaskv4"`
+	Netmaskv4       int32           `json:"netmaskv4"`
 	Gatewayv4       string          `json:"gatewayv4"`
 	Ipv6            string          `json:"ipv6"`
-	Netmaskv6       int             `json:"netmaskv6"`
+	Netmaskv6       int32           `json:"netmaskv6"`
 	Gatewayv6       string          `json:"gatewayv6"`
 	PublicIP4Native interface{}     `json:"publicIp4Native"`
 	PublicIP6Native interface{}     `json:"publicIp6Native"`
@@ -96,14 +96,14 @@ type Network struct {
 	Systemgroup     interface{}     `json:"systemgroup"`
 	Organisation    OrganisationRef `json:"organisation"`
 	Zone            struct {
-		ID     int    `json:"id"`
+		ID     IntID  `json:"id"`
 		Name   string `json:"name"`
 		Region struct {
-			ID int `json:"id"`
+			ID IntID `json:"id"`
 		} `json:"region"`
 	} `json:"zone"`
 	Systemprovider struct {
-		ID                 int    `json:"id"`
+		ID                 IntID  `json:"id"`
 		API                string `json:"api"`
 		Name               string `json:"name"`
 		AdvancedNetworking bool   `json:"advancedNetworking"`
@@ -115,7 +115,7 @@ type Network struct {
 }
 
 type NetworkRef struct {
-	ID          int         `json:"id"`
+	ID          IntID       `json:"id"`
 	Name        string      `json:"name"`
 	Description interface{} `json:"description"`
 	Public      bool        `json:"public"`

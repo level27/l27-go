@@ -5,7 +5,7 @@ import (
 )
 
 // GET /volume/{volumeID}
-func (c *Client) VolumeGetSingle(volumeID int) (Volume, error) {
+func (c *Client) VolumeGetSingle(volumeID IntID) (Volume, error) {
 	var response struct {
 		Volume Volume `json:"volume"`
 	}
@@ -41,7 +41,7 @@ func (c *Client) VolumeCreate(create VolumeCreate) (Volume, error) {
 }
 
 // DELETE /volume/{volumeID}
-func (c *Client) VolumeDelete(volumeID int) error {
+func (c *Client) VolumeDelete(volumeID IntID) error {
 	endpoint := fmt.Sprintf("volumes/%d", volumeID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -49,7 +49,7 @@ func (c *Client) VolumeDelete(volumeID int) error {
 }
 
 // PUT /volume/{volumeID}
-func (c *Client) VolumeUpdate(volumeID int, data map[string]interface{}) error {
+func (c *Client) VolumeUpdate(volumeID IntID, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("volumes/%d", volumeID)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
 
@@ -57,14 +57,14 @@ func (c *Client) VolumeUpdate(volumeID int, data map[string]interface{}) error {
 }
 
 // POST /volume/{volumeID}/actions (link)
-func (c *Client) VolumeLink(volumeID int, systemID int, deviceName string) (Volume, error) {
+func (c *Client) VolumeLink(volumeID IntID, systemID IntID, deviceName string) (Volume, error) {
 	var response struct {
 		Volume Volume `json:"volume"`
 	}
 
 	var request struct {
 		Type       string `json:"type"`
-		System     int    `json:"system"`
+		System     IntID  `json:"system"`
 		DeviceName string `json:"deviceName"`
 	}
 
@@ -79,14 +79,14 @@ func (c *Client) VolumeLink(volumeID int, systemID int, deviceName string) (Volu
 }
 
 // POST /volume/{volumeID}/actions (unlink)
-func (c *Client) VolumeUnlink(volumeID int, systemID int) (Volume, error) {
+func (c *Client) VolumeUnlink(volumeID IntID, systemID IntID) (Volume, error) {
 	var response struct {
 		Volume Volume `json:"volume"`
 	}
 
 	var request struct {
 		Type   string `json:"type"`
-		System int    `json:"system"`
+		System IntID  `json:"system"`
 	}
 
 	request.Type = "unlink"
@@ -99,7 +99,7 @@ func (c *Client) VolumeUnlink(volumeID int, systemID int) (Volume, error) {
 }
 
 // GET /volumegroups/{volumegroupID}/volumes
-func (c *Client) VolumegroupVolumeGetList(volumegroupID int, get CommonGetParams) ([]Volume, error) {
+func (c *Client) VolumegroupVolumeGetList(volumegroupID IntID, get CommonGetParams) ([]Volume, error) {
 	var response struct {
 		Volumes []Volume `json:"volumes"`
 	}
@@ -110,7 +110,7 @@ func (c *Client) VolumegroupVolumeGetList(volumegroupID int, get CommonGetParams
 	return response.Volumes, err
 }
 
-func (c *Client) LookupVolumegroupVolumes(volumeGroupID int, name string) ([]Volume, error) {
+func (c *Client) LookupVolumegroupVolumes(volumeGroupID IntID, name string) ([]Volume, error) {
 	results := []Volume{}
 	volumes, err := c.VolumegroupVolumeGetList(volumeGroupID, CommonGetParams{Filter: name})
 	if err != nil {
@@ -127,10 +127,10 @@ func (c *Client) LookupVolumegroupVolumes(volumeGroupID int, name string) ([]Vol
 }
 
 type Volume struct {
-	ID             int             `json:"id"`
+	ID             IntID           `json:"id"`
 	Name           string          `json:"name"`
 	Status         string          `json:"status"`
-	Space          int             `json:"space"`
+	Space          int32           `json:"space"`
 	UID            string          `json:"uid"`
 	Remarks        interface{}     `json:"remarks"`
 	AutoResize     bool            `json:"autoResize"`
@@ -142,16 +142,16 @@ type Volume struct {
 }
 
 type VolumegroupRef struct {
-	ID   int    `json:"id"`
+	ID   IntID  `json:"id"`
 	Name string `json:"name"`
 }
 
 type VolumeCreate struct {
 	Name         string `json:"name"`
-	Space        int    `json:"space"`
-	Organisation int    `json:"organisation"`
-	System       int    `json:"system"`
-	Volumegroup  *int   `json:"volumegroup"`
+	Space        int32  `json:"space"`
+	Organisation IntID  `json:"organisation"`
+	System       IntID  `json:"system"`
+	Volumegroup  *IntID `json:"volumegroup"`
 	AutoResize   bool   `json:"autoResize"`
 	DeviceName   string `json:"deviceName"`
 }
@@ -159,10 +159,10 @@ type VolumeCreate struct {
 type VolumePut struct {
 	Name         string      `json:"name"`
 	DeviceName   string      `json:"deviceName"`
-	Space        int         `json:"space"`
-	Organisation int         `json:"organisation"`
+	Space        int32       `json:"space"`
+	Organisation IntID       `json:"organisation"`
 	AutoResize   bool        `json:"autoResize"`
 	Remarks      interface{} `json:"remarks"`
-	System       int         `json:"system"`
-	Volumegroup  int         `json:"volumegroup"`
+	System       IntID       `json:"system"`
+	Volumegroup  IntID       `json:"volumegroup"`
 }

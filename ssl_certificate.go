@@ -2,7 +2,7 @@ package l27
 
 // -- type of ssl certificate
 type SslCertificate struct {
-	ID                 int         `json:"id"`
+	ID                 IntID       `json:"id"`
 	Name               string      `json:"name"`
 	SslType            string      `json:"sslType"`
 	SslKey             string      `json:"sslKey"`
@@ -18,7 +18,7 @@ type SslCertificate struct {
 	ValidationParams   interface{} `json:"validationParams"`
 	Source             interface{} `json:"source"`
 	SslCertificateUrls []struct {
-		ID                int         `json:"id"`
+		ID                IntID       `json:"id"`
 		Content           string      `json:"content"`
 		SslStatus         string      `json:"sslStatus"`
 		ErrorMsg          interface{} `json:"errorMsg"`
@@ -30,7 +30,7 @@ type SslCertificate struct {
 	StatusCategory     string      `json:"statusCategory"`
 	SslStatusCategory  string      `json:"sslStatusCategory"`
 	Urls               []struct {
-		ID             int    `json:"id"`
+		ID             IntID  `json:"id"`
 		Content        string `json:"content"`
 		Status         string `json:"status"`
 		StatusCategory string `json:"statusCategory"`

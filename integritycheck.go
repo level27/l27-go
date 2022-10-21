@@ -7,7 +7,7 @@ import (
 )
 
 // GET /{entityType}/{entityID}/integritychecks/{checkID}
-func (c *Client) EntityIntegrityCheck(entityType string, entityID int, checkId int) (IntegrityCheck, error) {
+func (c *Client) EntityIntegrityCheck(entityType string, entityID IntID, checkId IntID) (IntegrityCheck, error) {
 	var result struct {
 		IntegrityCheck IntegrityCheck `json:"integritycheck"`
 	}
@@ -19,7 +19,7 @@ func (c *Client) EntityIntegrityCheck(entityType string, entityID int, checkId i
 }
 
 // GET /{entityType}/{entityID}/integritychecks
-func (c *Client) EntityIntegrityChecks(entityType string, entityID int, getParams CommonGetParams) ([]IntegrityCheck, error) {
+func (c *Client) EntityIntegrityChecks(entityType string, entityID IntID, getParams CommonGetParams) ([]IntegrityCheck, error) {
 	var result struct {
 		IntegrityChecks []IntegrityCheck `json:"integritychecks"`
 	}
@@ -31,7 +31,7 @@ func (c *Client) EntityIntegrityChecks(entityType string, entityID int, getParam
 }
 
 // POST /{entityType}/{entityID}/integritychecks
-func (c *Client) EntityIntegrityCreate(entityType string, entityID int, runJobs bool, forceRunJobs bool) (IntegrityCheck, error) {
+func (c *Client) EntityIntegrityCreate(entityType string, entityID IntID, runJobs bool, forceRunJobs bool) (IntegrityCheck, error) {
 	var result struct {
 		IntegrityCheck IntegrityCheck `json:"integritycheck"`
 	}
@@ -44,18 +44,18 @@ func (c *Client) EntityIntegrityCreate(entityType string, entityID int, runJobs 
 }
 
 // Download entity integrity check report to file.
-func (c *Client) EntityIntegrityCheckDownload(entityType string, entityID int, checkId int, fileName string) error {
+func (c *Client) EntityIntegrityCheckDownload(entityType string, entityID IntID, checkId IntID, fileName string) error {
 	endpoint := fmt.Sprintf("%s/%d/integritychecks/%d/report", entityType, entityID, checkId)
 	res, err := c.sendRequestRaw("GET", endpoint, nil, map[string]string{"Accept": "application/pdf"})
 
 	if err == nil {
 		defer res.Body.Close()
 
-		if isErrorCode(res.StatusCode) {
+		if isErrorCode(int32(res.StatusCode)) {
 			var body []byte
 			body, err = io.ReadAll(res.Body)
 			if err == nil {
-				err = formatRequestError(res.StatusCode, body)
+				err = formatRequestError(int32(res.StatusCode), body)
 			}
 		}
 	}
@@ -87,7 +87,7 @@ type IntegrityCreateRequest struct {
 }
 
 type IntegrityCheck struct {
-	Id          int    `json:"id"`
+	Id          IntID  `json:"id"`
 	DtRequested string `json:"dtRequested"`
 	Status      string `json:"status"`
 }

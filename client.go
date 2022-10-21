@@ -47,8 +47,8 @@ func (c *Client) TraceRequests(tracer RequestTracer) {
 }
 
 type ErrorResponse struct {
-	Code     int `json:"code"`
-	HTTPCode int
+	Code     int32 `json:"code"`
+	HTTPCode int32
 	Message  string `json:"message"`
 	Errors   struct {
 		Children struct {
@@ -95,7 +95,7 @@ func (er ErrorResponse) Error() string {
 }
 
 type successResponse struct {
-	Code int         `json:"code"`
+	Code int32       `json:"code"`
 	Data interface{} `json:"data"`
 }
 
@@ -181,19 +181,19 @@ func (c *Client) sendRequest(method string, endpoint string, data interface{}) (
 		c.requestTracer.TraceResponseBody(res, body)
 	}
 
-	if isErrorCode(res.StatusCode) {
-		return nil, formatRequestError(res.StatusCode, body)
+	if isErrorCode(int32(res.StatusCode)) {
+		return nil, formatRequestError(int32(res.StatusCode), body)
 	}
 
 	return body, nil
 }
 
 // Returns whether an HTTP status code is considered an error of some kind.
-func isErrorCode(statusCode int) bool {
+func isErrorCode(statusCode int32) bool {
 	return statusCode < http.StatusOK || statusCode >= http.StatusBadRequest
 }
 
-func formatRequestError(statusCode int, body []byte) error {
+func formatRequestError(statusCode int32, body []byte) error {
 	jsonParsed, err := gabs.ParseJSON(body)
 	if err != nil {
 		return err

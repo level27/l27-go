@@ -17,7 +17,7 @@ func (c *Client) MailgroupsGetList(get CommonGetParams) ([]Mailgroup, error) {
 }
 
 // GET /mailgroups/{mailgroupID}
-func (c *Client) MailgroupsGetSingle(mailgroupID int) (Mailgroup, error) {
+func (c *Client) MailgroupsGetSingle(mailgroupID IntID) (Mailgroup, error) {
 	var response struct {
 		Mailgroup Mailgroup `json:"mailgroup"`
 	}
@@ -67,7 +67,7 @@ func (c *Client) MailgroupsCreate(create MailgroupCreate) (Mailgroup, error) {
 }
 
 // DELETE /mailgroups/{mailgroupID}
-func (c *Client) MailgroupsDelete(mailgroupID int) error {
+func (c *Client) MailgroupsDelete(mailgroupID IntID) error {
 	endpoint := fmt.Sprintf("mailgroups/%d", mailgroupID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -75,7 +75,7 @@ func (c *Client) MailgroupsDelete(mailgroupID int) error {
 }
 
 // PUT /mailgroups/{mailgroupID}
-func (c *Client) MailgroupsUpdate(mailgroupID int, data map[string]interface{}) error {
+func (c *Client) MailgroupsUpdate(mailgroupID IntID, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("mailgroups/%d", mailgroupID)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
 
@@ -83,7 +83,7 @@ func (c *Client) MailgroupsUpdate(mailgroupID int, data map[string]interface{}) 
 }
 
 // POST /mailgroups/{mailgroupID}/actions
-func (c *Client) MailgroupsAction(mailgroupID int, action string) (Mailgroup, error) {
+func (c *Client) MailgroupsAction(mailgroupID IntID, action string) (Mailgroup, error) {
 	var response struct {
 		Mailgroup Mailgroup `json:"mailgroup"`
 	}
@@ -100,7 +100,7 @@ func (c *Client) MailgroupsAction(mailgroupID int, action string) (Mailgroup, er
 }
 
 // POST /mailgroups/{mailgroupID}/domains
-func (c *Client) MailgroupsDomainsLink(mailgroupID int, data MailgroupDomainAdd) (Mailgroup, error) {
+func (c *Client) MailgroupsDomainsLink(mailgroupID IntID, data MailgroupDomainAdd) (Mailgroup, error) {
 	var response struct {
 		Mailgroup Mailgroup `json:"mailgroup"`
 	}
@@ -112,7 +112,7 @@ func (c *Client) MailgroupsDomainsLink(mailgroupID int, data MailgroupDomainAdd)
 }
 
 // DELETE /mailgroups/{mailgroupID}/domains/{domainId}
-func (c *Client) MailgroupsDomainsUnlink(mailgroupID int, domainId int) error {
+func (c *Client) MailgroupsDomainsUnlink(mailgroupID IntID, domainId IntID) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/domains/%d", mailgroupID, domainId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -120,7 +120,7 @@ func (c *Client) MailgroupsDomainsUnlink(mailgroupID int, domainId int) error {
 }
 
 // PATCH /mailgroups/{mailgroupID}/domains/{domainId}/setprimary
-func (c *Client) MailgroupsDomainsSetPrimary(mailgroupID int, domainId int) error {
+func (c *Client) MailgroupsDomainsSetPrimary(mailgroupID IntID, domainId IntID) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/domains/%d/setprimary", mailgroupID, domainId)
 	err := c.invokeAPI("PATCH", endpoint, nil, nil)
 
@@ -128,7 +128,7 @@ func (c *Client) MailgroupsDomainsSetPrimary(mailgroupID int, domainId int) erro
 }
 
 // PATCH /mailgroups/{mailgroupID}/domains/{domainID}
-func (c *Client) MailgroupsDomainsPatch(mailgroupID int, domainID int, data map[string]interface{}) error {
+func (c *Client) MailgroupsDomainsPatch(mailgroupID IntID, domainID IntID, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/domains/%d", mailgroupID, domainID)
 	err := c.invokeAPI("PATCH", endpoint, data, nil)
 
@@ -136,7 +136,7 @@ func (c *Client) MailgroupsDomainsPatch(mailgroupID int, domainID int, data map[
 }
 
 // GET /mailgroups/{mailgroupId}/mailboxes
-func (c *Client) MailgroupsMailboxesGetList(mailgroupID int, get CommonGetParams) ([]MailboxShort, error) {
+func (c *Client) MailgroupsMailboxesGetList(mailgroupID IntID, get CommonGetParams) ([]MailboxShort, error) {
 	var response struct {
 		Mailboxes []MailboxShort `json:"mailboxes"`
 	}
@@ -148,7 +148,7 @@ func (c *Client) MailgroupsMailboxesGetList(mailgroupID int, get CommonGetParams
 }
 
 // POST /mailgroups/{mailgroupId}/mailboxes
-func (c *Client) MailgroupsMailboxesCreate(mailgroupID int, data MailboxCreate) (Mailbox, error) {
+func (c *Client) MailgroupsMailboxesCreate(mailgroupID IntID, data MailboxCreate) (Mailbox, error) {
 	var response struct {
 		Mailbox Mailbox `json:"mailbox"`
 	}
@@ -160,7 +160,7 @@ func (c *Client) MailgroupsMailboxesCreate(mailgroupID int, data MailboxCreate) 
 }
 
 // GET /mailgroups/{mailgroupId}/mailboxes/{mailboxId}
-func (c *Client) MailgroupsMailboxesGetSingle(mailgroupID int, mailboxID int) (Mailbox, error) {
+func (c *Client) MailgroupsMailboxesGetSingle(mailgroupID IntID, mailboxID IntID) (Mailbox, error) {
 	var response struct {
 		Mailbox Mailbox `json:"mailbox"`
 	}
@@ -172,7 +172,7 @@ func (c *Client) MailgroupsMailboxesGetSingle(mailgroupID int, mailboxID int) (M
 }
 
 // DELETE /mailgroups/{mailgroupId}/mailboxes/{mailboxId}
-func (c *Client) MailgroupsMailboxesDelete(mailgroupID int, mailboxID int) error {
+func (c *Client) MailgroupsMailboxesDelete(mailgroupID IntID, mailboxID IntID) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/mailboxes/%d", mailgroupID, mailboxID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -180,14 +180,14 @@ func (c *Client) MailgroupsMailboxesDelete(mailgroupID int, mailboxID int) error
 }
 
 // PUT /mailgroups/{mailgroupId}/mailboxes
-func (c *Client) MailgroupsMailboxesUpdate(mailgroupID int, mailboxID int, data map[string]interface{}) error {
+func (c *Client) MailgroupsMailboxesUpdate(mailgroupID IntID, mailboxID IntID, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/mailboxes/%d", mailgroupID, mailboxID)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
 
 	return err
 }
 
-func (c *Client) MailgroupsMailboxesLookup(mailgroupID int, name string) ([]MailboxShort, error) {
+func (c *Client) MailgroupsMailboxesLookup(mailgroupID IntID, name string) ([]MailboxShort, error) {
 	results := make([]MailboxShort, 0)
 	mailgroups, err := c.MailgroupsMailboxesGetList(mailgroupID, CommonGetParams{Filter: name})
 	if err != nil {
@@ -204,7 +204,7 @@ func (c *Client) MailgroupsMailboxesLookup(mailgroupID int, name string) ([]Mail
 }
 
 // GET /mailgroups/{mailgroupId}/mailboxes/{mailboxId}/addresses
-func (c *Client) MailgroupsMailboxesAddressesGetList(mailgroupID int, mailboxID int, get CommonGetParams) ([]MailboxAddress, error) {
+func (c *Client) MailgroupsMailboxesAddressesGetList(mailgroupID IntID, mailboxID IntID, get CommonGetParams) ([]MailboxAddress, error) {
 	var response struct {
 		MailboxAddresses []MailboxAddress `json:"mailboxAddresses"`
 	}
@@ -216,7 +216,7 @@ func (c *Client) MailgroupsMailboxesAddressesGetList(mailgroupID int, mailboxID 
 }
 
 // POST /mailgroups/{mailgroupId}/mailboxes/{mailboxId}/addresses
-func (c *Client) MailgroupsMailboxesAddressesCreate(mailgroupID int, mailboxID int, data MailboxAddressCreate) (MailboxAddress, error) {
+func (c *Client) MailgroupsMailboxesAddressesCreate(mailgroupID IntID, mailboxID IntID, data MailboxAddressCreate) (MailboxAddress, error) {
 	var response struct {
 		MailboxAddress MailboxAddress `json:"mailboxAdress"`
 	}
@@ -228,7 +228,7 @@ func (c *Client) MailgroupsMailboxesAddressesCreate(mailgroupID int, mailboxID i
 }
 
 // GET /mailgroups/{mailgroupId}/mailboxes/{mailboxId}/addresses/{addressId}
-func (c *Client) MailgroupsMailboxesAddressesGetSingle(mailgroupID int, mailboxID int, addressID int) (MailboxAddress, error) {
+func (c *Client) MailgroupsMailboxesAddressesGetSingle(mailgroupID IntID, mailboxID IntID, addressID IntID) (MailboxAddress, error) {
 	var response struct {
 		MailboxAddress MailboxAddress `json:"mailboxAddress"`
 	}
@@ -240,7 +240,7 @@ func (c *Client) MailgroupsMailboxesAddressesGetSingle(mailgroupID int, mailboxI
 }
 
 // DELETE /mailgroups/{mailgroupId}/mailboxes/{mailboxId}/addresses/{addressId}
-func (c *Client) MailgroupsMailboxesAddressesDelete(mailgroupID int, mailboxID int, addressID int) error {
+func (c *Client) MailgroupsMailboxesAddressesDelete(mailgroupID IntID, mailboxID IntID, addressID IntID) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/mailboxes/%d/addresses/%d", mailgroupID, mailboxID, addressID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -248,14 +248,14 @@ func (c *Client) MailgroupsMailboxesAddressesDelete(mailgroupID int, mailboxID i
 }
 
 // PUT /mailgroups/{mailgroupId}/mailboxes/addresses/{addressId}
-func (c *Client) MailgroupsMailboxesAddressesUpdate(mailgroupID int, mailboxID int, addressID int, data map[string]interface{}) error {
+func (c *Client) MailgroupsMailboxesAddressesUpdate(mailgroupID IntID, mailboxID IntID, addressID IntID, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/mailboxes/%d/addresses/%d", mailgroupID, mailboxID, addressID)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
 
 	return err
 }
 
-func (c *Client) MailgroupsMailboxesAddressesLookup(mailgroupID int, mailboxID int, address string) ([]MailboxAddress, error) {
+func (c *Client) MailgroupsMailboxesAddressesLookup(mailgroupID IntID, mailboxID IntID, address string) ([]MailboxAddress, error) {
 	results := []MailboxAddress{}
 	addresses, err := c.MailgroupsMailboxesAddressesGetList(mailgroupID, mailboxID, CommonGetParams{Filter: address})
 	if err != nil {
@@ -272,7 +272,7 @@ func (c *Client) MailgroupsMailboxesAddressesLookup(mailgroupID int, mailboxID i
 }
 
 // GET /mailgroups/{mailgroupId}/mailforwarders
-func (c *Client) MailgroupsMailforwardersGetList(mailgroupID int, get CommonGetParams) ([]Mailforwarder, error) {
+func (c *Client) MailgroupsMailforwardersGetList(mailgroupID IntID, get CommonGetParams) ([]Mailforwarder, error) {
 	var response struct {
 		Mailforwarders []Mailforwarder `json:"mailforwarders"`
 	}
@@ -284,7 +284,7 @@ func (c *Client) MailgroupsMailforwardersGetList(mailgroupID int, get CommonGetP
 }
 
 // POST /mailgroups/{mailgroupId}/mailforwarders
-func (c *Client) MailgroupsMailforwardersCreate(mailgroupID int, data MailforwarderCreate) (Mailforwarder, error) {
+func (c *Client) MailgroupsMailforwardersCreate(mailgroupID IntID, data MailforwarderCreate) (Mailforwarder, error) {
 	var response struct {
 		Mailforwarder Mailforwarder `json:"mailforwarder"`
 	}
@@ -296,7 +296,7 @@ func (c *Client) MailgroupsMailforwardersCreate(mailgroupID int, data Mailforwar
 }
 
 // GET /mailgroups/{mailgroupId}/mailforwarders/{mailforwarderId}
-func (c *Client) MailgroupsMailforwardersGetSingle(mailgroupID int, mailforwarderID int) (Mailforwarder, error) {
+func (c *Client) MailgroupsMailforwardersGetSingle(mailgroupID IntID, mailforwarderID IntID) (Mailforwarder, error) {
 	var response struct {
 		Mailforwarder Mailforwarder `json:"mailforwarder"`
 	}
@@ -308,7 +308,7 @@ func (c *Client) MailgroupsMailforwardersGetSingle(mailgroupID int, mailforwarde
 }
 
 // DELETE /mailgroups/{mailgroupId}/mailforwarders/{mailforwarderId}
-func (c *Client) MailgroupsMailforwardersDelete(mailgroupID int, mailforwarderID int) error {
+func (c *Client) MailgroupsMailforwardersDelete(mailgroupID IntID, mailforwarderID IntID) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/mailforwarders/%d", mailgroupID, mailforwarderID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -316,14 +316,14 @@ func (c *Client) MailgroupsMailforwardersDelete(mailgroupID int, mailforwarderID
 }
 
 // PUT /mailgroups/{mailgroupId}/mailforwarders
-func (c *Client) MailgroupsMailforwardersUpdate(mailgroupID int, mailforwarderID int, data map[string]interface{}) error {
+func (c *Client) MailgroupsMailforwardersUpdate(mailgroupID IntID, mailforwarderID IntID, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("mailgroups/%d/mailforwarders/%d", mailgroupID, mailforwarderID)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
 
 	return err
 }
 
-func (c *Client) MailgroupsMailforwardersLookup(mailgroupID int, name string) ([]Mailforwarder, error) {
+func (c *Client) MailgroupsMailforwardersLookup(mailgroupID IntID, name string) ([]Mailforwarder, error) {
 	results := []Mailforwarder{}
 	mailgroups, err := c.MailgroupsMailforwardersGetList(mailgroupID, CommonGetParams{Filter: name})
 	if err != nil {
@@ -340,34 +340,34 @@ func (c *Client) MailgroupsMailforwardersLookup(mailgroupID int, name string) ([
 }
 
 type Mailgroup struct {
-	ID          int    `json:"id"`
+	ID          IntID  `json:"id"`
 	Name        string `json:"name"`
 	Type        string `json:"type"`
 	Status      string `json:"status"`
 	Systemgroup struct {
-		ID   int    `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"systemgroup"`
 	Organisation  OrganisationRef `json:"organisation"`
 	BillingStatus string          `json:"billingStatus"`
-	DtExpires     int             `json:"dtExpires"`
+	DtExpires     IntTime         `json:"dtExpires"`
 	Domains       []struct {
-		ID          int             `json:"id"`
+		ID          IntID           `json:"id"`
 		Name        string          `json:"name"`
 		MailPrimary bool            `json:"mailPrimary"`
 		Domaintype  DomainExtension `json:"domaintype"`
 	} `json:"domains"`
 	ExternalInfo       interface{} `json:"externalInfo"`
 	StatusCategory     string      `json:"statusCategory"`
-	MailboxCount       int         `json:"mailboxCount"`
-	MailforwarderCount int         `json:"mailforwarderCount"`
+	MailboxCount       int32       `json:"mailboxCount"`
+	MailforwarderCount int32       `json:"mailforwarderCount"`
 }
 
 type MailgroupCreate struct {
 	Name         string `json:"name"`
 	Type         string `json:"type"`
-	Organisation int    `json:"organisation"`
-	Systemgroup  int    `json:"systemgroup"`
+	Organisation IntID  `json:"organisation"`
+	Systemgroup  IntID  `json:"systemgroup"`
 	AutoTeams    string `json:"autoTeams"`
 	ExternalInfo string `json:"externalInfo"`
 }
@@ -375,18 +375,18 @@ type MailgroupCreate struct {
 type MailgroupPut struct {
 	Name         string `json:"name"`
 	Type         string `json:"type"`
-	Organisation int    `json:"organisation"`
-	Systemgroup  int    `json:"systemgroup"`
+	Organisation IntID  `json:"organisation"`
+	Systemgroup  IntID  `json:"systemgroup"`
 	AutoTeams    string `json:"autoTeams"`
 }
 
 type MailgroupDomainAdd struct {
-	Domain        int  `json:"domain"`
-	HandleMailDns bool `json:"handleMailDns"`
+	Domain        IntID `json:"domain"`
+	HandleMailDns bool  `json:"handleMailDns"`
 }
 
 type MailboxShort struct {
-	ID         int    `json:"id"`
+	ID         IntID  `json:"id"`
 	Name       string `json:"name"`
 	Username   string `json:"username"`
 	Status     string `json:"status"`
@@ -394,16 +394,16 @@ type MailboxShort struct {
 	OooSubject string `json:"oooSubject"`
 	OooText    string `json:"oooText"`
 	Mailgroup  struct {
-		ID   int    `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"mailgroup"`
 	StatusCategory string `json:"statusCategory"`
 	PrimaryAddress string `json:"primaryAddress"`
-	Aliases        int    `json:"aliases"`
+	Aliases        int32  `json:"aliases"`
 }
 
 type Mailbox struct {
-	ID         int    `json:"id"`
+	ID         IntID  `json:"id"`
 	Name       string `json:"name"`
 	Username   string `json:"username"`
 	Status     string `json:"status"`
@@ -412,21 +412,21 @@ type Mailbox struct {
 	OooText    string `json:"oooText"`
 	Source     string `json:"source"`
 	Mailgroup  struct {
-		ID   int    `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 		Type string `json:"type"`
 	} `json:"mailgroup"`
 	System struct {
-		ID       int    `json:"id"`
+		ID       IntID  `json:"id"`
 		Fqdn     string `json:"fqdn"`
 		Hostname string `json:"hostname"`
 	} `json:"system"`
 	BillableitemDetail struct {
-		ID int `json:"id"`
+		ID IntID `json:"id"`
 	} `json:"billableitemDetail"`
 	StatusCategory string `json:"statusCategory"`
 	PrimaryAddress string `json:"primaryAddress"`
-	Aliases        int    `json:"aliases"`
+	Aliases        int32  `json:"aliases"`
 }
 
 type MailboxCreate struct {
@@ -451,7 +451,7 @@ type MailboxDescribe struct {
 }
 
 type MailboxAddress struct {
-	ID      int    `json:"id"`
+	ID      IntID  `json:"id"`
 	Address string `json:"address"`
 	Status  string `json:"status"`
 }
@@ -461,20 +461,20 @@ type MailboxAddressCreate struct {
 }
 
 type Mailforwarder struct {
-	ID          int      `json:"id"`
+	ID          IntID    `json:"id"`
 	Address     string   `json:"address"`
 	Destination []string `json:"destination"`
 	Status      string   `json:"status"`
 	Mailgroup   struct {
-		ID   int    `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 		Type string `json:"type"`
 	} `json:"mailgroup"`
 	Domain struct {
-		ID         int    `json:"id"`
+		ID         IntID  `json:"id"`
 		Name       string `json:"name"`
 		Domaintype struct {
-			ID   int    `json:"id"`
+			ID   IntID  `json:"id"`
 			Name string `json:"name"`
 		} `json:"domaintype"`
 	} `json:"domain"`

@@ -10,38 +10,38 @@ type Notification struct {
 }
 
 type NotificationData struct {
-	ID                int         `json:"id"`
+	ID                IntID       `json:"id"`
 	EnitityIndex      string      `json:"entityIndex"`
 	EntityName        string      `json:"entityName"`
 	DtStamap          string      `json:"dtStamp"`
 	NotificationGroup string      `json:"notificationGroup"`
 	Type              string      `json:"type"`
 	EntityClass       string      `json:"entityClass"`
-	EntityID          int         `json:"entityId"`
+	EntityID          IntID       `json:"entityId"`
 	RootEntityClass   string      `json:"rootEntityClass"`
-	RootEntityID      int         `json:"rootEntityId"`
-	Status            int         `json:"status"`
+	RootEntityID      IntID       `json:"rootEntityId"`
+	Status            int32       `json:"status"`
 	StatusDisplay     string      `json:"statusDisplay"`
 	StatusCategory    string      `json:"statusCategory"`
-	SendMode          int         `json:"sendMode"`
-	Priority          int         `json:"priority"`
+	SendMode          int32       `json:"sendMode"`
+	Priority          int32       `json:"priority"`
 	Subject           interface{} `json:"subject"`
 	Params            interface{} `json:"params"`
-	UserID            int         `json:"userId"`
+	UserID            IntID       `json:"userId"`
 	Contacts          []struct {
-		ID        int    `json:"id"`
+		ID        IntID  `json:"id"`
 		DtStamp   string `json:"dtStamp"`
 		FullName  string `json:"fullName"`
 		Language  string `json:"language"`
 		Message   string `json:"message"`
-		Status    int    `json:"status"`
+		Status    int32  `json:"status"`
 		Type      string `json:"type"`
 		Value     string `json:"value"`
-		ContactID int    `json:"contactId"`
+		ContactID IntID  `json:"contactId"`
 	} `json:"contacts"`
 	ExtraRecipients []string `json:"extraRecipients"`
 	User            struct {
-		ID               int      `json:"id"`
+		ID               IntID    `json:"id"`
 		Username         string   `json:"username"`
 		Email            string   `json:"email"`
 		FirstName        string   `json:"firstName"`
@@ -53,7 +53,7 @@ type NotificationData struct {
 		Language         string   `json:"language"`
 		WebsiteOrderInfo string   `json:"websiteOrderInfo"`
 		Organisation     struct {
-			ID                 int    `json:"id"`
+			ID                 IntID  `json:"id"`
 			Name               string `json:"name"`
 			Street             string `json:"street"`
 			HouseNumber        string `json:"houseNumber"`

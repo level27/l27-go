@@ -27,7 +27,7 @@ func (c *Client) AppLookup(name string) ([]App, error) {
 }
 
 // GET componentId based on name
-func (c *Client) AppComponentLookup(appId int, name string) ([]AppComponent, error) {
+func (c *Client) AppComponentLookup(appId IntID, name string) ([]AppComponent, error) {
 	results := []AppComponent{}
 	components, err := c.AppComponentsGet(appId, CommonGetParams{Filter: name})
 	if err != nil {
@@ -47,7 +47,7 @@ func (c *Client) AppComponentLookup(appId int, name string) ([]AppComponent, err
 // #region APP MAIN SUBCOMMANDS (GET / CREATE  / UPDATE / DELETE / DESCRIBE)
 
 // Gets an app from the API
-func (c *Client) App(id int) (App, error) {
+func (c *Client) App(id IntID) (App, error) {
 	var app struct {
 		App App `json:"app"`
 	}
@@ -82,7 +82,7 @@ func (c *Client) AppCreate(req AppPostRequest) (App, error) {
 }
 
 // ---- DELETE APP
-func (c *Client) AppDelete(appId int) error {
+func (c *Client) AppDelete(appId IntID) error {
 	endpoint := fmt.Sprintf("apps/%v", appId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -90,7 +90,7 @@ func (c *Client) AppDelete(appId int) error {
 }
 
 // ---- UPDATE APP
-func (c *Client) AppUpdate(appId int, req AppPutRequest) error {
+func (c *Client) AppUpdate(appId IntID, req AppPutRequest) error {
 	endpoint := fmt.Sprintf("apps/%v", appId)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
 
@@ -101,7 +101,7 @@ func (c *Client) AppUpdate(appId int, req AppPutRequest) error {
 
 //------------------------------------------------- APP ACTIONS (ACTIVATE / DEACTIVATE)-------------------------------------------------
 // ---- ACTION (ACTIVATE OR DEACTIVATE) ON AN APP
-func (c *Client) AppAction(appId int, action string) error {
+func (c *Client) AppAction(appId IntID, action string) error {
 	request := AppActionRequest{
 		Type: action,
 	}
@@ -114,7 +114,7 @@ func (c *Client) AppAction(appId int, action string) error {
 // APP SSL CERTIFICATES
 
 // GET /apps/{appID}/sslcertificates
-func (c *Client) AppSslCertificatesGetList(appID int, sslType string, status string, get CommonGetParams) ([]AppSslCertificate, error) {
+func (c *Client) AppSslCertificatesGetList(appID IntID, sslType string, status string, get CommonGetParams) ([]AppSslCertificate, error) {
 	var response struct {
 		SslCertificates []AppSslCertificate `json:"sslCertificates"`
 	}
@@ -132,7 +132,7 @@ func (c *Client) AppSslCertificatesGetList(appID int, sslType string, status str
 }
 
 // GET /apps/{appID}/sslcertificates/{sslCertificateID}
-func (c *Client) AppSslCertificatesGetSingle(appID int, sslCertificateID int) (AppSslCertificate, error) {
+func (c *Client) AppSslCertificatesGetSingle(appID IntID, sslCertificateID IntID) (AppSslCertificate, error) {
 	var response struct {
 		SslCertificate AppSslCertificate `json:"sslCertificate"`
 	}
@@ -144,7 +144,7 @@ func (c *Client) AppSslCertificatesGetSingle(appID int, sslCertificateID int) (A
 }
 
 // POST /apps/{appID}/sslcertificates
-func (c *Client) AppSslCertificatesCreate(appID int, create AppSslCertificateCreate) (AppSslCertificate, error) {
+func (c *Client) AppSslCertificatesCreate(appID IntID, create AppSslCertificateCreate) (AppSslCertificate, error) {
 	var response struct {
 		SslCertificate AppSslCertificate `json:"sslCertificate"`
 	}
@@ -156,7 +156,7 @@ func (c *Client) AppSslCertificatesCreate(appID int, create AppSslCertificateCre
 }
 
 // POST /apps/{appID}/sslcertificates (variant for sslType == "own")
-func (c *Client) AppSslCertificatesCreateOwn(appID int, create AppSslCertificateCreateOwn) (AppSslCertificate, error) {
+func (c *Client) AppSslCertificatesCreateOwn(appID IntID, create AppSslCertificateCreateOwn) (AppSslCertificate, error) {
 	var response struct {
 		SslCertificate AppSslCertificate `json:"sslCertificate"`
 	}
@@ -168,7 +168,7 @@ func (c *Client) AppSslCertificatesCreateOwn(appID int, create AppSslCertificate
 }
 
 // DELETE /apps/{appID}/sslcertificates/{sslCertificateID}
-func (c *Client) AppSslCertificatesDelete(appID int, sslCertificateID int) error {
+func (c *Client) AppSslCertificatesDelete(appID IntID, sslCertificateID IntID) error {
 	endpoint := fmt.Sprintf("apps/%d/sslcertificates/%d", appID, sslCertificateID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -176,7 +176,7 @@ func (c *Client) AppSslCertificatesDelete(appID int, sslCertificateID int) error
 }
 
 // PUT /apps/{appID}/sslcertificates/{sslCertificateID}
-func (c *Client) AppSslCertificatesUpdate(appID int, sslCertificateID int, data map[string]interface{}) error {
+func (c *Client) AppSslCertificatesUpdate(appID IntID, sslCertificateID IntID, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("apps/%d/sslcertificates/%d", appID, sslCertificateID)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
 
@@ -184,7 +184,7 @@ func (c *Client) AppSslCertificatesUpdate(appID int, sslCertificateID int, data 
 }
 
 // Try to find an SSL certificate on an app by name.
-func (c *Client) AppSslCertificatesLookup(appID int, name string) ([]AppSslCertificate, error) {
+func (c *Client) AppSslCertificatesLookup(appID IntID, name string) ([]AppSslCertificate, error) {
 	results := []AppSslCertificate{}
 	apps, err := c.AppSslCertificatesGetList(appID, "", "", CommonGetParams{Filter: name})
 	if err != nil {
@@ -201,7 +201,7 @@ func (c *Client) AppSslCertificatesLookup(appID int, name string) ([]AppSslCerti
 }
 
 // POST /apps/{appID}/sslcertificates/{sslCertificateID}/actions
-func (c *Client) AppSslCertificatesActions(appID int, sslCertificateID int, actionType string) error {
+func (c *Client) AppSslCertificatesActions(appID IntID, sslCertificateID IntID, actionType string) error {
 	var request struct {
 		Type string `json:"type"`
 	}
@@ -215,7 +215,7 @@ func (c *Client) AppSslCertificatesActions(appID int, sslCertificateID int, acti
 }
 
 // POST /apps/{appID}/sslcertificates/{sslCertificateID}/fix
-func (c *Client) AppSslCertificatesFix(appID int, sslCertificateID int) (AppSslCertificate, error) {
+func (c *Client) AppSslCertificatesFix(appID IntID, sslCertificateID IntID) (AppSslCertificate, error) {
 	var response struct {
 		SslCertificate AppSslCertificate `json:"sslCertificate"`
 	}
@@ -227,7 +227,7 @@ func (c *Client) AppSslCertificatesFix(appID int, sslCertificateID int) (AppSslC
 }
 
 // GET /apps/{appID}/sslcertificates/{sslCertificateID}/key
-func (c *Client) AppSslCertificatesKey(appID int, sslCertificateID int) (AppSslcertificateKey, error) {
+func (c *Client) AppSslCertificatesKey(appID IntID, sslCertificateID IntID) (AppSslcertificateKey, error) {
 	var response AppSslcertificateKey
 
 	endpoint := fmt.Sprintf("apps/%d/sslcertificates/%d/key", appID, sslCertificateID)
@@ -239,7 +239,7 @@ func (c *Client) AppSslCertificatesKey(appID int, sslCertificateID int) (AppSslc
 //------------------------------------------------- APP COMPONENTS (GET / DESCRIBE / CREATE)-------------------------------------------------
 
 // ---- GET LIST OF COMPONENTS
-func (c *Client) AppComponentsGet(appid int, getParams CommonGetParams) ([]AppComponent, error) {
+func (c *Client) AppComponentsGet(appid IntID, getParams CommonGetParams) ([]AppComponent, error) {
 	var components struct {
 		Data []AppComponent `json:"components"`
 	}
@@ -251,7 +251,7 @@ func (c *Client) AppComponentsGet(appid int, getParams CommonGetParams) ([]AppCo
 }
 
 // ---- DESCRIBE COMPONENT (GET SINGLE COMPONENT)
-func (c *Client) AppComponentGetSingle(appId int, id int) (AppComponent, error) {
+func (c *Client) AppComponentGetSingle(appId IntID, id IntID) (AppComponent, error) {
 	var component struct {
 		Data AppComponent `json:"component"`
 	}
@@ -263,14 +263,14 @@ func (c *Client) AppComponentGetSingle(appId int, id int) (AppComponent, error) 
 }
 
 // ---- DELETE COMPONENT
-func (c *Client) AppComponentsDelete(appId int, componentId int) error {
+func (c *Client) AppComponentsDelete(appId IntID, componentId IntID) error {
 	endpoint := fmt.Sprintf("apps/%v/components/%v", appId, componentId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err
 }
 
-func (c *Client) AppComponentCreate(appId int, req interface{}) (AppComponent, error) {
+func (c *Client) AppComponentCreate(appId IntID, req interface{}) (AppComponent, error) {
 	var app struct {
 		Data AppComponent `json:"component"`
 	}
@@ -280,7 +280,7 @@ func (c *Client) AppComponentCreate(appId int, req interface{}) (AppComponent, e
 	return app.Data, err
 }
 
-func (c *Client) AppComponentUpdate(appId int, appComponentID int, req interface{}) error {
+func (c *Client) AppComponentUpdate(appId IntID, appComponentID IntID, req interface{}) error {
 	endpoint := fmt.Sprintf("apps/%d/components/%d", appId, appComponentID)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
 
@@ -303,7 +303,7 @@ func (c *Client) AppComponenttypesGet() (Appcomponenttype, error) {
 //-------------------------------------------------  APP RESTORE (GET / DESCRIBE / CREATE / UPDATE / DELETE / DOWNLOAD) -------------------------------------------------
 
 // ---- GET LIST OF APP RESTORES
-func (c *Client) AppComponentRestoresGet(appId int) ([]AppComponentRestore, error) {
+func (c *Client) AppComponentRestoresGet(appId IntID) ([]AppComponentRestore, error) {
 	var restores struct {
 		Data []AppComponentRestore `json:"restores"`
 	}
@@ -315,7 +315,7 @@ func (c *Client) AppComponentRestoresGet(appId int) ([]AppComponentRestore, erro
 }
 
 // ---- CREATE NEW RESTORE
-func (c *Client) AppComponentRestoreCreate(appId int, req AppComponentRestoreRequest) (AppComponentRestore, error) {
+func (c *Client) AppComponentRestoreCreate(appId IntID, req AppComponentRestoreRequest) (AppComponentRestore, error) {
 	var restore struct {
 		Data AppComponentRestore `json:"restore"`
 	}
@@ -326,7 +326,7 @@ func (c *Client) AppComponentRestoreCreate(appId int, req AppComponentRestoreReq
 }
 
 // ---- DELETE RESTORE
-func (c *Client) AppComponentRestoresDelete(appId int, restoreId int) error {
+func (c *Client) AppComponentRestoresDelete(appId IntID, restoreId IntID) error {
 	endpoint := fmt.Sprintf("apps/%v/restores/%v", appId, restoreId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -334,7 +334,7 @@ func (c *Client) AppComponentRestoresDelete(appId int, restoreId int) error {
 }
 
 // ---- DOWNLOAD RESTORE FILE
-func (c *Client) AppComponentRestoreDownload(appId int, restoreId int, filename string) error {
+func (c *Client) AppComponentRestoreDownload(appId IntID, restoreId IntID, filename string) error {
 	endpoint := fmt.Sprintf("apps/%v/restores/%v/download", appId, restoreId)
 	res, err := c.sendRequestRaw("GET", endpoint, nil, map[string]string{"Accept": "application/gzip"})
 
@@ -345,11 +345,11 @@ func (c *Client) AppComponentRestoreDownload(appId int, restoreId int, filename 
 	defer res.Body.Close()
 
 	if err == nil {
-		if isErrorCode(res.StatusCode) {
+		if isErrorCode(int32(res.StatusCode)) {
 			var body []byte
 			body, err = io.ReadAll(res.Body)
 			if err == nil {
-				err = formatRequestError(res.StatusCode, body)
+				err = formatRequestError(int32(res.StatusCode), body)
 			}
 		}
 	}
@@ -374,7 +374,7 @@ func (c *Client) AppComponentRestoreDownload(appId int, restoreId int, filename 
 
 //-------------------------------------------------  APP COMPONENT BACKUP (GET) -------------------------------------------------
 // ---- GET LIST OF COMPONENT AVAILABLEBACKUPS
-func (c *Client) AppComponentbackupsGet(appId int, componentId int) ([]AppComponentAvailableBackup, error) {
+func (c *Client) AppComponentbackupsGet(appId IntID, componentId IntID) ([]AppComponentAvailableBackup, error) {
 	var backups struct {
 		Data []AppComponentAvailableBackup `json:"availableBackups"`
 	}
@@ -386,7 +386,7 @@ func (c *Client) AppComponentbackupsGet(appId int, componentId int) ([]AppCompon
 
 //-------------------------------------------------  APP MIGRATIONS (GET / DESCRIBE / CREATE / UPDATE) -------------------------------------------------
 // ---- GET LIST OF MIGRATIONS
-func (c *Client) AppMigrationsGet(appId int) ([]AppMigration, error) {
+func (c *Client) AppMigrationsGet(appId IntID) ([]AppMigration, error) {
 	var migrations struct {
 		Data []AppMigration `json:"migrations"`
 	}
@@ -398,7 +398,7 @@ func (c *Client) AppMigrationsGet(appId int) ([]AppMigration, error) {
 }
 
 // ---- CREATE APP MIGRATION
-func (c *Client) AppMigrationsCreate(appId int, req AppMigrationRequest) (AppMigration, error) {
+func (c *Client) AppMigrationsCreate(appId IntID, req AppMigrationRequest) (AppMigration, error) {
 	var migration struct {
 		Data AppMigration `json:"migration"`
 	}
@@ -409,7 +409,7 @@ func (c *Client) AppMigrationsCreate(appId int, req AppMigrationRequest) (AppMig
 }
 
 // ---- UPDATE APP MIGRATION
-func (c *Client) AppMigrationsUpdate(appId int, migrationId int, req interface{}) error {
+func (c *Client) AppMigrationsUpdate(appId IntID, migrationId IntID, req interface{}) error {
 	endpoint := fmt.Sprintf("apps/%v/migrations/%v", appId, migrationId)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
 
@@ -417,7 +417,7 @@ func (c *Client) AppMigrationsUpdate(appId int, migrationId int, req interface{}
 }
 
 // ---- DESCRIBE APP MIGRATION
-func (c *Client) AppMigrationDescribe(appId int, migrationId int) (AppMigration, error) {
+func (c *Client) AppMigrationDescribe(appId IntID, migrationId IntID) (AppMigration, error) {
 	var migration struct {
 		Data AppMigration `json:"migration"`
 	}
@@ -430,7 +430,7 @@ func (c *Client) AppMigrationDescribe(appId int, migrationId int) (AppMigration,
 
 //-------------------------------------------------  APP MIGRATIONS ACTIONS (CONFIRM / DENY / RESTART) -------------------------------------------------
 // ---- MIGRATIONS ACTION COMMAND
-func (c *Client) AppMigrationsAction(appId int, migrationId int, ChosenAction string) error {
+func (c *Client) AppMigrationsAction(appId IntID, migrationId IntID, ChosenAction string) error {
 	var action struct {
 		Type string `json:"type"`
 	}
@@ -445,7 +445,7 @@ func (c *Client) AppMigrationsAction(appId int, migrationId int, ChosenAction st
 // ------------ COMPONENT URL MANAGEMENT
 
 // GET /apps/{appId}/components/{componentId}/urls
-func (c *Client) AppComponentUrlGetList(appID int, componentID int, get CommonGetParams) ([]AppComponentUrlShort, error) {
+func (c *Client) AppComponentUrlGetList(appID IntID, componentID IntID, get CommonGetParams) ([]AppComponentUrlShort, error) {
 	var resp struct {
 		Urls []AppComponentUrlShort `json:"urls"`
 	}
@@ -457,7 +457,7 @@ func (c *Client) AppComponentUrlGetList(appID int, componentID int, get CommonGe
 }
 
 // GET /apps/{appId}/components/{componentId}/urls/{urlId}
-func (c *Client) AppComponentUrlGetSingle(appID int, componentID int, urlID int) (AppComponentUrl, error) {
+func (c *Client) AppComponentUrlGetSingle(appID IntID, componentID IntID, urlID IntID) (AppComponentUrl, error) {
 	var resp struct {
 		Url AppComponentUrl `json:"url"`
 	}
@@ -469,7 +469,7 @@ func (c *Client) AppComponentUrlGetSingle(appID int, componentID int, urlID int)
 }
 
 // POST /apps/{appId}/components/{componentId}/urls
-func (c *Client) AppComponentUrlCreate(appID int, componentID int, create AppComponentUrlCreate) (AppComponentUrl, error) {
+func (c *Client) AppComponentUrlCreate(appID IntID, componentID IntID, create AppComponentUrlCreate) (AppComponentUrl, error) {
 	var resp struct {
 		Url AppComponentUrl `json:"url"`
 	}
@@ -481,7 +481,7 @@ func (c *Client) AppComponentUrlCreate(appID int, componentID int, create AppCom
 }
 
 // PUT /apps/{appId}/components/{componentId}/urls/{urlId}
-func (c *Client) AppComponentUrlUpdate(appID int, componentID int, urlID int, data interface{}) error {
+func (c *Client) AppComponentUrlUpdate(appID IntID, componentID IntID, urlID IntID, data interface{}) error {
 	endpoint := fmt.Sprintf("apps/%d/components/%d/urls/%d", appID, componentID, urlID)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
 
@@ -489,14 +489,14 @@ func (c *Client) AppComponentUrlUpdate(appID int, componentID int, urlID int, da
 }
 
 // DELETE /apps/{appId}/components/{componentId}/urls/{urlId}
-func (c *Client) AppComponentUrlDelete(appID int, componentID int, urlID int) error {
+func (c *Client) AppComponentUrlDelete(appID IntID, componentID IntID, urlID IntID) error {
 	endpoint := fmt.Sprintf("apps/%d/components/%d/urls/%d", appID, componentID, urlID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err
 }
 
-func (c *Client) AppComponentUrlLookup(appID int, componentID int, name string) ([]AppComponentUrlShort, error) {
+func (c *Client) AppComponentUrlLookup(appID IntID, componentID IntID, name string) ([]AppComponentUrlShort, error) {
 	results := []AppComponentUrlShort{}
 	urls, err := c.AppComponentUrlGetList(appID, componentID, CommonGetParams{Filter: name})
 	if err != nil {
@@ -518,48 +518,48 @@ type App struct {
 	Status         string `json:"status"`
 	StatusCategory string `json:"statusCategory"`
 	Organisation   struct {
-		ID       int    `json:"id"`
+		ID       IntID  `json:"id"`
 		Name     string `json:"name"`
 		Reseller struct {
-			ID   int    `json:"id"`
+			ID   IntID  `json:"id"`
 			Name string `json:"name"`
 		} `json:"reseller"`
 	} `json:"organisation"`
-	DtExpires     int    `json:"dtExpires"`
-	BillingStatus string `json:"billingStatus"`
+	DtExpires     IntTime `json:"dtExpires"`
+	BillingStatus string  `json:"billingStatus"`
 	Components    []struct {
-		ID               int    `json:"id"`
+		ID               IntID  `json:"id"`
 		Name             string `json:"name"`
 		Category         string `json:"category"`
 		AppComponentType string `json:"appcomponenttype"`
 	} `json:"components"`
-	CountTeams int `json:"countTeams"`
+	CountTeams int32 `json:"countTeams"`
 	Teams      []struct {
-		ID             int    `json:"id"`
+		ID             IntID  `json:"id"`
 		Name           string `json:"name"`
 		AdminOnly      bool   `json:"adminOnly"`
-		OrganisationID int    `json:"organisationId"`
+		OrganisationID IntID  `json:"organisationId"`
 	} `json:"teams"`
 	ExternalInfo string `json:"externalInfo"`
 }
 
 type AppRef struct {
-	ID   int    `json:"id"`
+	ID   IntID  `json:"id"`
 	Name string `json:"name"`
 }
 
 //type to create an app (post request)
 type AppPostRequest struct {
-	Name         string `json:"name"`
-	Organisation int    `json:"organisation"`
-	AutoTeams    []int  `json:"autoTeams"`
-	ExternalInfo string `json:"externalInfo"`
+	Name         string  `json:"name"`
+	Organisation IntID   `json:"organisation"`
+	AutoTeams    []IntID `json:"autoTeams"`
+	ExternalInfo string  `json:"externalInfo"`
 }
 
 //type to update an app (put request)
 type AppPutRequest struct {
 	Name         string   `json:"name"`
-	Organisation int      `json:"organisation"`
+	Organisation IntID    `json:"organisation"`
 	AutoTeams    []string `json:"autoTeams"`
 }
 
@@ -569,7 +569,7 @@ type AppActionRequest struct {
 }
 
 type AppSslCertificate struct {
-	ID                 int         `json:"id"`
+	ID                 IntID       `json:"id"`
 	Name               string      `json:"name"`
 	SslType            string      `json:"sslType"`
 	SslKey             string      `json:"sslKey"`
@@ -585,7 +585,7 @@ type AppSslCertificate struct {
 	ValidationParams   interface{} `json:"validationParams"`
 	Source             interface{} `json:"source"`
 	SslCertificateUrls []struct {
-		ID                int         `json:"id"`
+		ID                IntID       `json:"id"`
 		Content           string      `json:"content"`
 		SslStatus         string      `json:"sslStatus"`
 		ErrorMsg          interface{} `json:"errorMsg"`
@@ -596,7 +596,7 @@ type AppSslCertificate struct {
 	StatusCategory     string      `json:"statusCategory"`
 	SslStatusCategory  string      `json:"sslStatusCategory"`
 	Urls               []struct {
-		ID             int    `json:"id"`
+		ID             IntID  `json:"id"`
 		Content        string `json:"content"`
 		Status         string `json:"status"`
 		StatusCategory string `json:"statusCategory"`
@@ -631,7 +631,7 @@ type AppSslcertificateKey struct {
 //type appcomponent
 type AppComponent struct {
 	App struct {
-		ID             int64  `json:"id"`
+		ID             IntID  `json:"id"`
 		Status         string `json:"status"`
 		Name           string `json:"name"`
 		StatusCategory string `json:"statusCategory"`
@@ -639,16 +639,16 @@ type AppComponent struct {
 	AppcomponentparameterDescriptions interface{}            `json:"appcomponentparameterDescriptions"`
 	Appcomponentparameters            map[string]interface{} `json:"appcomponentparameters"`
 	Appcomponenttype                  string                 `json:"appcomponenttype"`
-	BillableitemDetailID              int64                  `json:"billableitemDetailId"`
+	BillableitemDetailID              IntID                  `json:"billableitemDetailId"`
 	Category                          string                 `json:"category"`
-	ID                                int64                  `json:"id"`
+	ID                                IntID                  `json:"id"`
 	Name                              string                 `json:"name"`
 	Organisation                      struct {
-		ID   int64  `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"organisation"`
 	Provider struct {
-		ID   interface{} `json:"id"`
+		ID   IntID       `json:"id"`
 		Name interface{} `json:"name"`
 	} `json:"provider"`
 	SelectedSystem interface{} `json:"selectedSystem"`
@@ -657,7 +657,7 @@ type AppComponent struct {
 	Systems        []struct {
 		Cookbooks []interface{} `json:"cookbooks"`
 		Fqdn      string        `josn:"fqdn"`
-		ID        int64         `json:"id"`
+		ID        IntID         `json:"id"`
 		Name      string        `json:"name"`
 	} `json:"systems"`
 }
@@ -704,13 +704,13 @@ type AppComponentTypeParameter struct {
 
 // Restore type for an app
 type AppComponentRestore struct {
-	ID           int         `json:"id"`
+	ID           IntID       `json:"id"`
 	Filename     string      `json:"filename"`
 	Size         interface{} `json:"size"`
-	DtExpires    interface{} `json:"dtExpires"`
+	DtExpires    IntTime     `json:"dtExpires"`
 	Status       string      `json:"status"`
 	Appcomponent struct {
-		ID                     int    `json:"id"`
+		ID                     IntID  `json:"id"`
 		Name                   string `json:"name"`
 		Appcomponenttype       string `json:"appcomponenttype"`
 		Appcomponentparameters struct {
@@ -719,24 +719,24 @@ type AppComponentRestore struct {
 		} `json:"appcomponentparameters"`
 		Status string `json:"status"`
 		App    struct {
-			ID int `json:"id"`
+			ID IntID `json:"id"`
 		} `json:"app"`
 	} `json:"appcomponent"`
 	AvailableBackup struct {
-		ID           int    `json:"id"`
-		Date         string `json:"date"`
-		VolumeUID    string `json:"volumeUid"`
-		StorageUID   string `json:"storageUid"`
-		Status       int    `json:"status"`
-		SnapshotName string `json:"snapshotName"`
+		ID           IntID     `json:"id"`
+		Date         string    `json:"date"`
+		VolumeUID    string    `json:"volumeUid"`
+		StorageUID   string    `json:"storageUid"`
+		Status       IntStatus `json:"status"`
+		SnapshotName string    `json:"snapshotName"`
 		System       struct {
-			ID           int         `json:"id"`
+			ID           IntID       `json:"id"`
 			Fqdn         string      `json:"fqdn"`
 			CustomerFqdn interface{} `json:"customerFqdn"`
 			Name         string      `json:"name"`
 		} `json:"system"`
 		RestoreSystem struct {
-			ID           int         `json:"id"`
+			ID           IntID       `json:"id"`
 			Fqdn         string      `json:"fqdn"`
 			CustomerFqdn interface{} `json:"customerFqdn"`
 			Name         string      `json:"name"`
@@ -746,17 +746,17 @@ type AppComponentRestore struct {
 
 // request type for new restore
 type AppComponentRestoreRequest struct {
-	Appcomponent    int `json:"appcomponent"`
-	AvailableBackup int `json:"availableBackup"`
+	Appcomponent    IntID `json:"appcomponent"`
+	AvailableBackup IntID `json:"availableBackup"`
 }
 
 // type availablebackup for an appcomponent
 type AppComponentAvailableBackup struct {
 	Date          string `json:"date"`
-	ID            int    `json:"id"`
+	ID            IntID  `json:"id"`
 	RestoreSystem struct {
 		Fqdn string `json:"fqdn"`
-		ID   int    `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"restoreSystem"`
 	SnapshotName   string `json:"snapshotName"`
@@ -765,7 +765,7 @@ type AppComponentAvailableBackup struct {
 	StorageUID     string `json:"storageUid"`
 	System         struct {
 		Fqdn string `json:"fqdn"`
-		ID   int    `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"system"`
 	VolumeUID string `json:"volumeUid"`
@@ -773,23 +773,23 @@ type AppComponentAvailableBackup struct {
 
 // type app migration
 type AppMigration struct {
-	ID                 int         `json:"id"`
+	ID                 IntID       `json:"id"`
 	MigrationType      string      `json:"migrationType"`
 	DtPlanned          interface{} `json:"dtPlanned"`
 	Status             string      `json:"status"`
-	ConfirmationStatus int         `json:"confirmationStatus"`
+	ConfirmationStatus IntStatus   `json:"confirmationStatus"`
 	App                AppRef      `json:"app"`
 
 	MigrationItems []struct {
-		ID                   int           `json:"id"`
+		ID                   IntID         `json:"id"`
 		Type                 string        `json:"type"`
 		Source               string        `json:"source"`
 		SourceInformation    string        `json:"sourceInformation"`
 		DestinationEntity    string        `json:"destinationEntity"`
-		DestinationEntityID  int           `json:"destinationEntityId"`
+		DestinationEntityID  IntID         `json:"destinationEntityId"`
 		Status               string        `json:"status"`
 		StatusCategory       string        `json:"statusCategory"`
-		Ord                  int           `json:"ord"`
+		Ord                  int32         `json:"ord"`
 		Sshkey               interface{}   `json:"sshkey"`
 		InvestigationResults interface{}   `json:"investigationResults"`
 		PreparationResults   []interface{} `json:"preparationResults"`
@@ -797,7 +797,7 @@ type AppMigration struct {
 		MigrationResults     []interface{} `json:"migrationResults"`
 		Logs                 interface{}   `json:"logs"`
 		Appcomponent         struct {
-			ID                     int    `json:"id"`
+			ID                     IntID  `json:"id"`
 			Name                   string `json:"name"`
 			Appcomponenttype       string `json:"appcomponenttype"`
 			Appcomponentparameters struct {
@@ -817,7 +817,7 @@ type AppMigration struct {
 			Status         string `json:"status"`
 			StatusCategory string `json:"statusCategory"`
 			System         struct {
-				ID                    int    `json:"id"`
+				ID                    IntID  `json:"id"`
 				Fqdn                  string `json:"fqdn"`
 				CustomerFqdn          string `json:"customerFqdn"`
 				Name                  string `json:"name"`
@@ -829,7 +829,7 @@ type AppMigration struct {
 			} `json:"system"`
 		} `json:"sourceExtraData"`
 		DestinationExtraData struct {
-			ID                    int    `json:"id"`
+			ID                    IntID  `json:"id"`
 			Name                  string `json:"name"`
 			Fqdn                  string `json:"fqdn"`
 			CustomerFqdn          string `json:"customerFqdn"`
@@ -852,10 +852,10 @@ type AppMigrationRequest struct {
 type AppMigrationItem struct {
 	Type                string      `json:"type"`
 	Source              string      `json:"source"`
-	SourceInfo          int         `json:"sourceInformation"`
+	SourceInfo          int32       `json:"sourceInformation"`
 	DestinationEntity   string      `json:"destinationEntity"`
-	DestinationEntityId int         `json:"destinationEntityId"`
-	Ord                 int         `json:"ord"`
+	DestinationEntityId IntID       `json:"destinationEntityId"`
+	Ord                 int32       `json:"ord"`
 	SshKey              interface{} `json:"sshkey"`
 }
 
@@ -869,7 +869,7 @@ type AppMigrationUpdate struct {
 type AppMigrationItemValue map[string]interface{}
 
 type AppComponentUrlShort struct {
-	ID             int                       `json:"id"`
+	ID             IntID                     `json:"id"`
 	Content        string                    `json:"content"`
 	HTTPS          bool                      `json:"https"`
 	Status         string                    `json:"status"`
@@ -884,7 +884,7 @@ type AppComponentUrlShort struct {
 }
 
 type AppComponentRefShort struct {
-	ID               int    `json:"id"`
+	ID               IntID  `json:"id"`
 	Name             string `json:"name"`
 	Appcomponenttype string `json:"appcomponenttype"`
 	Status           string `json:"status"`
@@ -892,7 +892,7 @@ type AppComponentRefShort struct {
 }
 
 type AppSslCertificateRefShort struct {
-	ID                int    `json:"id"`
+	ID                IntID  `json:"id"`
 	Name              string `json:"name"`
 	SslStatus         string `json:"sslStatus"`
 	Status            string `json:"status"`
@@ -902,7 +902,7 @@ type AppSslCertificateRefShort struct {
 }
 
 type AppComponentUrl struct {
-	ID             int    `json:"id"`
+	ID             IntID  `json:"id"`
 	Content        string `json:"content"`
 	HTTPS          bool   `json:"https"`
 	Status         string `json:"status"`
@@ -910,17 +910,17 @@ type AppComponentUrl struct {
 	HandleDNS      bool   `json:"handleDns"`
 	Authentication bool   `json:"authentication"`
 	Appcomponent   struct {
-		ID               int    `json:"id"`
+		ID               IntID  `json:"id"`
 		Name             string `json:"name"`
 		Appcomponenttype string `json:"appcomponenttype"`
 		Status           string `json:"status"`
 		App              struct {
-			ID int `json:"id"`
+			ID IntID `json:"id"`
 		} `json:"app"`
 		StatusCategory string `json:"statusCategory"`
 	} `json:"appcomponent"`
 	SslCertificate struct {
-		ID                int    `json:"id"`
+		ID                IntID  `json:"id"`
 		Name              string `json:"name"`
 		SslForce          bool   `json:"sslForce"`
 		SslStatus         string `json:"sslStatus"`
@@ -932,7 +932,7 @@ type AppComponentUrl struct {
 	StatusCategory       string `json:"statusCategory"`
 	Type                 string `json:"type"`
 	MatchingCertificates []struct {
-		ID                int    `json:"id"`
+		ID                IntID  `json:"id"`
 		Name              string `json:"name"`
 		SslStatus         string `json:"sslStatus"`
 		App               AppRef `json:"app"`
@@ -975,7 +975,7 @@ type AppComponentUrlCreate struct {
 	Authentication     bool   `json:"authentication"`
 	Content            string `json:"content"`
 	SslForce           bool   `json:"sslForce"`
-	SslCertificate     *int   `json:"sslCertificate"`
+	SslCertificate     *IntID `json:"sslCertificate"`
 	HandleDns          bool   `json:"handleDns"`
 	AutoSslCertificate bool   `json:"autoSslCertificate"`
 }

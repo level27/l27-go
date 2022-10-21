@@ -21,7 +21,7 @@ func (c *Client) LoginInfo() (Login, error) {
 type Login struct {
 	Success bool `json:"success"`
 	User    struct {
-		ID           int      `json:"id"`
+		ID           IntID    `json:"id"`
 		Username     string   `json:"username"`
 		Email        string   `json:"email"`
 		Firstname    string   `json:"firstName"`
@@ -30,7 +30,7 @@ type Login struct {
 		Status       string   `json:"status"`
 		Language     string   `json:"language"`
 		Organisation struct {
-			ID          int    `json:"id"`
+			ID          IntID  `json:"id"`
 			Name        string `json:"name"`
 			Street      string `json:"street"`
 			Housenumber string `json:"houseNumber"`

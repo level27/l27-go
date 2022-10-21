@@ -57,7 +57,7 @@ func (c *Client) LookupSystem(name string) ([]System, error) {
 
 // Returning a single system by its ID
 // this is not for a describe.
-func (c *Client) SystemGetSingle(id int) (System, error) {
+func (c *Client) SystemGetSingle(id IntID) (System, error) {
 	var system struct {
 		Data System `json:"system"`
 	}
@@ -68,7 +68,7 @@ func (c *Client) SystemGetSingle(id int) (System, error) {
 	return system.Data, err
 }
 
-func (c *Client) SystemGetSshKeys(id int, get CommonGetParams) ([]SystemSshkey, error) {
+func (c *Client) SystemGetSshKeys(id IntID, get CommonGetParams) ([]SystemSshkey, error) {
 	var keys struct {
 		SshKeys []SystemSshkey `json:"sshkeys"`
 	}
@@ -79,7 +79,7 @@ func (c *Client) SystemGetSshKeys(id int, get CommonGetParams) ([]SystemSshkey, 
 	return keys.SshKeys, err
 }
 
-func (c *Client) SystemGetNonAddedSshKeys(systemID int, organisationID int, userID int, get CommonGetParams) ([]SshKey, error) {
+func (c *Client) SystemGetNonAddedSshKeys(systemID IntID, organisationID IntID, userID IntID, get CommonGetParams) ([]SshKey, error) {
 	var keys struct {
 		SshKeys []SshKey `json:"sshKeys"`
 	}
@@ -90,13 +90,13 @@ func (c *Client) SystemGetNonAddedSshKeys(systemID int, organisationID int, user
 	return keys.SshKeys, err
 }
 
-func (c *Client) SystemAddSshKey(id int, keyID int) (SystemSshkey, error) {
+func (c *Client) SystemAddSshKey(id IntID, keyID IntID) (SystemSshkey, error) {
 	var key struct {
 		Sshkey SystemSshkey `json:"sshKey"`
 	}
 
 	var data struct {
-		Sshkey int `json:"sshkey"`
+		Sshkey IntID `json:"sshkey"`
 	}
 
 	data.Sshkey = keyID
@@ -107,14 +107,14 @@ func (c *Client) SystemAddSshKey(id int, keyID int) (SystemSshkey, error) {
 	return key.Sshkey, err
 }
 
-func (c *Client) SystemRemoveSshKey(id int, keyID int) error {
+func (c *Client) SystemRemoveSshKey(id IntID, keyID IntID) error {
 	endpoint := fmt.Sprintf("systems/%d/sshkeys/%d", id, keyID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err
 }
 
-func (c *Client) LookupSystemSshkey(systemID int, name string) (*SystemSshkey, error) {
+func (c *Client) LookupSystemSshkey(systemID IntID, name string) (*SystemSshkey, error) {
 	keys, err := c.SystemGetSshKeys(systemID, CommonGetParams{Filter: name})
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ func (c *Client) LookupSystemSshkey(systemID int, name string) (*SystemSshkey, e
 	return nil, nil
 }
 
-func (c *Client) LookupSystemNonAddedSshkey(systemID int, organisationID int, userID int, name string) (*SshKey, error) {
+func (c *Client) LookupSystemNonAddedSshkey(systemID IntID, organisationID IntID, userID IntID, name string) (*SshKey, error) {
 	keys, err := c.SystemGetNonAddedSshKeys(systemID, organisationID, userID, CommonGetParams{Filter: name})
 	if err != nil {
 		return nil, err
@@ -145,7 +145,7 @@ func (c *Client) LookupSystemNonAddedSshkey(systemID int, organisationID int, us
 }
 
 // GET /systems/{systemId}/sshkeys/{sshkeyId}
-func (c *Client) SystemSshKeysGetSingle(systemID int, sshKeyID int) (SystemSshkey, error) {
+func (c *Client) SystemSshKeysGetSingle(systemID IntID, sshKeyID IntID) (SystemSshkey, error) {
 	var resp struct {
 		Data SystemSshkey `json:"sshkey"`
 	}
@@ -156,7 +156,7 @@ func (c *Client) SystemSshKeysGetSingle(systemID int, sshKeyID int) (SystemSshke
 	return resp.Data, err
 }
 
-func (c *Client) SystemGetHasNetworks(id int) ([]SystemHasNetwork, error) {
+func (c *Client) SystemGetHasNetworks(id IntID) ([]SystemHasNetwork, error) {
 	var keys struct {
 		SystemHasNetworks []SystemHasNetwork `json:"systemHasNetworks"`
 	}
@@ -167,7 +167,7 @@ func (c *Client) SystemGetHasNetworks(id int) ([]SystemHasNetwork, error) {
 	return keys.SystemHasNetworks, err
 }
 
-func (c *Client) SystemGetVolumes(id int, get CommonGetParams) ([]SystemVolume, error) {
+func (c *Client) SystemGetVolumes(id IntID, get CommonGetParams) ([]SystemVolume, error) {
 	var keys struct {
 		Volumes []SystemVolume `json:"volumes"`
 	}
@@ -178,7 +178,7 @@ func (c *Client) SystemGetVolumes(id int, get CommonGetParams) ([]SystemVolume, 
 	return keys.Volumes, err
 }
 
-func (c *Client) LookupSystemVolumes(systemID int, volumeName string) (*SystemVolume, error) {
+func (c *Client) LookupSystemVolumes(systemID IntID, volumeName string) (*SystemVolume, error) {
 	volumes, err := c.SystemGetVolumes(systemID, CommonGetParams{Filter: volumeName})
 	if err != nil {
 		return nil, err
@@ -204,7 +204,7 @@ func (c *Client) SecurityUpdateDates() ([]string, error) {
 	return updates.SecurityUpdateDates, err
 }
 
-func (c *Client) SystemUpdate(id int, data map[string]interface{}) error {
+func (c *Client) SystemUpdate(id IntID, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("systems/%d", id)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
 
@@ -213,7 +213,7 @@ func (c *Client) SystemUpdate(id int, data map[string]interface{}) error {
 
 // --------------------------- SYSTEM ACTION ---------------------------
 
-func (c *Client) SystemAction(id int, action string) (System, error) {
+func (c *Client) SystemAction(id IntID, action string) (System, error) {
 	var request struct {
 		Type string `json:"type"`
 	}
@@ -230,14 +230,14 @@ func (c *Client) SystemAction(id int, action string) (System, error) {
 }
 
 // ---------------- Delete
-func (c *Client) SystemDelete(id int) error {
+func (c *Client) SystemDelete(id IntID) error {
 	endpoint := fmt.Sprintf("systems/%v", id)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err
 }
 
-func (c *Client) SystemDeleteForce(id int) error {
+func (c *Client) SystemDeleteForce(id IntID) error {
 	endpoint := fmt.Sprintf("systems/%v/force", id)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -249,7 +249,7 @@ func (c *Client) SystemDeleteForce(id int) error {
 // --------------------------- SYSTEM/CHECKS TOPLEVEL (GET / POST ) ------------------------------------
 // #region SYSTEM/CHECKS TOPLEVEL (GET / ADD)
 // ------------- GET CHECKS
-func (c *Client) SystemCheckGetList(systemId int, getParams CommonGetParams) ([]SystemCheckGet, error) {
+func (c *Client) SystemCheckGetList(systemId IntID, getParams CommonGetParams) ([]SystemCheckGet, error) {
 	var systemChecks struct {
 		Data []SystemCheckGet `json:"checks"`
 	}
@@ -261,7 +261,7 @@ func (c *Client) SystemCheckGetList(systemId int, getParams CommonGetParams) ([]
 }
 
 // ------------- ADD A CHECK
-func (c *Client) SystemCheckAdd(systemId int, req interface{}) (SystemCheck, error) {
+func (c *Client) SystemCheckAdd(systemId IntID, req interface{}) (SystemCheck, error) {
 	var SystemCheck struct {
 		Data SystemCheck `json:"check"`
 	}
@@ -314,7 +314,7 @@ func (c *Client) SystemCheckTypeGet(checktype string) (SystemCheckType, error) {
 
 // #region SYSTEM/CHECKS SPECIFIC (DESCRIBE / DELETE / UPDATE)
 // ---------------- DESCRIBE A SPECIFIC CHECK
-func (c *Client) SystemCheckDescribe(systemID int, CheckID int) (SystemCheck, error) {
+func (c *Client) SystemCheckDescribe(systemID IntID, CheckID IntID) (SystemCheck, error) {
 	var check struct {
 		Data SystemCheck `json:"check"`
 	}
@@ -326,7 +326,7 @@ func (c *Client) SystemCheckDescribe(systemID int, CheckID int) (SystemCheck, er
 }
 
 // ---------------- DELETE A SPECIFIC CHECK
-func (c *Client) SystemCheckDelete(systemId int, checkId int) error {
+func (c *Client) SystemCheckDelete(systemId IntID, checkId IntID) error {
 	endpoint := fmt.Sprintf("systems/%v/checks/%v", systemId, checkId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -334,7 +334,7 @@ func (c *Client) SystemCheckDelete(systemId int, checkId int) error {
 }
 
 // ---------------- UPDATE A SPECIFIC CHECK
-func (c *Client) SystemCheckUpdate(systemId int, checkId int, req interface{}) error {
+func (c *Client) SystemCheckUpdate(systemId IntID, checkId IntID, req interface{}) error {
 	endpoint := fmt.Sprintf("systems/%v/checks/%v", systemId, checkId)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
 
@@ -346,7 +346,7 @@ func (c *Client) SystemCheckUpdate(systemId int, checkId int, req interface{}) e
 // --------------------------- SYSTEM/COOKBOOKS TOPLEVEL (GET / POST) ------------------------------------
 
 // --------------------------- APPLY COOKBOOKCHANGES ON A SYSTEM
-func (c *Client) SystemCookbookChangesApply(systemId int) error {
+func (c *Client) SystemCookbookChangesApply(systemId IntID) error {
 	// create json format for post request
 	// this function is specifically for updating cookbook status on a system
 	requestData := gabs.New()
@@ -361,7 +361,7 @@ func (c *Client) SystemCookbookChangesApply(systemId int) error {
 // #region SYSTEM/COOKBOOKS TOPLEVEL (GET / ADD)
 
 // ---------------- GET COOKBOOK
-func (c *Client) SystemCookbookGetList(systemId int, get CommonGetParams) ([]Cookbook, error) {
+func (c *Client) SystemCookbookGetList(systemId IntID, get CommonGetParams) ([]Cookbook, error) {
 	var systemCookbooks struct {
 		Data []Cookbook `json:"cookbooks"`
 	}
@@ -372,7 +372,7 @@ func (c *Client) SystemCookbookGetList(systemId int, get CommonGetParams) ([]Coo
 	return systemCookbooks.Data, err
 }
 
-func (c *Client) SystemSettingsGetList(systemId int, get CommonGetParams) ([]Cookbook, error) {
+func (c *Client) SystemSettingsGetList(systemId IntID, get CommonGetParams) ([]Cookbook, error) {
 	var systemCookbooks struct {
 		Data []Cookbook `json:"cookbooks"`
 	}
@@ -384,7 +384,7 @@ func (c *Client) SystemSettingsGetList(systemId int, get CommonGetParams) ([]Coo
 }
 
 // ---------------- ADD COOKBOOK
-func (c *Client) SystemCookbookAdd(systemID int, req *CookbookRequest) (Cookbook, error) {
+func (c *Client) SystemCookbookAdd(systemID IntID, req *CookbookRequest) (Cookbook, error) {
 	var cookbook struct {
 		Data Cookbook `json:"cookbook"`
 	}
@@ -445,7 +445,7 @@ func (c *Client) SystemCookbookTypeGet(cookbooktype string) (CookbookType, *gabs
 // #region SYSTEM/COOKBOOKS SPECIFIC (DESCRIBE / DELETE / UPDATE)
 
 // ---------------- DESCRIBE
-func (c *Client) SystemCookbookDescribe(systemId int, cookbookId int) (Cookbook, error) {
+func (c *Client) SystemCookbookDescribe(systemId IntID, cookbookId IntID) (Cookbook, error) {
 	var cookbook struct {
 		Data Cookbook `json:"cookbook"`
 	}
@@ -457,7 +457,7 @@ func (c *Client) SystemCookbookDescribe(systemId int, cookbookId int) (Cookbook,
 }
 
 // ---------------- DELETE
-func (c *Client) SystemCookbookDelete(systemId int, cookbookId int) error {
+func (c *Client) SystemCookbookDelete(systemId IntID, cookbookId IntID) error {
 	endpoint := fmt.Sprintf("systems/%v/cookbooks/%v", systemId, cookbookId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -465,7 +465,7 @@ func (c *Client) SystemCookbookDelete(systemId int, cookbookId int) error {
 }
 
 // ------------------ UPDATE
-func (c *Client) SystemCookbookUpdate(systemId int, cookbookId int, req *CookbookRequest) error {
+func (c *Client) SystemCookbookUpdate(systemId IntID, cookbookId IntID, req *CookbookRequest) error {
 	endpoint := fmt.Sprintf("systems/%v/cookbooks/%v", systemId, cookbookId)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
 
@@ -474,7 +474,7 @@ func (c *Client) SystemCookbookUpdate(systemId int, cookbookId int, req *Cookboo
 
 // Look up a cookbook of a specified type up on a system.
 // Returns nil if the system does not have a cookbook of the given type.
-func (c *Client) SystemCookbookLookup(systemID int, cookbookType string) (*Cookbook, error) {
+func (c *Client) SystemCookbookLookup(systemID IntID, cookbookType string) (*Cookbook, error) {
 	cookbooks, err := c.SystemCookbookGetList(systemID, CommonGetParams{Filter: cookbookType})
 	if err != nil {
 		return nil, err
@@ -489,7 +489,7 @@ func (c *Client) SystemCookbookLookup(systemID int, cookbookType string) (*Cookb
 	return nil, nil
 }
 
-func (c *Client) SystemSettingsLookup(systemID int, cookbookType string) (*Cookbook, error) {
+func (c *Client) SystemSettingsLookup(systemID IntID, cookbookType string) (*Cookbook, error) {
 	cookbooks, err := c.SystemSettingsGetList(systemID, CommonGetParams{Filter: cookbookType})
 	if err != nil {
 		return nil, err
@@ -509,7 +509,7 @@ func (c *Client) SystemSettingsLookup(systemID int, cookbookType string) (*Cookb
 // --------------------------- SYSTEM/GROUPS (GET / ADD / DESCRIBE / DELETE) ------------------------------------
 
 // ---------------- GET GROUPS
-func (c *Client) SystemSystemgroupsGet(systemId int) ([]Systemgroup, error) {
+func (c *Client) SystemSystemgroupsGet(systemId IntID) ([]Systemgroup, error) {
 	var groups struct {
 		Data []Systemgroup `json:"systemgroups"`
 	}
@@ -521,7 +521,7 @@ func (c *Client) SystemSystemgroupsGet(systemId int) ([]Systemgroup, error) {
 }
 
 // ---------------- LINK SYSTEM TO A SYSTEMGROUP
-func (c *Client) SystemSystemgroupsAdd(systemID int, req interface{}) error {
+func (c *Client) SystemSystemgroupsAdd(systemID IntID, req interface{}) error {
 	endpoint := fmt.Sprintf("systems/%v/groups", systemID)
 	err := c.invokeAPI("POST", endpoint, req, nil)
 
@@ -529,7 +529,7 @@ func (c *Client) SystemSystemgroupsAdd(systemID int, req interface{}) error {
 }
 
 // ---------------- UNLINK A SYSTEM FROM SYSTEMGROUP
-func (c *Client) SystemSystemgroupsRemove(systemId int, systemgroupId int) error {
+func (c *Client) SystemSystemgroupsRemove(systemId IntID, systemgroupId IntID) error {
 	endpoint := fmt.Sprintf("systems/%v/groups/%v", systemId, systemgroupId)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
@@ -560,7 +560,7 @@ func (c *Client) GetSystemProviderConfigurations() ([]SystemProviderConfiguratio
 
 // NETWORKS
 
-func (c *Client) LookupSystemHasNetworks(systemID int, name string) ([]SystemHasNetwork, error) {
+func (c *Client) LookupSystemHasNetworks(systemID IntID, name string) ([]SystemHasNetwork, error) {
 	results := []SystemHasNetwork{}
 	networks, err := c.SystemGetHasNetworks(systemID)
 	if err != nil {
@@ -576,7 +576,7 @@ func (c *Client) LookupSystemHasNetworks(systemID int, name string) ([]SystemHas
 	return results, nil
 }
 
-func (c *Client) GetSystemHasNetwork(systemID int, systemHasNetworkID int) (SystemHasNetwork, error) {
+func (c *Client) GetSystemHasNetwork(systemID IntID, systemHasNetworkID IntID) (SystemHasNetwork, error) {
 	var response struct {
 		SystemHasNetwork SystemHasNetwork `json:"systemHasNetwork"`
 	}
@@ -587,13 +587,13 @@ func (c *Client) GetSystemHasNetwork(systemID int, systemHasNetworkID int) (Syst
 	return response.SystemHasNetwork, err
 }
 
-func (c *Client) SystemAddHasNetwork(systemID int, networkID int) (SystemHasNetwork, error) {
+func (c *Client) SystemAddHasNetwork(systemID IntID, networkID IntID) (SystemHasNetwork, error) {
 	var response struct {
 		SystemHasNetwork SystemHasNetwork `json:"systemHasNetwork"`
 	}
 
 	var request struct {
-		Network int `json:"network"`
+		Network IntID `json:"network"`
 	}
 
 	request.Network = networkID
@@ -604,14 +604,14 @@ func (c *Client) SystemAddHasNetwork(systemID int, networkID int) (SystemHasNetw
 	return response.SystemHasNetwork, err
 }
 
-func (c *Client) SystemRemoveHasNetwork(systemID int, hasNetworkID int) error {
+func (c *Client) SystemRemoveHasNetwork(systemID IntID, hasNetworkID IntID) error {
 	endpoint := fmt.Sprintf("systems/%d/networks/%d", systemID, hasNetworkID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err
 }
 
-func (c *Client) SystemGetHasNetworkIp(systemID int, hasNetworkID int, systemHasNetworkIpID int) (SystemHasNetworkIp, error) {
+func (c *Client) SystemGetHasNetworkIp(systemID IntID, hasNetworkID IntID, systemHasNetworkIpID IntID) (SystemHasNetworkIp, error) {
 	var response struct {
 		SystemHasNetworkIp SystemHasNetworkIp `json:"systemHasNetworkIp"`
 	}
@@ -622,7 +622,7 @@ func (c *Client) SystemGetHasNetworkIp(systemID int, hasNetworkID int, systemHas
 	return response.SystemHasNetworkIp, err
 }
 
-func (c *Client) SystemGetHasNetworkIps(systemID int, hasNetworkID int) ([]SystemHasNetworkIp, error) {
+func (c *Client) SystemGetHasNetworkIps(systemID IntID, hasNetworkID IntID) ([]SystemHasNetworkIp, error) {
 	var response struct {
 		SystemHasNetworkIps []SystemHasNetworkIp `json:"systemHasNetworkIps"`
 	}
@@ -633,7 +633,7 @@ func (c *Client) SystemGetHasNetworkIps(systemID int, hasNetworkID int) ([]Syste
 	return response.SystemHasNetworkIps, err
 }
 
-func (c *Client) SystemAddHasNetworkIps(systemID int, hasNetworkID int, add SystemHasNetworkIpAdd) (SystemHasNetworkIp, error) {
+func (c *Client) SystemAddHasNetworkIps(systemID IntID, hasNetworkID IntID, add SystemHasNetworkIpAdd) (SystemHasNetworkIp, error) {
 	var response struct {
 		HasNetwork SystemHasNetworkIp `json:"systemHasNetworkIp"`
 	}
@@ -644,14 +644,14 @@ func (c *Client) SystemAddHasNetworkIps(systemID int, hasNetworkID int, add Syst
 	return response.HasNetwork, err
 }
 
-func (c *Client) SystemRemoveHasNetworkIps(systemID int, hasNetworkID int, ipID int) error {
+func (c *Client) SystemRemoveHasNetworkIps(systemID IntID, hasNetworkID IntID, ipID IntID) error {
 	endpoint := fmt.Sprintf("systems/%d/networks/%d/ips/%d", systemID, hasNetworkID, ipID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err
 }
 
-func (c *Client) LookupSystemHasNetworkIp(systemID int, hasNetworkID int, address string) ([]SystemHasNetworkIp, error) {
+func (c *Client) LookupSystemHasNetworkIp(systemID IntID, hasNetworkID IntID, address string) ([]SystemHasNetworkIp, error) {
 	results := []SystemHasNetworkIp{}
 	ips, err := c.SystemGetHasNetworkIps(systemID, hasNetworkID)
 	if err != nil {
@@ -667,7 +667,7 @@ func (c *Client) LookupSystemHasNetworkIp(systemID int, hasNetworkID int, addres
 	return results, nil
 }
 
-func (c *Client) SystemHasNetworkIpUpdate(systemID int, hasNetworkID int, hasNetworkIpID int, data map[string]interface{}) error {
+func (c *Client) SystemHasNetworkIpUpdate(systemID IntID, hasNetworkID IntID, hasNetworkIpID IntID, data map[string]interface{}) error {
 	endpoint := fmt.Sprintf("systems/%d/networks/%d/ips/%d", systemID, hasNetworkID, hasNetworkIpID)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
 
@@ -684,39 +684,39 @@ type System struct {
 	StatusCategory        string `json:"statusCategory"`
 	RunningStatus         string `json:"runningStatus"`
 	RunningStatusCategory string `json:"runningStatusCategory"`
-	Cpu                   int    `json:"cpu"`
-	Memory                int    `json:"memory"`
+	Cpu                   int32  `json:"cpu"`
+	Memory                int32  `json:"memory"`
 	Disk                  string `json:"disk"`
 	MonitoringEnabled     bool   `json:"monitoringEnabled"`
 	ManagementType        string `json:"managementType"`
 	Organisation          struct {
-		ID   int    `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"organisation"`
 	SystemImage struct {
-		Id          int    `json:"id"`
+		Id          IntID  `json:"id"`
 		Name        string `json:"name"`
 		ExternalId  string `json:"externalId"`
-		OsId        int    `json:"osId"`
+		OsId        IntID  `json:"osId"`
 		OsName      string `json:"osName"`
 		OsType      string `json:"osType"`
 		OsVersion   string `json:"osVersion"`
-		OsVersionId int    `json:"osVersionId"`
+		OsVersionId IntID  `json:"osVersionId"`
 	} `json:"systemimage"`
 	OperatingSystemVersion struct {
-		Id        int    `json:"id"`
-		OsId      int    `json:"osId"`
+		Id        IntID  `json:"id"`
+		OsId      IntID  `json:"osId"`
 		OsName    string `json:"osName"`
 		OsType    string `json:"osType"`
 		OsVersion string `json:"osVersion"`
 	} `json:"operatingsystemVersion"`
-	ProvideId                   int                            `json:"providerId"`
+	ProviderId                  IntID                          `json:"providerId"`
 	Provider                    interface{}                    `json:"provider"`
 	ProviderApi                 string                         `json:"providerApi"`
 	SystemProviderConfiguration SystemProviderConfigurationRef `json:"systemproviderConfiguration"`
 	Region                      string                         `json:"region"`
 	Zone                        struct {
-		Id   int    `json:"id"`
+		Id   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"zone"`
 	Networks         []SystemNetwork `json:"networks"`
@@ -726,30 +726,30 @@ type System struct {
 		Memory    StatSummary `json:"Memory"`
 		Cpu       StatSummary `json:"cpu"`
 	} `json:"statsSummary"`
-	DtExpires     int    `json:"dtExpires"`
-	BillingStatus string `json:"billingStatus"`
-	ExternalInfo  string `json:"externalInfo"`
-	Remarks       string `json:"remarks"`
+	DtExpires     IntTime `json:"dtExpires"`
+	BillingStatus string  `json:"billingStatus"`
+	ExternalInfo  string  `json:"externalInfo"`
+	Remarks       string  `json:"remarks"`
 	Groups        []struct {
-		Id   int    `json:"id"`
+		Id   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"groups"`
 	Jobs         []Job `json:"jobs"`
 	ParentSystem *struct {
-		Id   int    `json:"id"`
+		Id   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"parentsystem"`
-	InstallSecurityUpdates int `json:"installSecurityUpdates"`
-	LimitRiops             int `json:"limitRiops"`
-	LimitWiops             int `json:"limitWiops"`
+	InstallSecurityUpdates int32 `json:"installSecurityUpdates"`
+	LimitRiops             int32 `json:"limitRiops"`
+	LimitWiops             int32 `json:"limitWiops"`
 	BootVolume             struct {
-		Id   int    `json:"id"`
+		Id   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"bootVolume"`
 	Cookbooks             []Cookbook `json:"cookbooks"`
 	Preferredparentsystem struct {
-		ID   interface{} `json:"id"`
-		Name string      `json:"name"`
+		ID   IntID  `json:"id"`
+		Name string `json:"name"`
 	} `json:"preferredparentsystem"`
 }
 
@@ -758,20 +758,20 @@ type SystemPost struct {
 	Name                        string `json:"name"`
 	CustomerFqdn                string `json:"customerFqdn"`
 	Remarks                     string `json:"remarks"`
-	Disk                        *int   `json:"disk"`
-	Cpu                         *int   `json:"cpu"`
-	Memory                      *int   `json:"memory"`
+	Disk                        *int32 `json:"disk"`
+	Cpu                         *int32 `json:"cpu"`
+	Memory                      *int32 `json:"memory"`
 	MamanagementType            string `json:"managementType"`
 	PublicNetworking            bool   `json:"publicNetworking"`
-	SystemImage                 int    `json:"systemimage"`
-	Organisation                int    `json:"organisation"`
-	SystemProviderConfiguration int    `json:"systemproviderConfiguration"`
-	Zone                        int    `json:"zone"`
-	// InstallSecurityUpdates      *int           `json:"installSecurityUpdates"`
+	SystemImage                 IntID  `json:"systemimage"`
+	Organisation                IntID  `json:"organisation"`
+	SystemProviderConfiguration IntID  `json:"systemproviderConfiguration"`
+	Zone                        IntID  `json:"zone"`
+	// InstallSecurityUpdates      *int32           `json:"installSecurityUpdates"`
 	AutoTeams              string        `json:"autoTeams"`
 	ExternalInfo           string        `json:"externalInfo"`
-	OperatingSystemVersion *int          `json:"operatingsystemVersion"`
-	ParentSystem           *int          `json:"parentsystem"`
+	OperatingSystemVersion *IntID        `json:"operatingsystemVersion"`
+	ParentSystem           *IntID        `json:"parentsystem"`
 	Type                   string        `json:"type"`
 	AutoNetworks           []interface{} `json:"autoNetworks"`
 }
@@ -779,7 +779,7 @@ type SystemPost struct {
 // --------------------
 
 type SystemRef struct {
-	Id   int    `json:"id"`
+	Id   IntID  `json:"id"`
 	Fqdn string `json:"fqdn"`
 	Name string `json:"name"`
 }
@@ -791,28 +791,25 @@ type StatSummary struct {
 }
 
 type SystemVolume struct {
-	ID           int         `json:"id"`
-	Name         string      `json:"name"`
-	Status       string      `json:"status"`
-	Space        int         `json:"space"`
-	UID          string      `json:"uid"`
-	Remarks      interface{} `json:"remarks"`
-	AutoResize   bool        `json:"autoResize"`
-	DeviceName   string      `json:"deviceName"`
-	Organisation struct {
-		ID   int    `json:"id"`
-		Name string `json:"name"`
-	} `json:"organisation"`
-	System      SystemRef `json:"system"`
-	Volumegroup struct {
-		ID   int    `json:"id"`
+	ID           IntID           `json:"id"`
+	Name         string          `json:"name"`
+	Status       string          `json:"status"`
+	Space        int32           `json:"space"`
+	UID          string          `json:"uid"`
+	Remarks      interface{}     `json:"remarks"`
+	AutoResize   bool            `json:"autoResize"`
+	DeviceName   string          `json:"deviceName"`
+	Organisation OrganisationRef `json:"organisation"`
+	System       SystemRef       `json:"system"`
+	Volumegroup  struct {
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"volumegroup"`
 	StatusCategory string `json:"statusCategory"`
 }
 
 type SshKey struct {
-	Id           int             `json:"id"`
+	Id           IntID           `json:"id"`
 	Description  string          `json:"description"`
 	Content      string          `json:"content"`
 	Status       string          `json:"status"`
@@ -821,40 +818,40 @@ type SshKey struct {
 }
 
 type SystemSshkey struct {
-	ID           int             `json:"id"`
+	ID           IntID           `json:"id"`
 	Description  string          `json:"description"`
 	Fingerprint  string          `json:"fingerprint"`
 	Organisation OrganisationRef `json:"organisation"`
 	User         struct {
-		ID             int    `json:"id"`
+		ID             IntID  `json:"id"`
 		FirstName      string `json:"firstName"`
 		LastName       string `json:"lastName"`
 		Status         string `json:"status"`
 		StatusCategory string `json:"statusCategory"`
 	} `json:"user"`
-	ShsID             int    `json:"shsId"`
+	ShsID             IntID  `json:"shsId"`
 	ShsStatusCategory string `json:"shsStatusCategory"`
 	ShsStatus         string `json:"shsStatus"`
 }
 
 type SystemNetwork struct {
-	ID           int    `json:"id"`
+	ID           IntID  `json:"id"`
 	Mac          string `json:"mac"`
-	NetworkID    int    `json:"networkId"`
+	NetworkID    IntID  `json:"networkId"`
 	Name         string `json:"name"`
 	UID          string `json:"uid"`
 	NetIpv4      string `json:"netIpv4"`
 	NetGatewayv4 string `json:"netGatewayv4"`
-	NetMaskv4    int    `json:"netMaskv4"`
+	NetMaskv4    int32  `json:"netMaskv4"`
 	NetIpv6      string `json:"netIpv6"`
 	NetGatewayv6 string `json:"netGatewayv6"`
-	NetMaskv6    int    `json:"netMaskv6"`
+	NetMaskv6    int32  `json:"netMaskv6"`
 	NetPublic    bool   `json:"netPublic"`
 	NetCustomer  bool   `json:"netCustomer"`
 	NetInternal  bool   `json:"netInternal"`
-	Vlan         int    `json:"vlan"`
+	Vlan         int32  `json:"vlan"`
 	Ips          []struct {
-		ID         int    `json:"id"`
+		ID         IntID  `json:"id"`
 		PublicIpv4 string `json:"publicIpv4"`
 		Ipv4       string `json:"ipv4"`
 		PublicIpv6 string `json:"publicIpv6"`
@@ -863,11 +860,11 @@ type SystemNetwork struct {
 	} `json:"ips"`
 	Destinationv4 []string `json:"destinationv4"`
 	Destinationv6 []string `json:"destinationv6"`
-	NetslotNumber int      `json:"netslotNumber"`
+	NetslotNumber int32    `json:"netslotNumber"`
 }
 
 type SystemHasNetwork struct {
-	ID             int         `json:"id"`
+	ID             IntID       `json:"id"`
 	Mac            string      `json:"mac"`
 	Status         string      `json:"status"`
 	StatusCategory string      `json:"statusCategory"`
@@ -876,7 +873,7 @@ type SystemHasNetwork struct {
 }
 
 type SystemHasNetworkIp struct {
-	ID               int         `json:"id"`
+	ID               IntID       `json:"id"`
 	Ipv4             string      `json:"ipv4"`
 	PublicIpv4       string      `json:"publicIpv4"`
 	Ipv6             string      `json:"ipv6"`
@@ -885,9 +882,9 @@ type SystemHasNetworkIp struct {
 	Status           string      `json:"status"`
 	ExternalID       interface{} `json:"externalId"`
 	SystemHasNetwork struct {
-		ID     int `json:"id"`
+		ID     IntID `json:"id"`
 		System struct {
-			ID   int    `json:"id"`
+			ID   IntID  `json:"id"`
 			Name string `json:"name"`
 		} `json:"system"`
 	} `json:"systemHasNetwork"`
@@ -941,20 +938,20 @@ type systemCheckParameter struct {
 type systemCheckParameterDescription map[string]interface{}
 
 type SystemCheck struct {
-	Id                          int                             `json:"id"`
+	Id                          IntID                           `json:"id"`
 	CheckType                   string                          `json:"checktype"`
 	ChecktypeLocation           string                          `json:"checktypeLocation"`
 	Status                      string                          `json:"status"`
 	StatusInformation           string                          `json:"statusInformation"`
-	DtLastMonitorEnabled        int                             `json:"dtLastMonitoringEnabled"`
-	DtLastStatusChanged         int64                           `json:"dtLastStatusChange"`
-	DtNextCheck                 int                             `json:"dtNextCheck"`
-	DtLastCheck                 int                             `json:"dtLastCheck"`
+	DtLastMonitorEnabled        IntTime                         `json:"dtLastMonitoringEnabled"`
+	DtLastStatusChanged         IntTime                         `json:"dtLastStatusChange"`
+	DtNextCheck                 IntTime                         `json:"dtNextCheck"`
+	DtLastCheck                 IntTime                         `json:"dtLastCheck"`
 	CheckParameters             systemCheckParameterName        `json:"checkparameters"`
 	CheckParametersDescriptions systemCheckParameterDescription `json:"checkparameterDescriptions"`
 	Location                    string                          `json:"location"`
 	System                      struct {
-		Id   int    `json:"id"`
+		Id   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"system"`
 	Alerts []interface{} `json:"alerts"`
@@ -963,21 +960,21 @@ type SystemCheck struct {
 // recreate systemcheck for GET request. when response has empty array value it cannot be unmarhalled into systemcheck type
 
 type SystemCheckGet struct {
-	Id                          int         `json:"id"`
+	Id                          IntID       `json:"id"`
 	CheckType                   string      `json:"checktype"`
 	ChecktypeLocation           string      `json:"checktypeLocation"`
 	Status                      string      `json:"status"`
 	StatusInformation           string      `json:"statusInformation"`
 	StatusCategory              string      `json:"statusCategory"`
-	DtLastMonitorEnabled        int         `json:"dtLastMonitoringEnabled"`
-	DtLastStatusChanged         int64       `json:"dtLastStatusChange"`
-	DtNextCheck                 int         `json:"dtNextCheck"`
-	DtLastCheck                 int         `json:"dtLastCheck"`
+	DtLastMonitorEnabled        IntTime     `json:"dtLastMonitoringEnabled"`
+	DtLastStatusChanged         IntTime     `json:"dtLastStatusChange"`
+	DtNextCheck                 IntTime     `json:"dtNextCheck"`
+	DtLastCheck                 IntTime     `json:"dtLastCheck"`
 	CheckParameters             interface{} `json:"checkparameters"`
 	CheckParametersDescriptions interface{} `json:"checkparameterDescriptions"`
 	Location                    string      `json:"location"`
 	System                      struct {
-		Id   int    `json:"id"`
+		Id   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"system"`
 	Alerts []interface{} `json:"alerts"`
@@ -986,7 +983,7 @@ type SystemCheckGet struct {
 // ----------------------------------- COOKBOOKS ----------------------------------
 // --- COOKBOOK
 type Cookbook struct {
-	Id                             int                                 `json:"id"`
+	Id                             IntID                               `json:"id"`
 	CookbookType                   string                              `json:"cookbooktype"`
 	CookbookParameters             BuggyMap[string, CookbookParameter] `json:"cookbookparameters"`
 	CookbookParametersDescriptions BuggyMap[string, string]            `json:"cookbookparameterDescriptions"`
@@ -1054,7 +1051,7 @@ func (r *CookbookRequest) MarshalJSON() ([]byte, error) {
 
 // -------------------
 type SystemProviderConfigurationRef struct {
-	ID          int    `json:"id"`
+	ID          IntID  `json:"id"`
 	Name        string `json:"name"`
 	ExternalID  string `json:"externalId"`
 	Description string `json:"description"`
@@ -1062,38 +1059,38 @@ type SystemProviderConfigurationRef struct {
 
 type SystemProviderConfiguration struct {
 	SystemProviderConfigurationRef
-	MinCPU         int    `json:"minCpu"`
-	MaxCPU         int    `json:"maxCpu"`
+	MinCPU         int32  `json:"minCpu"`
+	MaxCPU         int32  `json:"maxCpu"`
 	MinMemory      string `json:"minMemory"`
 	MaxMemory      string `json:"maxMemory"`
-	MinDisk        int    `json:"minDisk"`
-	MaxDisk        int    `json:"maxDisk"`
-	Status         int    `json:"status"`
+	MinDisk        int32  `json:"minDisk"`
+	MaxDisk        int32  `json:"maxDisk"`
+	Status         int32  `json:"status"`
 	Systemprovider struct {
-		ID   int    `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"systemprovider"`
 }
 
 type SystemPut struct {
-	Id                          int         `json:"id"`
+	Id                          IntID       `json:"id"`
 	Name                        string      `json:"name"`
 	Type                        string      `json:"type"`
-	Cpu                         int         `json:"cpu"`
-	Memory                      int         `json:"memory"`
+	Cpu                         int32       `json:"cpu"`
+	Memory                      int32       `json:"memory"`
 	Disk                        string      `json:"disk"`
 	ManagementType              string      `json:"managementType"`
-	Organisation                int         `json:"organisation"`
-	SystemImage                 int         `json:"systemimage"`
-	OperatingsystemVersion      int         `json:"operatingsystemVersion"`
-	SystemProviderConfiguration int         `json:"systemproviderConfiguration"`
-	Zone                        int         `json:"zone"`
+	Organisation                IntID       `json:"organisation"`
+	SystemImage                 IntID       `json:"systemimage"`
+	OperatingsystemVersion      IntID       `json:"operatingsystemVersion"`
+	SystemProviderConfiguration IntID       `json:"systemproviderConfiguration"`
+	Zone                        IntID       `json:"zone"`
 	PublicNetworking            bool        `json:"publicNetworking"`
 	Preferredparentsystem       interface{} `json:"preferredparentsystem"`
 	Remarks                     string      `json:"remarks"`
-	InstallSecurityUpdates      int         `json:"installSecurityUpdates"`
-	LimitRiops                  int         `json:"limitRiops"`
-	LimitWiops                  int         `json:"limitWiops"`
+	InstallSecurityUpdates      int32       `json:"installSecurityUpdates"`
+	LimitRiops                  int32       `json:"limitRiops"`
+	LimitWiops                  int32       `json:"limitWiops"`
 }
 
 type SystemHasNetworkIpPut struct {
@@ -1101,7 +1098,7 @@ type SystemHasNetworkIpPut struct {
 }
 
 type SystemProvider struct {
-	ID                 int                   `json:"id"`
+	ID                 IntID                 `json:"id"`
 	Name               string                `json:"name"`
 	API                string                `json:"api"`
 	AdvancedNetworking bool                  `json:"advancedNetworking"`
@@ -1110,18 +1107,18 @@ type SystemProvider struct {
 }
 
 type SystemProviderImage struct {
-	ID         int         `json:"id"`
+	ID         IntID       `json:"id"`
 	Name       string      `json:"name"`
 	ExternalID string      `json:"externalId"`
 	TemplateID interface{} `json:"templateId"`
 	Region     struct {
-		ID   int    `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"region"`
-	OperatingSystemID      int    `json:"operatingSystemId"`
+	OperatingSystemID      IntID  `json:"operatingSystemId"`
 	OperatingSystem        string `json:"operatingSystem"`
 	OperatingSystemVersion struct {
-		ID   int    `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 		Type string `json:"type"`
 	} `json:"operatingSystemVersion"`

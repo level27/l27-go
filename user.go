@@ -3,7 +3,7 @@ package l27
 import "fmt"
 
 // GET /organisations/{organisationID}/users/{userID}
-func (c Client) OrganisationUserGetSingle(organisationID int, userID int) (User, error) {
+func (c Client) OrganisationUserGetSingle(organisationID IntID, userID IntID) (User, error) {
 	var resp struct {
 		Data User `json:"user"`
 	}
@@ -15,7 +15,7 @@ func (c Client) OrganisationUserGetSingle(organisationID int, userID int) (User,
 }
 
 // GET /organisations/{organisationID}/users/{userID}/sshkeys
-func (c Client) OrganisationUserGetSshKeys(organisationID int, userID int, get CommonGetParams) ([]SshKey, error) {
+func (c Client) OrganisationUserGetSshKeys(organisationID IntID, userID IntID, get CommonGetParams) ([]SshKey, error) {
 	var resp struct {
 		Data []SshKey `json:"sshkeys"`
 	}
@@ -27,7 +27,7 @@ func (c Client) OrganisationUserGetSshKeys(organisationID int, userID int, get C
 }
 
 // Find all SSH keys on a user matching the specified description.
-func (c *Client) OrganisationUserSshKeysLookup(organisationID int, userID int, name string) ([]SshKey, error) {
+func (c *Client) OrganisationUserSshKeysLookup(organisationID IntID, userID IntID, name string) ([]SshKey, error) {
 	results := []SshKey{}
 	systems, err := c.OrganisationUserGetSshKeys(organisationID, userID, CommonGetParams{Filter: name})
 	if err != nil {
@@ -44,7 +44,7 @@ func (c *Client) OrganisationUserSshKeysLookup(organisationID int, userID int, n
 }
 
 // GET /organisations/{organisationID}/users/{userID}/sshkeys/{sshKeyID}
-func (c *Client) OrganisationUserSshKeysGetSingle(organisationID int, userID int, sshKeyID int) (SshKey, error) {
+func (c *Client) OrganisationUserSshKeysGetSingle(organisationID IntID, userID IntID, sshKeyID IntID) (SshKey, error) {
 	var resp struct {
 		Data SshKey `json:"sshkey"`
 	}
@@ -56,7 +56,7 @@ func (c *Client) OrganisationUserSshKeysGetSingle(organisationID int, userID int
 }
 
 type User struct {
-	ID             int      `json:"id"`
+	ID             IntID    `json:"id"`
 	Username       string   `json:"username"`
 	Email          string   `json:"email"`
 	FirstName      string   `json:"firstName"`
@@ -69,13 +69,13 @@ type User struct {
 }
 
 type Contact struct {
-	ID        int    `json:"id"`
-	DtStamp   string `json:"dtStamp"`
-	FullName  string `json:"fullName"`
-	Language  string `json:"language"`
-	Message   string `json:"message"`
-	Status    int    `json:"status"`
-	Type      string `json:"type"`
-	Value     string `json:"value"`
-	ContactID int    `json:"contactId"`
+	ID        IntID     `json:"id"`
+	DtStamp   string    `json:"dtStamp"`
+	FullName  string    `json:"fullName"`
+	Language  string    `json:"language"`
+	Message   string    `json:"message"`
+	Status    IntStatus `json:"status"`
+	Type      string    `json:"type"`
+	Value     string    `json:"value"`
+	ContactID IntID     `json:"contactId"`
 }
