@@ -144,7 +144,7 @@ func (c *Client) LookupSystemNonAddedSshkey(systemID IntID, organisationID IntID
 	return nil, nil
 }
 
-// GET /systems/{systemId}/sshkeys/{sshkeyId}
+// GET /systems/{systemID}/sshkeys/{sshKeyID}
 func (c *Client) SystemSshKeysGetSingle(systemID IntID, sshKeyID IntID) (SystemSshkey, error) {
 	var resp struct {
 		Data SystemSshkey `json:"sshkey"`
@@ -249,24 +249,24 @@ func (c *Client) SystemDeleteForce(id IntID) error {
 // --------------------------- SYSTEM/CHECKS TOPLEVEL (GET / POST ) ------------------------------------
 // #region SYSTEM/CHECKS TOPLEVEL (GET / ADD)
 // ------------- GET CHECKS
-func (c *Client) SystemCheckGetList(systemId IntID, getParams CommonGetParams) ([]SystemCheckGet, error) {
+func (c *Client) SystemCheckGetList(systemID IntID, getParams CommonGetParams) ([]SystemCheckGet, error) {
 	var systemChecks struct {
 		Data []SystemCheckGet `json:"checks"`
 	}
 
-	endpoint := fmt.Sprintf("systems/%v/checks?%s", systemId, formatCommonGetParams(getParams))
+	endpoint := fmt.Sprintf("systems/%v/checks?%s", systemID, formatCommonGetParams(getParams))
 	err := c.invokeAPI("GET", endpoint, nil, &systemChecks)
 
 	return systemChecks.Data, err
 }
 
 // ------------- ADD A CHECK
-func (c *Client) SystemCheckAdd(systemId IntID, req interface{}) (SystemCheck, error) {
+func (c *Client) SystemCheckAdd(systemID IntID, req interface{}) (SystemCheck, error) {
 	var SystemCheck struct {
 		Data SystemCheck `json:"check"`
 	}
 
-	endpoint := fmt.Sprintf("systems/%v/checks", systemId)
+	endpoint := fmt.Sprintf("systems/%v/checks", systemID)
 	err := c.invokeAPI("POST", endpoint, req, &SystemCheck)
 
 	return SystemCheck.Data, err
@@ -326,16 +326,16 @@ func (c *Client) SystemCheckDescribe(systemID IntID, CheckID IntID) (SystemCheck
 }
 
 // ---------------- DELETE A SPECIFIC CHECK
-func (c *Client) SystemCheckDelete(systemId IntID, checkId IntID) error {
-	endpoint := fmt.Sprintf("systems/%v/checks/%v", systemId, checkId)
+func (c *Client) SystemCheckDelete(systemID IntID, checkID IntID) error {
+	endpoint := fmt.Sprintf("systems/%v/checks/%v", systemID, checkID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err
 }
 
 // ---------------- UPDATE A SPECIFIC CHECK
-func (c *Client) SystemCheckUpdate(systemId IntID, checkId IntID, req interface{}) error {
-	endpoint := fmt.Sprintf("systems/%v/checks/%v", systemId, checkId)
+func (c *Client) SystemCheckUpdate(systemID IntID, checkID IntID, req interface{}) error {
+	endpoint := fmt.Sprintf("systems/%v/checks/%v", systemID, checkID)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
 
 	return err
@@ -346,13 +346,13 @@ func (c *Client) SystemCheckUpdate(systemId IntID, checkId IntID, req interface{
 // --------------------------- SYSTEM/COOKBOOKS TOPLEVEL (GET / POST) ------------------------------------
 
 // --------------------------- APPLY COOKBOOKCHANGES ON A SYSTEM
-func (c *Client) SystemCookbookChangesApply(systemId IntID) error {
+func (c *Client) SystemCookbookChangesApply(systemID IntID) error {
 	// create json format for post request
 	// this function is specifically for updating cookbook status on a system
 	requestData := gabs.New()
 	requestData.Set("update_cookbooks", "type")
 
-	endpoint := fmt.Sprintf("systems/%v/actions", systemId)
+	endpoint := fmt.Sprintf("systems/%v/actions", systemID)
 	err := c.invokeAPI("POST", endpoint, requestData, nil)
 
 	return err
@@ -361,23 +361,23 @@ func (c *Client) SystemCookbookChangesApply(systemId IntID) error {
 // #region SYSTEM/COOKBOOKS TOPLEVEL (GET / ADD)
 
 // ---------------- GET COOKBOOK
-func (c *Client) SystemCookbookGetList(systemId IntID, get CommonGetParams) ([]Cookbook, error) {
+func (c *Client) SystemCookbookGetList(systemID IntID, get CommonGetParams) ([]Cookbook, error) {
 	var systemCookbooks struct {
 		Data []Cookbook `json:"cookbooks"`
 	}
 
-	endpoint := fmt.Sprintf("systems/%v/cookbooks?%s", systemId, formatCommonGetParams(get))
+	endpoint := fmt.Sprintf("systems/%v/cookbooks?%s", systemID, formatCommonGetParams(get))
 	err := c.invokeAPI("GET", endpoint, nil, &systemCookbooks)
 
 	return systemCookbooks.Data, err
 }
 
-func (c *Client) SystemSettingsGetList(systemId IntID, get CommonGetParams) ([]Cookbook, error) {
+func (c *Client) SystemSettingsGetList(systemID IntID, get CommonGetParams) ([]Cookbook, error) {
 	var systemCookbooks struct {
 		Data []Cookbook `json:"cookbooks"`
 	}
 
-	endpoint := fmt.Sprintf("systems/%v/settings?%s", systemId, formatCommonGetParams(get))
+	endpoint := fmt.Sprintf("systems/%v/settings?%s", systemID, formatCommonGetParams(get))
 	err := c.invokeAPI("GET", endpoint, nil, &systemCookbooks)
 
 	return systemCookbooks.Data, err
@@ -445,28 +445,28 @@ func (c *Client) SystemCookbookTypeGet(cookbooktype string) (CookbookType, *gabs
 // #region SYSTEM/COOKBOOKS SPECIFIC (DESCRIBE / DELETE / UPDATE)
 
 // ---------------- DESCRIBE
-func (c *Client) SystemCookbookDescribe(systemId IntID, cookbookId IntID) (Cookbook, error) {
+func (c *Client) SystemCookbookDescribe(systemID IntID, cookbookID IntID) (Cookbook, error) {
 	var cookbook struct {
 		Data Cookbook `json:"cookbook"`
 	}
 
-	endpoint := fmt.Sprintf("systems/%v/cookbooks/%v", systemId, cookbookId)
+	endpoint := fmt.Sprintf("systems/%v/cookbooks/%v", systemID, cookbookID)
 	err := c.invokeAPI("GET", endpoint, nil, &cookbook)
 
 	return cookbook.Data, err
 }
 
 // ---------------- DELETE
-func (c *Client) SystemCookbookDelete(systemId IntID, cookbookId IntID) error {
-	endpoint := fmt.Sprintf("systems/%v/cookbooks/%v", systemId, cookbookId)
+func (c *Client) SystemCookbookDelete(systemID IntID, cookbookID IntID) error {
+	endpoint := fmt.Sprintf("systems/%v/cookbooks/%v", systemID, cookbookID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err
 }
 
 // ------------------ UPDATE
-func (c *Client) SystemCookbookUpdate(systemId IntID, cookbookId IntID, req *CookbookRequest) error {
-	endpoint := fmt.Sprintf("systems/%v/cookbooks/%v", systemId, cookbookId)
+func (c *Client) SystemCookbookUpdate(systemID IntID, cookbookID IntID, req *CookbookRequest) error {
+	endpoint := fmt.Sprintf("systems/%v/cookbooks/%v", systemID, cookbookID)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
 
 	return err
@@ -509,12 +509,12 @@ func (c *Client) SystemSettingsLookup(systemID IntID, cookbookType string) (*Coo
 // --------------------------- SYSTEM/GROUPS (GET / ADD / DESCRIBE / DELETE) ------------------------------------
 
 // ---------------- GET GROUPS
-func (c *Client) SystemSystemgroupsGet(systemId IntID) ([]Systemgroup, error) {
+func (c *Client) SystemSystemgroupsGet(systemID IntID) ([]Systemgroup, error) {
 	var groups struct {
 		Data []Systemgroup `json:"systemgroups"`
 	}
 
-	endpoint := fmt.Sprintf("systems/%v/groups", systemId)
+	endpoint := fmt.Sprintf("systems/%v/groups", systemID)
 	err := c.invokeAPI("GET", endpoint, nil, &groups)
 
 	return groups.Data, err
@@ -529,8 +529,8 @@ func (c *Client) SystemSystemgroupsAdd(systemID IntID, req interface{}) error {
 }
 
 // ---------------- UNLINK A SYSTEM FROM SYSTEMGROUP
-func (c *Client) SystemSystemgroupsRemove(systemId IntID, systemgroupId IntID) error {
-	endpoint := fmt.Sprintf("systems/%v/groups/%v", systemId, systemgroupId)
+func (c *Client) SystemSystemgroupsRemove(systemID IntID, systemgroupID IntID) error {
+	endpoint := fmt.Sprintf("systems/%v/groups/%v", systemID, systemgroupID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err
@@ -694,29 +694,29 @@ type System struct {
 		Name string `json:"name"`
 	} `json:"organisation"`
 	SystemImage struct {
-		Id          IntID  `json:"id"`
+		ID          IntID  `json:"id"`
 		Name        string `json:"name"`
-		ExternalId  string `json:"externalId"`
-		OsId        IntID  `json:"osId"`
+		ExternalID  string `json:"externalId"`
+		OsID        IntID  `json:"osId"`
 		OsName      string `json:"osName"`
 		OsType      string `json:"osType"`
 		OsVersion   string `json:"osVersion"`
-		OsVersionId IntID  `json:"osVersionId"`
+		OsVersionID IntID  `json:"osVersionId"`
 	} `json:"systemimage"`
 	OperatingSystemVersion struct {
-		Id        IntID  `json:"id"`
-		OsId      IntID  `json:"osId"`
+		ID        IntID  `json:"id"`
+		OsID      IntID  `json:"osId"`
 		OsName    string `json:"osName"`
 		OsType    string `json:"osType"`
 		OsVersion string `json:"osVersion"`
 	} `json:"operatingsystemVersion"`
-	ProviderId                  IntID                          `json:"providerId"`
+	ProviderID                  IntID                          `json:"providerId"`
 	Provider                    interface{}                    `json:"provider"`
 	ProviderApi                 string                         `json:"providerApi"`
 	SystemProviderConfiguration SystemProviderConfigurationRef `json:"systemproviderConfiguration"`
 	Region                      string                         `json:"region"`
 	Zone                        struct {
-		Id   IntID  `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"zone"`
 	Networks         []SystemNetwork `json:"networks"`
@@ -731,19 +731,19 @@ type System struct {
 	ExternalInfo  string  `json:"externalInfo"`
 	Remarks       string  `json:"remarks"`
 	Groups        []struct {
-		Id   IntID  `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"groups"`
 	Jobs         []Job `json:"jobs"`
 	ParentSystem *struct {
-		Id   IntID  `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"parentsystem"`
 	InstallSecurityUpdates int32 `json:"installSecurityUpdates"`
 	LimitRiops             int32 `json:"limitRiops"`
 	LimitWiops             int32 `json:"limitWiops"`
 	BootVolume             struct {
-		Id   IntID  `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"bootVolume"`
 	Cookbooks             []Cookbook `json:"cookbooks"`
@@ -779,7 +779,7 @@ type SystemPost struct {
 // --------------------
 
 type SystemRef struct {
-	Id   IntID  `json:"id"`
+	ID   IntID  `json:"id"`
 	Fqdn string `json:"fqdn"`
 	Name string `json:"name"`
 }
@@ -809,7 +809,7 @@ type SystemVolume struct {
 }
 
 type SshKey struct {
-	Id           IntID           `json:"id"`
+	ID           IntID           `json:"id"`
 	Description  string          `json:"description"`
 	Content      string          `json:"content"`
 	Status       string          `json:"status"`
@@ -938,7 +938,7 @@ type systemCheckParameter struct {
 type systemCheckParameterDescription map[string]interface{}
 
 type SystemCheck struct {
-	Id                          IntID                           `json:"id"`
+	ID                          IntID                           `json:"id"`
 	CheckType                   string                          `json:"checktype"`
 	ChecktypeLocation           string                          `json:"checktypeLocation"`
 	Status                      string                          `json:"status"`
@@ -951,7 +951,7 @@ type SystemCheck struct {
 	CheckParametersDescriptions systemCheckParameterDescription `json:"checkparameterDescriptions"`
 	Location                    string                          `json:"location"`
 	System                      struct {
-		Id   IntID  `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"system"`
 	Alerts []interface{} `json:"alerts"`
@@ -960,7 +960,7 @@ type SystemCheck struct {
 // recreate systemcheck for GET request. when response has empty array value it cannot be unmarhalled into systemcheck type
 
 type SystemCheckGet struct {
-	Id                          IntID       `json:"id"`
+	ID                          IntID       `json:"id"`
 	CheckType                   string      `json:"checktype"`
 	ChecktypeLocation           string      `json:"checktypeLocation"`
 	Status                      string      `json:"status"`
@@ -974,7 +974,7 @@ type SystemCheckGet struct {
 	CheckParametersDescriptions interface{} `json:"checkparameterDescriptions"`
 	Location                    string      `json:"location"`
 	System                      struct {
-		Id   IntID  `json:"id"`
+		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"system"`
 	Alerts []interface{} `json:"alerts"`
@@ -983,7 +983,7 @@ type SystemCheckGet struct {
 // ----------------------------------- COOKBOOKS ----------------------------------
 // --- COOKBOOK
 type Cookbook struct {
-	Id                             IntID                               `json:"id"`
+	ID                             IntID                               `json:"id"`
 	CookbookType                   string                              `json:"cookbooktype"`
 	CookbookParameters             BuggyMap[string, CookbookParameter] `json:"cookbookparameters"`
 	CookbookParametersDescriptions BuggyMap[string, string]            `json:"cookbookparameterDescriptions"`
@@ -1073,7 +1073,7 @@ type SystemProviderConfiguration struct {
 }
 
 type SystemPut struct {
-	Id                          IntID       `json:"id"`
+	ID                          IntID       `json:"id"`
 	Name                        string      `json:"name"`
 	Type                        string      `json:"type"`
 	Cpu                         int32       `json:"cpu"`

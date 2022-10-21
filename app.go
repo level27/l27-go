@@ -26,10 +26,10 @@ func (c *Client) AppLookup(name string) ([]App, error) {
 	return results, nil
 }
 
-// GET componentId based on name
-func (c *Client) AppComponentLookup(appId IntID, name string) ([]AppComponent, error) {
+// GET componentID based on name
+func (c *Client) AppComponentLookup(appID IntID, name string) ([]AppComponent, error) {
 	results := []AppComponent{}
-	components, err := c.AppComponentsGet(appId, CommonGetParams{Filter: name})
+	components, err := c.AppComponentsGet(appID, CommonGetParams{Filter: name})
 	if err != nil {
 		return nil, err
 	}
@@ -82,16 +82,16 @@ func (c *Client) AppCreate(req AppPostRequest) (App, error) {
 }
 
 // ---- DELETE APP
-func (c *Client) AppDelete(appId IntID) error {
-	endpoint := fmt.Sprintf("apps/%v", appId)
+func (c *Client) AppDelete(appID IntID) error {
+	endpoint := fmt.Sprintf("apps/%v", appID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err
 }
 
 // ---- UPDATE APP
-func (c *Client) AppUpdate(appId IntID, req AppPutRequest) error {
-	endpoint := fmt.Sprintf("apps/%v", appId)
+func (c *Client) AppUpdate(appID IntID, req AppPutRequest) error {
+	endpoint := fmt.Sprintf("apps/%v", appID)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
 
 	return err
@@ -101,11 +101,11 @@ func (c *Client) AppUpdate(appId IntID, req AppPutRequest) error {
 
 //------------------------------------------------- APP ACTIONS (ACTIVATE / DEACTIVATE)-------------------------------------------------
 // ---- ACTION (ACTIVATE OR DEACTIVATE) ON AN APP
-func (c *Client) AppAction(appId IntID, action string) error {
+func (c *Client) AppAction(appID IntID, action string) error {
 	request := AppActionRequest{
 		Type: action,
 	}
-	endpoint := fmt.Sprintf("apps/%v/actions", appId)
+	endpoint := fmt.Sprintf("apps/%v/actions", appID)
 	err := c.invokeAPI("POST", endpoint, request, nil)
 
 	return err
@@ -251,37 +251,37 @@ func (c *Client) AppComponentsGet(appid IntID, getParams CommonGetParams) ([]App
 }
 
 // ---- DESCRIBE COMPONENT (GET SINGLE COMPONENT)
-func (c *Client) AppComponentGetSingle(appId IntID, id IntID) (AppComponent, error) {
+func (c *Client) AppComponentGetSingle(appID IntID, id IntID) (AppComponent, error) {
 	var component struct {
 		Data AppComponent `json:"component"`
 	}
 
-	endpoint := fmt.Sprintf("apps/%d/components/%v", appId, id)
+	endpoint := fmt.Sprintf("apps/%d/components/%v", appID, id)
 	err := c.invokeAPI("GET", endpoint, nil, &component)
 
 	return component.Data, err
 }
 
 // ---- DELETE COMPONENT
-func (c *Client) AppComponentsDelete(appId IntID, componentId IntID) error {
-	endpoint := fmt.Sprintf("apps/%v/components/%v", appId, componentId)
+func (c *Client) AppComponentsDelete(appID IntID, componentID IntID) error {
+	endpoint := fmt.Sprintf("apps/%v/components/%v", appID, componentID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err
 }
 
-func (c *Client) AppComponentCreate(appId IntID, req interface{}) (AppComponent, error) {
+func (c *Client) AppComponentCreate(appID IntID, req interface{}) (AppComponent, error) {
 	var app struct {
 		Data AppComponent `json:"component"`
 	}
-	endpoint := fmt.Sprintf("apps/%d/components", appId)
+	endpoint := fmt.Sprintf("apps/%d/components", appID)
 	err := c.invokeAPI("POST", endpoint, req, &app)
 
 	return app.Data, err
 }
 
-func (c *Client) AppComponentUpdate(appId IntID, appComponentID IntID, req interface{}) error {
-	endpoint := fmt.Sprintf("apps/%d/components/%d", appId, appComponentID)
+func (c *Client) AppComponentUpdate(appID IntID, appComponentID IntID, req interface{}) error {
+	endpoint := fmt.Sprintf("apps/%d/components/%d", appID, appComponentID)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
 
 	return err
@@ -303,39 +303,39 @@ func (c *Client) AppComponenttypesGet() (Appcomponenttype, error) {
 //-------------------------------------------------  APP RESTORE (GET / DESCRIBE / CREATE / UPDATE / DELETE / DOWNLOAD) -------------------------------------------------
 
 // ---- GET LIST OF APP RESTORES
-func (c *Client) AppComponentRestoresGet(appId IntID) ([]AppComponentRestore, error) {
+func (c *Client) AppComponentRestoresGet(appID IntID) ([]AppComponentRestore, error) {
 	var restores struct {
 		Data []AppComponentRestore `json:"restores"`
 	}
 
-	endpoint := fmt.Sprintf("apps/%v/restores", appId)
+	endpoint := fmt.Sprintf("apps/%v/restores", appID)
 	err := c.invokeAPI("GET", endpoint, nil, &restores)
 
 	return restores.Data, err
 }
 
 // ---- CREATE NEW RESTORE
-func (c *Client) AppComponentRestoreCreate(appId IntID, req AppComponentRestoreRequest) (AppComponentRestore, error) {
+func (c *Client) AppComponentRestoreCreate(appID IntID, req AppComponentRestoreRequest) (AppComponentRestore, error) {
 	var restore struct {
 		Data AppComponentRestore `json:"restore"`
 	}
-	endpoint := fmt.Sprintf("apps/%v/restores", appId)
+	endpoint := fmt.Sprintf("apps/%v/restores", appID)
 	err := c.invokeAPI("POST", endpoint, req, &restore)
 
 	return restore.Data, err
 }
 
 // ---- DELETE RESTORE
-func (c *Client) AppComponentRestoresDelete(appId IntID, restoreId IntID) error {
-	endpoint := fmt.Sprintf("apps/%v/restores/%v", appId, restoreId)
+func (c *Client) AppComponentRestoresDelete(appID IntID, restoreID IntID) error {
+	endpoint := fmt.Sprintf("apps/%v/restores/%v", appID, restoreID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err
 }
 
 // ---- DOWNLOAD RESTORE FILE
-func (c *Client) AppComponentRestoreDownload(appId IntID, restoreId IntID, filename string) error {
-	endpoint := fmt.Sprintf("apps/%v/restores/%v/download", appId, restoreId)
+func (c *Client) AppComponentRestoreDownload(appID IntID, restoreID IntID, filename string) error {
+	endpoint := fmt.Sprintf("apps/%v/restores/%v/download", appID, restoreID)
 	res, err := c.sendRequestRaw("GET", endpoint, nil, map[string]string{"Accept": "application/gzip"})
 
 	if filename == "" {
@@ -374,11 +374,11 @@ func (c *Client) AppComponentRestoreDownload(appId IntID, restoreId IntID, filen
 
 //-------------------------------------------------  APP COMPONENT BACKUP (GET) -------------------------------------------------
 // ---- GET LIST OF COMPONENT AVAILABLEBACKUPS
-func (c *Client) AppComponentbackupsGet(appId IntID, componentId IntID) ([]AppComponentAvailableBackup, error) {
+func (c *Client) AppComponentbackupsGet(appID IntID, componentID IntID) ([]AppComponentAvailableBackup, error) {
 	var backups struct {
 		Data []AppComponentAvailableBackup `json:"availableBackups"`
 	}
-	endpoint := fmt.Sprintf("apps/%v/components/%v/availablebackups", appId, componentId)
+	endpoint := fmt.Sprintf("apps/%v/components/%v/availablebackups", appID, componentID)
 	err := c.invokeAPI("GET", endpoint, nil, &backups)
 
 	return backups.Data, err
@@ -386,43 +386,43 @@ func (c *Client) AppComponentbackupsGet(appId IntID, componentId IntID) ([]AppCo
 
 //-------------------------------------------------  APP MIGRATIONS (GET / DESCRIBE / CREATE / UPDATE) -------------------------------------------------
 // ---- GET LIST OF MIGRATIONS
-func (c *Client) AppMigrationsGet(appId IntID) ([]AppMigration, error) {
+func (c *Client) AppMigrationsGet(appID IntID) ([]AppMigration, error) {
 	var migrations struct {
 		Data []AppMigration `json:"migrations"`
 	}
 
-	endpoint := fmt.Sprintf("apps/%v/migrations", appId)
+	endpoint := fmt.Sprintf("apps/%v/migrations", appID)
 	err := c.invokeAPI("GET", endpoint, nil, &migrations)
 
 	return migrations.Data, err
 }
 
 // ---- CREATE APP MIGRATION
-func (c *Client) AppMigrationsCreate(appId IntID, req AppMigrationRequest) (AppMigration, error) {
+func (c *Client) AppMigrationsCreate(appID IntID, req AppMigrationRequest) (AppMigration, error) {
 	var migration struct {
 		Data AppMigration `json:"migration"`
 	}
-	endpoint := fmt.Sprintf("apps/%v/migrations", appId)
+	endpoint := fmt.Sprintf("apps/%v/migrations", appID)
 	err := c.invokeAPI("POST", endpoint, req, &migration)
 
 	return migration.Data, err
 }
 
 // ---- UPDATE APP MIGRATION
-func (c *Client) AppMigrationsUpdate(appId IntID, migrationId IntID, req interface{}) error {
-	endpoint := fmt.Sprintf("apps/%v/migrations/%v", appId, migrationId)
+func (c *Client) AppMigrationsUpdate(appID IntID, migrationID IntID, req interface{}) error {
+	endpoint := fmt.Sprintf("apps/%v/migrations/%v", appID, migrationID)
 	err := c.invokeAPI("PUT", endpoint, req, nil)
 
 	return err
 }
 
 // ---- DESCRIBE APP MIGRATION
-func (c *Client) AppMigrationDescribe(appId IntID, migrationId IntID) (AppMigration, error) {
+func (c *Client) AppMigrationDescribe(appID IntID, migrationID IntID) (AppMigration, error) {
 	var migration struct {
 		Data AppMigration `json:"migration"`
 	}
 
-	endpoint := fmt.Sprintf("apps/%v/migrations/%v", appId, migrationId)
+	endpoint := fmt.Sprintf("apps/%v/migrations/%v", appID, migrationID)
 	err := c.invokeAPI("GET", endpoint, nil, &migration)
 
 	return migration.Data, err
@@ -430,13 +430,13 @@ func (c *Client) AppMigrationDescribe(appId IntID, migrationId IntID) (AppMigrat
 
 //-------------------------------------------------  APP MIGRATIONS ACTIONS (CONFIRM / DENY / RESTART) -------------------------------------------------
 // ---- MIGRATIONS ACTION COMMAND
-func (c *Client) AppMigrationsAction(appId IntID, migrationId IntID, ChosenAction string) error {
+func (c *Client) AppMigrationsAction(appID IntID, migrationID IntID, ChosenAction string) error {
 	var action struct {
 		Type string `json:"type"`
 	}
 
 	action.Type = ChosenAction
-	endpoint := fmt.Sprintf("apps/%v/migrations/%v/actions", appId, migrationId)
+	endpoint := fmt.Sprintf("apps/%v/migrations/%v/actions", appID, migrationID)
 	err := c.invokeAPI("POST", endpoint, action, nil)
 
 	return err
@@ -444,7 +444,7 @@ func (c *Client) AppMigrationsAction(appId IntID, migrationId IntID, ChosenActio
 
 // ------------ COMPONENT URL MANAGEMENT
 
-// GET /apps/{appId}/components/{componentId}/urls
+// GET /apps/{appID}/components/{componentID}/urls
 func (c *Client) AppComponentUrlGetList(appID IntID, componentID IntID, get CommonGetParams) ([]AppComponentUrlShort, error) {
 	var resp struct {
 		Urls []AppComponentUrlShort `json:"urls"`
@@ -456,7 +456,7 @@ func (c *Client) AppComponentUrlGetList(appID IntID, componentID IntID, get Comm
 	return resp.Urls, err
 }
 
-// GET /apps/{appId}/components/{componentId}/urls/{urlId}
+// GET /apps/{appID}/components/{componentID}/urls/{urlID}
 func (c *Client) AppComponentUrlGetSingle(appID IntID, componentID IntID, urlID IntID) (AppComponentUrl, error) {
 	var resp struct {
 		Url AppComponentUrl `json:"url"`
@@ -468,7 +468,7 @@ func (c *Client) AppComponentUrlGetSingle(appID IntID, componentID IntID, urlID 
 	return resp.Url, err
 }
 
-// POST /apps/{appId}/components/{componentId}/urls
+// POST /apps/{appID}/components/{componentID}/urls
 func (c *Client) AppComponentUrlCreate(appID IntID, componentID IntID, create AppComponentUrlCreate) (AppComponentUrl, error) {
 	var resp struct {
 		Url AppComponentUrl `json:"url"`
@@ -480,7 +480,7 @@ func (c *Client) AppComponentUrlCreate(appID IntID, componentID IntID, create Ap
 	return resp.Url, err
 }
 
-// PUT /apps/{appId}/components/{componentId}/urls/{urlId}
+// PUT /apps/{appID}/components/{componentID}/urls/{urlID}
 func (c *Client) AppComponentUrlUpdate(appID IntID, componentID IntID, urlID IntID, data interface{}) error {
 	endpoint := fmt.Sprintf("apps/%d/components/%d/urls/%d", appID, componentID, urlID)
 	err := c.invokeAPI("PUT", endpoint, data, nil)
@@ -488,7 +488,7 @@ func (c *Client) AppComponentUrlUpdate(appID IntID, componentID IntID, urlID Int
 	return err
 }
 
-// DELETE /apps/{appId}/components/{componentId}/urls/{urlId}
+// DELETE /apps/{appID}/components/{componentID}/urls/{urlID}
 func (c *Client) AppComponentUrlDelete(appID IntID, componentID IntID, urlID IntID) error {
 	endpoint := fmt.Sprintf("apps/%d/components/%d/urls/%d", appID, componentID, urlID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
@@ -854,7 +854,7 @@ type AppMigrationItem struct {
 	Source              string      `json:"source"`
 	SourceInfo          int32       `json:"sourceInformation"`
 	DestinationEntity   string      `json:"destinationEntity"`
-	DestinationEntityId IntID       `json:"destinationEntityId"`
+	DestinationEntityID IntID       `json:"destinationEntityId"`
 	Ord                 int32       `json:"ord"`
 	SshKey              interface{} `json:"sshkey"`
 }

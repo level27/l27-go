@@ -30,7 +30,7 @@ type Job struct {
 	ExcCode int32         `json:"excCode"`
 	ExcMsg  string        `json:"excMsg"`
 	Hoe     int32         `json:"hoe"`
-	Id      IntID         `json:"id"`
+	ID      IntID         `json:"id"`
 	Jobs    []Job         `json:"jobs"`
 	Logs    []interface{} `json:"logs"`
 	Message string        `json:"msg"`
