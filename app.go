@@ -698,6 +698,7 @@ type AppComponentTypeParameter struct {
 	Readonly       bool        `json:"readonly"`
 	DisableEdit    bool        `json:"disableEdit"`
 	Required       bool        `json:"required"`
+	Received       bool        `json:"received"`
 	Category       string      `json:"category"`
 	PossibleValues []string    `json:"possibleValues"`
 }
