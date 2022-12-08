@@ -65,6 +65,14 @@ func (c *Client) JobRetry(rootJobID IntID) error {
 	return err
 }
 
+// DELETE /jobs/{jobId}
+func (c *Client) JobDelete(rootJobID IntID) error {
+	endpoint := fmt.Sprintf("jobs/%d", rootJobID)
+	err := c.invokeAPI("DELETE", endpoint, nil, nil)
+
+	return err
+}
+
 type Job struct {
 	Action          string        `json:"action"`
 	Dt              IntTime       `json:"dt"`
