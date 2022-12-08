@@ -46,9 +46,14 @@ func ParseID(id string) (IntID, error) {
 type CommonGetParams struct {
 	OrderBy   string
 	OrderType string
-	Limit     int32
-	Offset    int32
 	Filter    string
+	PageableParams
+}
+
+// Common parameters for APIs that support pagination.
+type PageableParams struct {
+	Limit  int32
+	Offset int32
 }
 
 // Workaround for buggy API-responses that return JSON [] when it should be {}.

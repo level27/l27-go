@@ -243,5 +243,12 @@ func (c *Client) invokeAPI(method string, endpoint string, data interface{}, res
 
 // Helper function to make query parameters from common get parameters.
 func formatCommonGetParams(params CommonGetParams) string {
-	return fmt.Sprintf("limit=%d&filter=%s", params.Limit, url.QueryEscape(params.Filter))
+	return fmt.Sprintf(
+		"filter=%s&%s",
+		url.QueryEscape(params.Filter),
+		formatPageableParams(params.PageableParams))
+}
+
+func formatPageableParams(params PageableParams) string {
+	return fmt.Sprintf("limit=%d&offset=%d", params.Limit, params.Offset)
 }
