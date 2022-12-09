@@ -677,9 +677,13 @@ type AppcomponenttypeServicetype struct {
 		DisplayName             string                      `json:"displayName"`
 		Description             string                      `json:"description"`
 		URLPossible             bool                        `json:"urlPossible"`
+		SSHKeyPossible          bool                        `json:"sshkeyPossible"`
+		UpdateURLsOnUpdate      bool                        `json:"updateUrlsOnUpdate"`
 		RestorePossible         bool                        `json:"restorePossible"`
 		MigrationPossible       bool                        `json:"migrationPossible"`
 		SelectingSystemPossible bool                        `json:"selectingSystemPossible"`
+		APMPossible             bool                        `json:"apmPossible"`
+		StatisticsPossible      bool                        `json:"statisticsPossible"`
 		DisabledOnProduction    bool                        `json:"disabledOnProduction"`
 		InvisibleOnProduction   bool                        `json:"invisibleOnProduction"`
 		Runlist                 string                      `json:"runlist"`
