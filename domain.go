@@ -6,7 +6,7 @@ import (
 	"net/url"
 )
 
-//gets extensions for domains
+// gets extensions for domains
 func (c *Client) Extension() ([]DomainProvider, error) {
 	var extensions struct {
 		Data []DomainProvider `json:"providers"`
@@ -46,7 +46,7 @@ func (c *Client) LookupDomain(name string) ([]Domain, error) {
 	return results, err
 }
 
-//Domain gets a domain from the API
+// Domain gets a domain from the API
 func (c *Client) Domains(getParams CommonGetParams) ([]Domain, error) {
 	var domains struct {
 		Data []Domain `json:"domains"`
@@ -212,8 +212,8 @@ func (c *Client) DomainAccesRemove(domainID IntID, organisationID IntID) error {
 
 // --------------------------------------------------- BILLABLE ITEM --------------------------------------------------------
 
-//--------------------------- CREATE (Turn invoicing on)
-//CREATE BILLABLEITEM
+// --------------------------- CREATE (Turn invoicing on)
+// CREATE BILLABLEITEM
 func (c *Client) DomainBillableItemCreate(domainid IntID, req BillPostRequest) error {
 	endpoint := fmt.Sprintf("domains/%v/bill", domainid)
 	err := c.invokeAPI("POST", endpoint, req, nil)
@@ -222,7 +222,7 @@ func (c *Client) DomainBillableItemCreate(domainid IntID, req BillPostRequest) e
 }
 
 // ---------------------------- DELETE (turn invoicing off)
-//DELETE
+// DELETE
 func (c *Client) DomainBillableItemDelete(domainID IntID) error {
 	endpoint := fmt.Sprintf("domains/%v/billableitem", domainID)
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
@@ -417,7 +417,7 @@ type DomainRequest struct {
 	Handledns                 bool    `json:"handleDns"`
 	ExtraFields               string  `json:"extraFields"`
 	Domaintype                IntID   `json:"domaintype"`
-	Domaincontactlicensee     IntID   `json:"domaincontactLicensee"`
+	Domaincontactlicensee     *IntID  `json:"domaincontactLicensee"`
 	DomainContactOnSite       *IntID  `json:"domaincontactOnsite"`
 	Organisation              IntID   `json:"organisation"`
 	AutoRecordTemplate        string  `json:"autorecordTemplate"`
