@@ -16,7 +16,7 @@ func (c *Client) Organisation(organisationID IntID) (Organisation, error) {
 	return orgs.Organisation, err
 }
 
-//Organisation gets a organisation from the API
+// Organisation gets a organisation from the API
 func (c *Client) Organisations(getParams CommonGetParams) ([]Organisation, error) {
 	var orgs struct {
 		Organisation []Organisation `json:"organisations"`
@@ -87,9 +87,14 @@ type Organisation struct {
 	// ResellerOrganisation
 	Users []OrganisationUser `json:"users"`
 	// RemarksToprintInvoice
-	UpdateEntitiesOnly   bool   `json:"updateEntitiesOnly"`
-	ParentOrganisation   string `json:"parentOrganisation"`
-	ResellerOrganisation *IntID `json:"resellerOrganisation"`
+	UpdateEntitiesOnly   bool                  `json:"updateEntitiesOnly"`
+	ParentOrganisation   string                `json:"parentOrganisation"`
+	ResellerOrganisation *ResellerOrganisation `json:"resellerOrganisation"`
+}
+
+type ResellerOrganisation struct {
+	OrganisationRef
+	TaxNumber string `json:"taxNumber"`
 }
 
 type OrganisationRef struct {
