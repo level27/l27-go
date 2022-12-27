@@ -44,8 +44,8 @@ func (c *Client) JobHistoryRootGet(rootJobID IntID, params JobHistoryGetParams) 
 }
 
 // GET /jobs/history/{type}/{id}
-func (c *Client) EntityJobHistoryGet(entityType string, entityID IntID, params PageableParams) ([]Job, error) {
-	var historyResult []Job
+func (c *Client) EntityJobHistoryGet(entityType string, entityID IntID, params PageableParams) ([]HistoryRootJob, error) {
+	var historyResult []HistoryRootJob
 
 	endpoint := fmt.Sprintf(
 		"jobs/history/%s/%v?%s",
@@ -71,6 +71,15 @@ func (c *Client) JobDelete(rootJobID IntID) error {
 	err := c.invokeAPI("DELETE", endpoint, nil, nil)
 
 	return err
+}
+
+type HistoryRootJob struct {
+	ID              IntID     `json:"id"`
+	Status          IntStatus `json:"status"`
+	Concurrency     int32     `json:"conc"`
+	HaltOnException int32     `json:"hoe"`
+	Message         string    `json:"msg"`
+	DatetimeStamp   string    `json:"dt"`
 }
 
 type Job struct {
