@@ -11,7 +11,7 @@ import (
 
 // --------------------------- TOPLEVEL SYSTEM ACTIONS (GET / POST) ------------------------------------
 // #region SYSTEM TOPLEVEL (GET / CREATE)
-//------------------ GET
+// ------------------ GET
 // returning a list of all current systems [lvl system get]
 func (c *Client) SystemGetList(getParams CommonGetParams) ([]System, error) {
 	var systems struct {
@@ -785,9 +785,9 @@ type SystemRef struct {
 }
 
 type StatSummary struct {
-	Unit  string      `json:"unit"`
-	Value interface{} `json:"value"`
-	Max   interface{} `json:"max"`
+	Unit           string `json:"unit"`
+	Value          string `json:"value"`
+	StatusCategory string `json:"statusCategory"`
 }
 
 type SystemVolume struct {
@@ -902,7 +902,7 @@ type SystemHasNetworkIpAdd struct {
 
 // ----------------------------------- CHECKS ----------------------------------
 
-//--  used to get all current check
+// --  used to get all current check
 type SystemCheckTypeName map[string]SystemCheckType
 
 type SystemCheckType struct {
