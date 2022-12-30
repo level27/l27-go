@@ -99,7 +99,7 @@ func (c *Client) AppUpdate(appID IntID, req AppPutRequest) error {
 
 // #endregion
 
-//------------------------------------------------- APP ACTIONS (ACTIVATE / DEACTIVATE)-------------------------------------------------
+// ------------------------------------------------- APP ACTIONS (ACTIVATE / DEACTIVATE)-------------------------------------------------
 // ---- ACTION (ACTIVATE OR DEACTIVATE) ON AN APP
 func (c *Client) AppAction(appID IntID, action string) error {
 	request := AppActionRequest{
@@ -287,7 +287,7 @@ func (c *Client) AppComponentUpdate(appID IntID, appComponentID IntID, req inter
 	return err
 }
 
-//------------------------------------------------- APP COMPONENTS HELPERS (CATEGORY )-------------------------------------------------
+// ------------------------------------------------- APP COMPONENTS HELPERS (CATEGORY )-------------------------------------------------
 // ---- GET LIST OFF APPCOMPONENTTYPES
 func (c *Client) AppComponenttypesGet() (Appcomponenttype, error) {
 	var componenttypes struct {
@@ -372,7 +372,7 @@ func (c *Client) AppComponentRestoreDownload(appID IntID, restoreID IntID, filen
 	return err
 }
 
-//-------------------------------------------------  APP COMPONENT BACKUP (GET) -------------------------------------------------
+// -------------------------------------------------  APP COMPONENT BACKUP (GET) -------------------------------------------------
 // ---- GET LIST OF COMPONENT AVAILABLEBACKUPS
 func (c *Client) AppComponentbackupsGet(appID IntID, componentID IntID) ([]AppComponentAvailableBackup, error) {
 	var backups struct {
@@ -384,7 +384,7 @@ func (c *Client) AppComponentbackupsGet(appID IntID, componentID IntID) ([]AppCo
 	return backups.Data, err
 }
 
-//-------------------------------------------------  APP MIGRATIONS (GET / DESCRIBE / CREATE / UPDATE) -------------------------------------------------
+// -------------------------------------------------  APP MIGRATIONS (GET / DESCRIBE / CREATE / UPDATE) -------------------------------------------------
 // ---- GET LIST OF MIGRATIONS
 func (c *Client) AppMigrationsGet(appID IntID) ([]AppMigration, error) {
 	var migrations struct {
@@ -428,7 +428,7 @@ func (c *Client) AppMigrationDescribe(appID IntID, migrationID IntID) (AppMigrat
 	return migration.Data, err
 }
 
-//-------------------------------------------------  APP MIGRATIONS ACTIONS (CONFIRM / DENY / RESTART) -------------------------------------------------
+// -------------------------------------------------  APP MIGRATIONS ACTIONS (CONFIRM / DENY / RESTART) -------------------------------------------------
 // ---- MIGRATIONS ACTION COMMAND
 func (c *Client) AppMigrationsAction(appID IntID, migrationID IntID, ChosenAction string) error {
 	var action struct {
@@ -548,7 +548,7 @@ type AppRef struct {
 	Name string `json:"name"`
 }
 
-//type to create an app (post request)
+// type to create an app (post request)
 type AppPostRequest struct {
 	Name         string  `json:"name"`
 	Organisation IntID   `json:"organisation"`
@@ -556,7 +556,7 @@ type AppPostRequest struct {
 	ExternalInfo string  `json:"externalInfo"`
 }
 
-//type to update an app (put request)
+// type to update an app (put request)
 type AppPutRequest struct {
 	Name         string   `json:"name"`
 	Organisation IntID    `json:"organisation"`
@@ -628,12 +628,11 @@ type AppSslcertificateKey struct {
 	SslKey string `json:"sslKey"`
 }
 
-//type appcomponent
+// type appcomponent
 type AppComponent struct {
 	App struct {
 		ID             IntID  `json:"id"`
 		Status         string `json:"status"`
-		Name           string `json:"name"`
 		StatusCategory string `json:"statusCategory"`
 	} `json:"app"`
 	AppcomponentparameterDescriptions interface{}            `json:"appcomponentparameterDescriptions"`
