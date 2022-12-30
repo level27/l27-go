@@ -84,14 +84,18 @@ func (c *Client) DomainCreate(req DomainRequest) (Domain, error) {
 }
 
 // TRANSFER DOMAIN [lvl domain transfer <parameters>]
-func (c *Client) DomainTransfer(req DomainRequest) error {
+func (c *Client) DomainTransfer(req DomainRequest) (Domain, error) {
 	if req.Action == "" {
 		req.Action = "transfer"
 	}
 
-	err := c.invokeAPI("POST", "domains", req, nil)
+	var domain struct {
+		Data Domain `json:"domain"`
+	}
 
-	return err
+	err := c.invokeAPI("POST", "domains", req, &domain)
+
+	return domain.Data, err
 }
 
 // INTERNAL TRANSFER
