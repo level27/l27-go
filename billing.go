@@ -5,12 +5,15 @@ import (
 )
 
 // POST /{entityType}/{systemID}/bill
-func (c *Client) EntityBillableItemCreate(entityType string, entityID IntID, req BillPostRequest) error {
+func (c *Client) EntityBillableItemCreate(entityType string, entityID IntID, req BillPostRequest) (BillableItem, error) {
+	var response struct {
+		Data BillableItem `json:"billableItem"`
+	}
 
 	endpoint := fmt.Sprintf("%s/%v/bill", entityType, entityID)
+	err := c.invokeAPI("POST", endpoint, req, &response)
 
-	err := c.invokeAPI("POST", endpoint, req, nil)
-	return err
+	return response.Data, err
 }
 
 // DELETE /{entityType}/{systemID}/billableitem
@@ -29,7 +32,7 @@ type BillableItem struct {
 	StatusDisplay       string          `json:"statusDisplay"`
 	Description         string          `json:"description"`
 	AutoRenew           bool            `json:"autoRenew"`
-	DtExpires           interface{}     `json:"dtExpires"`
+	DtExpires           IntTime         `json:"dtExpires"`
 	DtNextRenewal       IntTime         `json:"dtNextRenewal"`
 	DocumentsExist      bool            `json:"documentsExist"`
 	TotalPrice          int32           `json:"totalPrice"`
