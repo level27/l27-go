@@ -693,29 +693,20 @@ type System struct {
 		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"organisation"`
-	SystemImage struct {
-		ID          IntID  `json:"id"`
-		Name        string `json:"name"`
-		ExternalID  string `json:"externalId"`
-		OsID        IntID  `json:"osId"`
-		OsName      string `json:"osName"`
-		OsType      string `json:"osType"`
-		OsVersion   string `json:"osVersion"`
-		OsVersionID IntID  `json:"osVersionId"`
-	} `json:"systemimage"`
-	OperatingSystemVersion struct {
+	SystemImage            *SystemImage `json:"systemimage"`
+	OperatingSystemVersion *struct {
 		ID        IntID  `json:"id"`
 		OsID      IntID  `json:"osId"`
 		OsName    string `json:"osName"`
 		OsType    string `json:"osType"`
 		OsVersion string `json:"osVersion"`
 	} `json:"operatingsystemVersion"`
-	ProviderID                  IntID                          `json:"providerId"`
-	Provider                    interface{}                    `json:"provider"`
-	ProviderApi                 string                         `json:"providerApi"`
-	SystemProviderConfiguration SystemProviderConfigurationRef `json:"systemproviderConfiguration"`
-	Region                      string                         `json:"region"`
-	Zone                        struct {
+	ProviderID                  IntID                           `json:"providerId"`
+	Provider                    interface{}                     `json:"provider"`
+	ProviderApi                 string                          `json:"providerApi"`
+	SystemProviderConfiguration *SystemProviderConfigurationRef `json:"systemproviderConfiguration"`
+	Region                      string                          `json:"region"`
+	Zone                        *struct {
 		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"zone"`
@@ -747,10 +738,21 @@ type System struct {
 		Name string `json:"name"`
 	} `json:"bootVolume"`
 	Cookbooks             []Cookbook `json:"cookbooks"`
-	Preferredparentsystem struct {
+	Preferredparentsystem *struct {
 		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"preferredparentsystem"`
+}
+
+type SystemImage struct {
+	ID          IntID  `json:"id"`
+	Name        string `json:"name"`
+	ExternalID  string `json:"externalId"`
+	OsID        IntID  `json:"osId"`
+	OsName      string `json:"osName"`
+	OsType      string `json:"osType"`
+	OsVersion   string `json:"osVersion"`
+	OsVersionID IntID  `json:"osVersionId"`
 }
 
 // data needed for POST request (create system)
@@ -1073,24 +1075,25 @@ type SystemProviderConfiguration struct {
 }
 
 type SystemPut struct {
-	ID                          IntID       `json:"id"`
-	Name                        string      `json:"name"`
-	Type                        string      `json:"type"`
-	Cpu                         int32       `json:"cpu"`
-	Memory                      int32       `json:"memory"`
-	Disk                        string      `json:"disk"`
-	ManagementType              string      `json:"managementType"`
-	Organisation                IntID       `json:"organisation"`
-	SystemImage                 IntID       `json:"systemimage"`
-	OperatingsystemVersion      IntID       `json:"operatingsystemVersion"`
-	SystemProviderConfiguration IntID       `json:"systemproviderConfiguration"`
-	Zone                        IntID       `json:"zone"`
-	PublicNetworking            bool        `json:"publicNetworking"`
-	Preferredparentsystem       interface{} `json:"preferredparentsystem"`
-	Remarks                     string      `json:"remarks"`
-	InstallSecurityUpdates      int32       `json:"installSecurityUpdates"`
-	LimitRiops                  int32       `json:"limitRiops"`
-	LimitWiops                  int32       `json:"limitWiops"`
+	ID                          IntID  `json:"id"`
+	Name                        string `json:"name"`
+	Type                        string `json:"type"`
+	Cpu                         int32  `json:"cpu"`
+	Memory                      int32  `json:"memory"`
+	Disk                        string `json:"disk"`
+	ManagementType              string `json:"managementType"`
+	Organisation                IntID  `json:"organisation"`
+	SystemImage                 *IntID `json:"systemimage"`
+	OperatingsystemVersion      *IntID `json:"operatingsystemVersion"`
+	SystemProviderConfiguration *IntID `json:"systemproviderConfiguration"`
+	Zone                        *IntID `json:"zone"`
+	PublicNetworking            bool   `json:"publicNetworking"`
+	Preferredparentsystem       *IntID `json:"preferredparentsystem"`
+	Remarks                     string `json:"remarks"`
+	InstallSecurityUpdates      int32  `json:"installSecurityUpdates"`
+	LimitRiops                  int32  `json:"limitRiops"`
+	LimitWiops                  int32  `json:"limitWiops"`
+	CustomerFqdn                string `json:"customerFqdn"`
 }
 
 type SystemHasNetworkIpPut struct {
