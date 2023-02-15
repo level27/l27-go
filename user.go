@@ -2,6 +2,18 @@ package l27
 
 import "fmt"
 
+// GET /organisations/{organisationID}/users
+func (c *Client) OrganisationUserGetList(organisationID IntID, params CommonGetParams) ([]OrganisationUser, error) {
+	var resp struct {
+		Users []OrganisationUser `json:"users"`
+	}
+
+	endpoint := fmt.Sprintf("organisations/%d/users?%s", organisationID, formatCommonGetParams(params))
+	err := c.invokeAPI("GET", endpoint, nil, &resp)
+
+	return resp.Users, err
+}
+
 // GET /organisations/{organisationID}/users/{userID}
 func (c Client) OrganisationUserGetSingle(organisationID IntID, userID IntID) (User, error) {
 	var resp struct {
@@ -12,6 +24,22 @@ func (c Client) OrganisationUserGetSingle(organisationID IntID, userID IntID) (U
 	err := c.invokeAPI("GET", endpoint, nil, &resp)
 
 	return resp.Data, err
+}
+
+func (c *Client) LookupOrganisationUser(organisationID IntID, name string) ([]OrganisationUser, error) {
+	results := []OrganisationUser{}
+	users, err := c.OrganisationUserGetList(organisationID, CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, user := range users {
+		if user.Email == name {
+			results = append(results, user)
+		}
+	}
+
+	return results, nil
 }
 
 // GET /organisations/{organisationID}/users/{userID}/sshkeys
@@ -55,6 +83,18 @@ func (c *Client) OrganisationUserSshKeysGetSingle(organisationID IntID, userID I
 	return resp.Data, err
 }
 
+// POST /organisations/{organisationID}/users/{userID}/sshkeys
+func (c *Client) OrganisationUserSshKeysCreate(organisationID IntID, userID IntID, data SshKeyCreate) (SshKey, error) {
+	var resp struct {
+		Data SshKey `json:"sshkey"`
+	}
+
+	endpoint := fmt.Sprintf("organisations/%d/users/%d/sshkeys", organisationID, userID)
+	err := c.invokeAPI("POST", endpoint, data, &resp)
+
+	return resp.Data, err
+}
+
 type User struct {
 	ID             IntID    `json:"id"`
 	Username       string   `json:"username"`
@@ -78,4 +118,9 @@ type Contact struct {
 	Type      string    `json:"type"`
 	Value     string    `json:"value"`
 	ContactID IntID     `json:"contactId"`
+}
+
+type SshKeyCreate struct {
+	Description string `json:"description"`
+	Content     string `json:"content"`
 }
