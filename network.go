@@ -36,7 +36,7 @@ func (c *Client) LookupNetwork(name string) ([]Network, error) {
 	}
 
 	for _, net := range networks {
-		if net.Name == name {
+		if net.Name == name || net.Description == name {
 			results = append(results, net)
 		}
 	}
