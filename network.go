@@ -122,12 +122,12 @@ type Network struct {
 }
 
 type NetworkRef struct {
-	ID          IntID       `json:"id"`
-	Name        string      `json:"name"`
-	Description interface{} `json:"description"`
-	Public      bool        `json:"public"`
-	Customer    bool        `json:"customer"`
-	Internal    bool        `json:"internal"`
+	ID          IntID  `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Public      bool   `json:"public"`
+	Customer    bool   `json:"customer"`
+	Internal    bool   `json:"internal"`
 }
 
 type NetworkLocate struct {
