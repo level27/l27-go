@@ -53,6 +53,14 @@ func (c *Client) NetworkLocate(networkID IntID) (NetworkLocate, error) {
 	return response, err
 }
 
+// PUT /networks/{id}
+func (c *Client) NetworkUpdate(networkID IntID, data NetworkPutRequest) error {
+	endpoint := fmt.Sprintf("networks/%d", networkID)
+	err := c.invokeAPI("PUT", endpoint, data, nil)
+
+	return err
+}
+
 func ipv4IntToString(ipv4 uint32) string {
 	a := (ipv4 >> 24) & 0xFF
 	b := (ipv4 >> 16) & 0xFF
@@ -133,4 +141,10 @@ type NetworkRef struct {
 type NetworkLocate struct {
 	Ipv4 []string `json:"ipv4"`
 	Ipv6 []string `json:"ipv6"`
+}
+
+type NetworkPutRequest struct {
+	Remarks     string  `json:"remarks"`
+	Description string  `json:"description"`
+	Zones       []IntID `json:"zones"`
 }
