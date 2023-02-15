@@ -22,7 +22,7 @@ func (c *Client) GetNetwork(id IntID) (Network, error) {
 		Network Network `json:"network"`
 	}
 
-	endpoint := fmt.Sprintf("network/%d", id)
+	endpoint := fmt.Sprintf("networks/%d", id)
 	err := c.invokeAPI("GET", endpoint, nil, &network)
 
 	return network.Network, err
