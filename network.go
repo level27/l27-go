@@ -81,7 +81,7 @@ func ipsEqual(a string, b string) bool {
 type Network struct {
 	NetworkRef
 	UID             interface{}     `json:"uid"`
-	Remarks         interface{}     `json:"remarks"`
+	Remarks         string          `json:"remarks"`
 	Status          string          `json:"status"`
 	Vlan            interface{}     `json:"vlan"`
 	Ipv4            string          `json:"ipv4"`
@@ -108,10 +108,17 @@ type Network struct {
 		Name               string `json:"name"`
 		AdvancedNetworking bool   `json:"advancedNetworking"`
 	} `json:"systemprovider"`
-	Rzone4         interface{}   `json:"rzone4"`
-	Rzone6         interface{}   `json:"rzone6"`
-	Zones          []interface{} `json:"zones"`
-	StatusCategory string        `json:"statusCategory"`
+	Rzone4 interface{} `json:"rzone4"`
+	Rzone6 interface{} `json:"rzone6"`
+	Zones  []struct {
+		ID     IntID  `json:"id"`
+		Name   string `json:"name"`
+		Region struct {
+			ID   IntID  `json:"id"`
+			Name string `json:"name"`
+		} `json:"region"`
+	} `json:"zones"`
+	StatusCategory string `json:"statusCategory"`
 }
 
 type NetworkRef struct {
