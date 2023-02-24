@@ -151,12 +151,14 @@ func (c *Client) DomainRecord(domainID IntID, recordID IntID) (DomainRecord, err
 
 // CREATE
 func (c *Client) DomainRecordCreate(id IntID, req DomainRecordRequest) (DomainRecord, error) {
-	record := DomainRecord{}
+	var record struct {
+		Record DomainRecord `json:"record"`
+	}
 
 	endpoint := fmt.Sprintf("domains/%d/records", id)
 	err := c.invokeAPI("POST", endpoint, &req, &record)
 
-	return record, err
+	return record.Record, err
 }
 
 // DELETE
