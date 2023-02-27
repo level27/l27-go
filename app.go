@@ -512,6 +512,74 @@ func (c *Client) AppComponentUrlLookup(appID IntID, componentID IntID, name stri
 	return results, nil
 }
 
+// GET /apps/{appID}/components/{componentID}/crons
+func (c *Client) AppComponentCronGetList(appID IntID, componentID IntID, params CommonGetParams) ([]AppComponentCronShort, error) {
+	var resp struct {
+		Crons []AppComponentCronShort `json:"crons"`
+	}
+
+	endpoint := fmt.Sprintf("apps/%d/components/%d/crons?%s", appID, componentID, formatCommonGetParams(params))
+	err := c.invokeAPI("GET", endpoint, nil, &resp)
+
+	return resp.Crons, err
+}
+
+// GET /apps/{appID}/components/{componentID}/crons/{cronID}
+func (c *Client) AppComponentCronGetSingle(appID IntID, componentID IntID, cronID IntID) (AppComponentCron, error) {
+	var resp struct {
+		Cron AppComponentCron `json:"cron"`
+	}
+
+	endpoint := fmt.Sprintf("apps/%d/components/%d/crons/%d", appID, componentID, cronID)
+	err := c.invokeAPI("GET", endpoint, nil, &resp)
+
+	return resp.Cron, err
+}
+
+// POST /apps/{appID}/components/{componentID}/crons
+func (c *Client) AppComponentCronCreate(appID IntID, componentID IntID, data AppComponentCronCreate) (AppComponentCron, error) {
+	var resp struct {
+		Cron AppComponentCron `json:"cron"`
+	}
+
+	endpoint := fmt.Sprintf("apps/%d/components/%d/crons", appID, componentID)
+	err := c.invokeAPI("POST", endpoint, data, &resp)
+
+	return resp.Cron, err
+}
+
+// PUT /apps/{appID}/components/{componentID}/crons/{cronID}
+func (c *Client) AppComponentCronUpdate(appID IntID, componentID IntID, cronID IntID, data AppComponentCronUpdate) error {
+	endpoint := fmt.Sprintf("apps/%d/components/%d/crons/%d", appID, componentID, cronID)
+	err := c.invokeAPI("PUT", endpoint, data, nil)
+
+	return err
+}
+
+// DELETE /apps/{appID}/components/{componentID}/crons/{cronID}
+func (c *Client) AppComponentCronDelete(appID IntID, componentID IntID, cronID IntID) error {
+	endpoint := fmt.Sprintf("apps/%d/components/%d/crons/%d", appID, componentID, cronID)
+	err := c.invokeAPI("DELETE", endpoint, nil, nil)
+
+	return err
+}
+
+func (c *Client) AppComponentCronLookup(appID IntID, componentID IntID, name string) ([]AppComponentCronShort, error) {
+	results := []AppComponentCronShort{}
+	urls, err := c.AppComponentCronGetList(appID, componentID, CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, cron := range urls {
+		if cron.Name == name {
+			results = append(results, cron)
+		}
+	}
+
+	return results, nil
+}
+
 // main structure of an app
 type App struct {
 	AppRef
@@ -982,4 +1050,67 @@ type AppComponentUrlCreate struct {
 	SslCertificate     *IntID `json:"sslCertificate"`
 	HandleDns          bool   `json:"handleDns"`
 	AutoSslCertificate bool   `json:"autoSslCertificate"`
+}
+
+type AppComponentCronCreate struct {
+	Name     string `json:"name"`
+	Command  string `json:"command"`
+	Schedule string `json:"schedule"`
+}
+
+type AppComponentCronUpdate struct {
+	Name     string `json:"name"`
+	Command  string `json:"command"`
+	Schedule string `json:"schedule"`
+}
+
+type AppComponentCronShort struct {
+	ID           IntID  `json:"id"`
+	Name         string `json:"name"`
+	Command      string `json:"command"`
+	Schedule     string `json:"schedule"`
+	Status       string `json:"status"`
+	Appcomponent struct {
+		ID               IntID  `json:"id"`
+		Name             string `json:"name"`
+		Appcomponenttype string `json:"appcomponenttype"`
+		Status           string `json:"status"`
+	} `json:"appcomponent"`
+	StatusCategory string `json:"statusCategory"`
+}
+
+type AppComponentCron struct {
+	ID           IntID  `json:"id"`
+	Name         string `json:"name"`
+	Command      string `json:"command"`
+	Schedule     string `json:"schedule"`
+	Status       string `json:"status"`
+	Appcomponent struct {
+		ID               IntID  `json:"id"`
+		Name             string `json:"name"`
+		Appcomponenttype string `json:"appcomponenttype"`
+		Status           string `json:"status"`
+		App              struct {
+			ID IntID `json:"id"`
+		} `json:"app"`
+	} `json:"appcomponent"`
+	StatusCategory string `json:"statusCategory"`
+}
+
+func (cron AppComponentCron) ToShort() AppComponentCronShort {
+	short := AppComponentCronShort{
+		ID:             cron.ID,
+		Name:           cron.Name,
+		Command:        cron.Command,
+		Schedule:       cron.Schedule,
+		Status:         cron.Status,
+		StatusCategory: cron.StatusCategory,
+	}
+
+	short.Appcomponent.ID = cron.Appcomponent.ID
+	short.Appcomponent.Name = cron.Appcomponent.Name
+	short.Appcomponent.Appcomponenttype = cron.Appcomponent.Appcomponenttype
+	short.Appcomponent.Status = cron.Appcomponent.Status
+
+	return short
 }
