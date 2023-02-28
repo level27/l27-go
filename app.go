@@ -754,7 +754,7 @@ type AppcomponenttypeServicetype struct {
 		DisabledOnProduction    bool                        `json:"disabledOnProduction"`
 		InvisibleOnProduction   bool                        `json:"invisibleOnProduction"`
 		Runlist                 string                      `json:"runlist"`
-		AllowedActions          []interface{}               `json:"allowedActions"`
+		AllowedActions          BuggyMap[string, []string]  `json:"allowedActions"`
 		Category                string                      `json:"category"`
 		Parameters              []AppComponentTypeParameter `json:"parameters"`
 	} `json:"servicetype"`
