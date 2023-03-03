@@ -341,6 +341,22 @@ func (c *Client) SystemCheckUpdate(systemID IntID, checkID IntID, req interface{
 	return err
 }
 
+func (c *Client) SystemCheckLookup(systemID IntID, checkType string) ([]SystemCheckGet, error) {
+	results := []SystemCheckGet{}
+	checks, err := c.SystemCheckGetList(systemID, CommonGetParams{Filter: checkType})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, check := range checks {
+		if check.CheckType == checkType {
+			results = append(results, check)
+		}
+	}
+
+	return results, err
+}
+
 // #endregion
 
 // --------------------------- SYSTEM/COOKBOOKS TOPLEVEL (GET / POST) ------------------------------------
