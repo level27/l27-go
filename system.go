@@ -928,30 +928,24 @@ type SystemCheckType struct {
 
 // -- structure of specific check on a system
 
-// create parameter name dynamicaly
-type systemCheckParameterName map[string]systemCheckParameter
-
 type systemCheckParameter struct {
 	Value   interface{} `json:"value"`
 	Default bool        `json:"default"`
 }
 
-// create parameter description name dynamicaly
-type systemCheckParameterDescription map[string]interface{}
-
 type SystemCheck struct {
-	ID                          IntID                           `json:"id"`
-	CheckType                   string                          `json:"checktype"`
-	ChecktypeLocation           string                          `json:"checktypeLocation"`
-	Status                      string                          `json:"status"`
-	StatusInformation           string                          `json:"statusInformation"`
-	DtLastMonitorEnabled        IntTime                         `json:"dtLastMonitoringEnabled"`
-	DtLastStatusChanged         IntTime                         `json:"dtLastStatusChange"`
-	DtNextCheck                 IntTime                         `json:"dtNextCheck"`
-	DtLastCheck                 IntTime                         `json:"dtLastCheck"`
-	CheckParameters             systemCheckParameterName        `json:"checkparameters"`
-	CheckParametersDescriptions systemCheckParameterDescription `json:"checkparameterDescriptions"`
-	Location                    string                          `json:"location"`
+	ID                          IntID                                  `json:"id"`
+	CheckType                   string                                 `json:"checktype"`
+	ChecktypeLocation           string                                 `json:"checktypeLocation"`
+	Status                      string                                 `json:"status"`
+	StatusInformation           string                                 `json:"statusInformation"`
+	DtLastMonitorEnabled        IntTime                                `json:"dtLastMonitoringEnabled"`
+	DtLastStatusChanged         IntTime                                `json:"dtLastStatusChange"`
+	DtNextCheck                 IntTime                                `json:"dtNextCheck"`
+	DtLastCheck                 IntTime                                `json:"dtLastCheck"`
+	CheckParameters             BuggyMap[string, systemCheckParameter] `json:"checkparameters"`
+	CheckParametersDescriptions BuggyMap[string, interface{}]          `json:"checkparameterDescriptions"`
+	Location                    string                                 `json:"location"`
 	System                      struct {
 		ID   IntID  `json:"id"`
 		Name string `json:"name"`
