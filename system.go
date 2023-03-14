@@ -584,7 +584,7 @@ func (c *Client) LookupSystemHasNetworks(systemID IntID, name string) ([]SystemH
 	}
 
 	for _, network := range networks {
-		if network.Network.Name == name {
+		if network.Network.Name == name || network.Network.Description == name {
 			results = append(results, network)
 		}
 	}
