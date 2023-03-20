@@ -948,6 +948,7 @@ type AppComponentUrlShort struct {
 	SslForce       bool                      `json:"sslForce"`
 	HandleDNS      bool                      `json:"handleDns"`
 	Authentication bool                      `json:"authentication"`
+	Caching        bool                      `json:"caching"`
 	Appcomponent   AppComponentRefShort      `json:"appcomponent"`
 	SslCertificate AppSslCertificateRefShort `json:"sslCertificate"`
 	StatusCategory string                    `json:"statusCategory"`
@@ -981,6 +982,7 @@ type AppComponentUrl struct {
 	SslForce       bool   `json:"sslForce"`
 	HandleDNS      bool   `json:"handleDns"`
 	Authentication bool   `json:"authentication"`
+	Caching        bool   `json:"caching"`
 	Appcomponent   struct {
 		ID               IntID  `json:"id"`
 		Name             string `json:"name"`
@@ -1021,6 +1023,7 @@ func (url AppComponentUrl) ToShort() AppComponentUrlShort {
 		SslForce:       url.SslForce,
 		HandleDNS:      url.HandleDNS,
 		Authentication: url.Authentication,
+		Caching:        url.Caching,
 		Appcomponent: AppComponentRefShort{
 			ID:               url.Appcomponent.ID,
 			Name:             url.Appcomponent.Name,
@@ -1049,6 +1052,7 @@ type AppComponentUrlCreate struct {
 	SslForce           bool   `json:"sslForce"`
 	SslCertificate     *IntID `json:"sslCertificate"`
 	HandleDns          bool   `json:"handleDns"`
+	Caching            bool   `json:"caching"`
 	AutoSslCertificate bool   `json:"autoSslCertificate"`
 }
 
