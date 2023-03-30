@@ -135,6 +135,24 @@ func (c *Client) MailgroupsDomainsPatch(mailgroupID IntID, domainID IntID, data 
 	return err
 }
 
+// POST /mailgroups/{mailgroupID}/domains/{domainID}/actions
+func (c *Client) MailgroupsDomainAction(mailgroupID IntID, domainID IntID, action string) (Mailgroup, error) {
+	var response struct {
+		Mailgroup Mailgroup `json:"mailgroup"`
+	}
+
+	var request struct {
+		Type string `json:"type"`
+	}
+
+	request.Type = action
+
+	endpoint := fmt.Sprintf("mailgroups/%d/domains/%d/actions", mailgroupID, domainID)
+	err := c.invokeAPI("POST", endpoint, request, &response)
+
+	return response.Mailgroup, err
+}
+
 // GET /mailgroups/{mailgroupId}/mailboxes
 func (c *Client) MailgroupsMailboxesGetList(mailgroupID IntID, get CommonGetParams) ([]MailboxShort, error) {
 	var response struct {
