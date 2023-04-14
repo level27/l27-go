@@ -1,9 +1,15 @@
 package l27
 
+// POST /login
 func (c *Client) Login(username string, password string) (Login, error) {
+	return c.Login2FA(&LoginRequest{Username: username, Password: password})
+}
+
+// Alternative to Login() that accepts full requests data, for 2FA etc.
+func (c *Client) Login2FA(request *LoginRequest) (Login, error) {
 	var login Login
 
-	err := c.invokeAPI("POST", "login", &LoginRequest{Username: username, Password: password}, &login)
+	err := c.invokeAPI("POST", "login", request, &login)
 
 	return login, err
 }
@@ -43,10 +49,14 @@ type Login struct {
 		} `json:"country"`
 		Fullname string `json:"fullname"`
 	} `json:"user"`
-	Hash string `json:"hash"`
+	Hash    string `json:"hash"`
+	Hash2FA string `json:"hash2fa"`
 }
 
 type LoginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username        string `json:"username"`
+	Password        string `json:"password"`
+	SixDigitCode    string `json:"6digitCode"`
+	TrustThisDevice bool   `json:"trustThisDevice"`
+	TwoFAToken      string `json:"2faToken"`
 }
