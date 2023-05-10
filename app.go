@@ -1,6 +1,7 @@
 package l27
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/url"
@@ -754,10 +755,36 @@ type AppcomponenttypeServicetype struct {
 		DisabledOnProduction    bool                        `json:"disabledOnProduction"`
 		InvisibleOnProduction   bool                        `json:"invisibleOnProduction"`
 		Runlist                 string                      `json:"runlist"`
-		AllowedActions          BuggyMap[string, []string]  `json:"allowedActions"`
+		AllowedActions          AppComponentAllowedActions  `json:"allowedActions"`
 		Category                string                      `json:"category"`
 		Parameters              []AppComponentTypeParameter `json:"parameters"`
 	} `json:"servicetype"`
+}
+
+type AppComponentAllowedActions struct {
+	Map map[string][]string
+}
+
+func (b *AppComponentAllowedActions) UnmarshalJSON(data []byte) error {
+	origErr := json.Unmarshal(data, &b.Map)
+	if origErr == nil {
+		return nil
+	}
+
+	// Try seeing if it reads as an array instead.
+	var array []string
+	arrayErr := json.Unmarshal(data, &array)
+	if arrayErr != nil {
+		return origErr
+	}
+
+	newMap := map[string][]string{}
+	for _, elem := range array {
+		newMap[elem] = nil
+	}
+	b.Map = newMap
+
+	return nil
 }
 
 type AppComponentTypeParameter struct {
