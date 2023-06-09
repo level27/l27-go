@@ -719,10 +719,16 @@ type AppComponent struct {
 		ID   IntID       `json:"id"`
 		Name interface{} `json:"name"`
 	} `json:"provider"`
-	SelectedSystem interface{} `json:"selectedSystem"`
-	Status         string      `json:"status"`
-	Systemgroup    interface{} `json:"systemgroup"`
-	Systems        []struct {
+	SelectedSystem *struct {
+		ID   IntID  `json:"id"`
+		Name string `json:"name"`
+	} `json:"selectedSystem"`
+	Status      string `json:"status"`
+	Systemgroup *struct {
+		ID   IntID  `json:"id"`
+		Name string `json:"name"`
+	} `json:"systemgroup"`
+	Systems []struct {
 		Cookbooks []interface{} `json:"cookbooks"`
 		Fqdn      string        `josn:"fqdn"`
 		ID        IntID         `json:"id"`
