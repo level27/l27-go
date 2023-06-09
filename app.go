@@ -734,6 +734,7 @@ type AppComponent struct {
 		ID        IntID         `json:"id"`
 		Name      string        `json:"name"`
 	} `json:"systems"`
+	LimitGroup string `json:"limitGroup"`
 }
 
 // type appcomponent category
