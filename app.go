@@ -734,7 +734,7 @@ type AppComponent struct {
 		ID        IntID         `json:"id"`
 		Name      string        `json:"name"`
 	} `json:"systems"`
-	LimitGroup string `json:"limitGroup"`
+	LimitGroup *string `json:"limitGroup"`
 }
 
 // type appcomponent category
@@ -795,17 +795,18 @@ func (b *AppComponentAllowedActions) UnmarshalJSON(data []byte) error {
 }
 
 type AppComponentTypeParameter struct {
-	Name           string      `json:"name"`
-	DisplayName    string      `json:"displayName"`
-	Description    string      `json:"description"`
-	Type           string      `json:"type"`
-	DefaultValue   interface{} `json:"defaultValue"`
-	Readonly       bool        `json:"readonly"`
-	DisableEdit    bool        `json:"disableEdit"`
-	Required       bool        `json:"required"`
-	Received       bool        `json:"received"`
-	Category       string      `json:"category"`
-	PossibleValues []string    `json:"possibleValues"`
+	Name              string      `json:"name"`
+	DisplayName       string      `json:"displayName"`
+	Description       string      `json:"description"`
+	Type              string      `json:"type"`
+	DefaultValue      interface{} `json:"defaultValue"`
+	Readonly          bool        `json:"readonly"`
+	DisableEdit       bool        `json:"disableEdit"`
+	Required          bool        `json:"required"`
+	Received          bool        `json:"received"`
+	Category          string      `json:"category"`
+	PossibleValues    []string    `json:"possibleValues"`
+	DisableEditAgency bool        `json:"disableEditAgency"`
 }
 
 // Restore type for an app
