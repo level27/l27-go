@@ -581,6 +581,23 @@ func (c *Client) AppComponentCronLookup(appID IntID, componentID IntID, name str
 	return results, nil
 }
 
+// PUT /apps/{appID}/components/{componentID}/crons/{cronID}/actions
+func (c *Client) AppComponentCronAction(appID IntID, componentID IntID, cronID IntID, actionType string) (AppComponentCron, error) {
+	var req struct {
+		Type string `json:"type"`
+	}
+	req.Type = actionType
+
+	var resp struct {
+		Cron AppComponentCron `json:"cron"`
+	}
+
+	endpoint := fmt.Sprintf("apps/%d/components/%d/crons/%d/actions", appID, componentID, cronID)
+	err := c.invokeAPI("POST", endpoint, req, &resp)
+
+	return resp.Cron, err
+}
+
 // main structure of an app
 type App struct {
 	AppRef
