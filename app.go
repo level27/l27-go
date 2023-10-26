@@ -747,11 +747,14 @@ type AppComponent struct {
 	} `json:"systemgroup"`
 	Systems []struct {
 		Cookbooks []interface{} `json:"cookbooks"`
-		Fqdn      string        `josn:"fqdn"`
+		Fqdn      string        `json:"fqdn"`
 		ID        IntID         `json:"id"`
 		Name      string        `json:"name"`
 	} `json:"systems"`
 	LimitGroup *string `json:"limitGroup"`
+	Attachment *struct {
+		ID IntID `json:""`
+	}
 }
 
 // type appcomponent category
