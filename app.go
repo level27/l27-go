@@ -598,6 +598,74 @@ func (c *Client) AppComponentCronAction(appID IntID, componentID IntID, cronID I
 	return resp.Cron, err
 }
 
+// GET /apps/{appID}/components/{componentID}/domains
+func (c *Client) AppComponentDomainGetList(appID IntID, componentID IntID, params CommonGetParams) ([]AppComponentDomainShort, error) {
+	var resp struct {
+		ComponentHasDomains []AppComponentDomainShort `json:"componentHasDomains"`
+	}
+
+	endpoint := fmt.Sprintf("apps/%d/components/%d/domains?%s", appID, componentID, formatCommonGetParams(params))
+	err := c.invokeAPI("GET", endpoint, nil, &resp)
+
+	return resp.ComponentHasDomains, err
+}
+
+// GET /apps/{appID}/components/{componentID}/domains/{domainID}
+func (c *Client) AppComponentDomainGetSingle(appID IntID, componentID IntID, domainID IntID) (AppComponentDomain, error) {
+	var resp struct {
+		Domain AppComponentDomain `json:"componentHasDomain"`
+	}
+
+	endpoint := fmt.Sprintf("apps/%d/components/%d/domains/%d", appID, componentID, domainID)
+	err := c.invokeAPI("GET", endpoint, nil, &resp)
+
+	return resp.Domain, err
+}
+
+// POST /apps/{appID}/components/{componentID}/domains
+func (c *Client) AppComponentDomainCreate(appID IntID, componentID IntID, data AppComponentDomainCreate) (AppComponentDomain, error) {
+	var resp struct {
+		Domain AppComponentDomain `json:"componentHasDomain"`
+	}
+
+	endpoint := fmt.Sprintf("apps/%d/components/%d/domains", appID, componentID)
+	err := c.invokeAPI("POST", endpoint, data, &resp)
+
+	return resp.Domain, err
+}
+
+// PUT /apps/{appID}/components/{componentID}/domains/{domainID}
+func (c *Client) AppComponentDomainUpdate(appID IntID, componentID IntID, domainID IntID, data AppComponentDomainUpdate) error {
+	endpoint := fmt.Sprintf("apps/%d/components/%d/domains/%d", appID, componentID, domainID)
+	err := c.invokeAPI("PUT", endpoint, data, nil)
+
+	return err
+}
+
+// DELETE /apps/{appID}/components/{componentID}/domains/{domainID}
+func (c *Client) AppComponentDomainDelete(appID IntID, componentID IntID, domainID IntID) error {
+	endpoint := fmt.Sprintf("apps/%d/components/%d/domains/%d", appID, componentID, domainID)
+	err := c.invokeAPI("DELETE", endpoint, nil, nil)
+
+	return err
+}
+
+func (c *Client) AppComponentDomainLookup(appID IntID, componentID IntID, name string) ([]AppComponentDomainShort, error) {
+	results := []AppComponentDomainShort{}
+	domains, err := c.AppComponentDomainGetList(appID, componentID, CommonGetParams{Filter: name})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, domain := range domains {
+		if name == fmt.Sprintf("%s.%s", domain.Domain.Name, domain.Domain.Domaintype.Extension) {
+			results = append(results, domain)
+		}
+	}
+
+	return results, nil
+}
+
 // main structure of an app
 type App struct {
 	AppRef
@@ -1172,4 +1240,82 @@ func (cron AppComponentCron) ToShort() AppComponentCronShort {
 	short.Appcomponent.Status = cron.Appcomponent.Status
 
 	return short
+}
+
+type AppComponentDomainShort struct {
+	ID          IntID                          `json:"id"`
+	Status      string                         `json:"status"`
+	HandleDNS   bool                           `json:"handleDns"`
+	DKIM        bool                           `json:"dkim"`
+	DKIMRecords []AppComponentDomainDKIMRecord `json:"dkimRecords"`
+	Domain      struct {
+		ID         IntID  `json:"id"`
+		Name       string `json:"name"`
+		Domaintype struct {
+			ID        IntID  `json:"id"`
+			Extension string `json:"extension"`
+		} `json:"domaintype"`
+	} `json:"domain"`
+	Appcomponent struct {
+		ID               IntID  `json:"id"`
+		Name             string `json:"name"`
+		Appcomponenttype string `json:"appcomponenttype"`
+	} `json:"appcomponent"`
+	StatusCategory string `json:"statusCategory"`
+}
+
+type AppComponentDomain struct {
+	ID          IntID                          `json:"id"`
+	Status      string                         `json:"status"`
+	HandleDNS   bool                           `json:"handleDns"`
+	DKIM        bool                           `json:"dkim"`
+	DKIMRecords []AppComponentDomainDKIMRecord `json:"dkimRecords"`
+	Domain      struct {
+		ID            IntID  `json:"id"`
+		Name          string `json:"name"`
+		HandleDNS     bool   `json:"handleDns"`
+		HandleMailDNS bool   `json:"handleMailDns"`
+		Domaintype    struct {
+			ID        IntID  `json:"id"`
+			Extension string `json:"extension"`
+		} `json:"domaintype"`
+	} `json:"domain"`
+	Appcomponent struct {
+		ID               IntID  `json:"id"`
+		Name             string `json:"name"`
+		Appcomponenttype string `json:"appcomponenttype"`
+	} `json:"appcomponent"`
+	StatusCategory string `json:"statusCategory"`
+}
+
+func (domain AppComponentDomain) ToShort() AppComponentDomainShort {
+	var short AppComponentDomainShort
+	short.ID = domain.ID
+	short.Status = domain.Status
+	short.HandleDNS = domain.HandleDNS
+	short.DKIM = domain.DKIM
+	short.DKIMRecords = domain.DKIMRecords
+	short.Domain.ID = domain.Domain.ID
+	short.Domain.Domaintype = domain.Domain.Domaintype
+	short.Domain.Name = domain.Domain.Name
+	short.Appcomponent = domain.Appcomponent
+	short.StatusCategory = domain.StatusCategory
+	return short
+}
+
+type AppComponentDomainDKIMRecord struct {
+	Name    string `json:"name"`
+	Content string `json:"content"`
+}
+
+type AppComponentDomainCreate struct {
+	Domain    IntID `json:"domain"`
+	HandleDNS bool  `json:"handleDns"`
+	DKIM      bool  `json:"dkim"`
+}
+
+type AppComponentDomainUpdate struct {
+	Domain    IntID `json:"domain"`
+	HandleDNS bool  `json:"handleDns"`
+	DKIM      bool  `json:"dkim"`
 }
