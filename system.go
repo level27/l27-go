@@ -229,6 +229,25 @@ func (c *Client) SystemAction(id IntID, action string) (System, error) {
 	return response.System, err
 }
 
+// POST /systems/{systemId}/actions for startMaintenance
+func (c *Client) SystemActionStartMaintenance(systemId IntID, stopMaintenance int32) (System, error) {
+	var request struct {
+		Type            string `json:"type"`
+		StopMaintenance int32  `json:"stopMaintenance"`
+	}
+
+	var response struct {
+		System System `json:"system"`
+	}
+
+	request.Type = "startMaintenance"
+	request.StopMaintenance = stopMaintenance
+	endpoint := fmt.Sprintf("systems/%d/actions", systemId)
+	err := c.invokeAPI("POST", endpoint, request, &response)
+
+	return response.System, err
+}
+
 // ---------------- Delete
 func (c *Client) SystemDelete(id IntID) error {
 	endpoint := fmt.Sprintf("systems/%v", id)
@@ -758,6 +777,8 @@ type System struct {
 		ID   IntID  `json:"id"`
 		Name string `json:"name"`
 	} `json:"preferredparentsystem"`
+	Maintenance      bool   `json:"maintenance"`
+	DtMaintenanceEnd string `json:"dtMaintenanceEnd"`
 }
 
 type SystemImage struct {
