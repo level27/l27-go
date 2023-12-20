@@ -804,21 +804,7 @@ type AppComponent struct {
 		ID   IntID       `json:"id"`
 		Name interface{} `json:"name"`
 	} `json:"provider"`
-	SelectedSystem *struct {
-		ID   IntID  `json:"id"`
-		Name string `json:"name"`
-	} `json:"selectedSystem"`
-	Status      string `json:"status"`
-	Systemgroup *struct {
-		ID   IntID  `json:"id"`
-		Name string `json:"name"`
-	} `json:"systemgroup"`
-	Systems []struct {
-		Cookbooks []interface{} `json:"cookbooks"`
-		Fqdn      string        `json:"fqdn"`
-		ID        IntID         `json:"id"`
-		Name      string        `json:"name"`
-	} `json:"systems"`
+	Status     string  `json:"status"`
 	LimitGroup *string `json:"limitGroup"`
 	Attachment *struct {
 		ID IntID `json:""`
