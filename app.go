@@ -870,8 +870,14 @@ func (b *AppComponentAllowedActions) UnmarshalJSON(data []byte) error {
 
 type AppComponentTypeParameter struct {
 	Name               string      `json:"name"`
-	DisplayName        string      `json:"displayName"`
-	Description        string      `json:"description"`
+	DisplayName  struct{
+		En string `json:"en"`
+		Nl string `json:"nl"`
+	}      `json:"displayName"`
+	Description struct{
+		En string `json:"en"`
+		Nl string `json:"nl"`
+	}  `json:"description"`
 	Type               string      `json:"type"`
 	DefaultValue       interface{} `json:"defaultValue"`
 	Readonly           bool        `json:"readonly"`
